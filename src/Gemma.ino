@@ -3,6 +3,7 @@
 #include "MW_Strip.h"
 #include "MW_Uploader.h"
 #include <NeoPixelBrightnessBus.h>
+#include "ConfigurationManager.h"
 
 
 
@@ -20,22 +21,34 @@
 
 #define LEDS_PER_STRIP 81
 
-
+#define FW_UPDATE_TIME 5000
   float hue;
   float potValue;
   uint16_t lastPotValue;
 
 void setup()
 {
+    ConfigManager_Initialize();
+    //ConfigManager_Parameters().NumberOfLEDs
     Serial.begin(115200); 
 
-    //lastPotValue=analogRead(PIN_POT);
+    MWST_InitializeStrip(STRIP_LEFT, LEDS_PER_STRIP, 0, LEDS_PER_STRIP);
 
-
-    Serial.println(touchRead(PIN_LEFT_SENSOR));  
-
+    //lastPotValue=analogRead(PIN_POT)
     if (touchRead(PIN_LEFT_SENSOR)<CAPACITIVE_TOUCH_THRESHOLD)
     {
+      uint32_t startTime = millis();
+      MWST_SetStripColor(STRIP_LEFT, RgbwColor(0xFF,0,0xFF,0));
+      while(touchRead(PIN_LEFT_SENSOR)<CAPACITIVE_TOUCH_THRESHOLD & millis()-startTime<FW_UPDATE_TIME);
+      if (millis()-startTime<FW_UPDATE_TIME < FW_UPDATE_TIME)
+      {
+          
+
+      }
+      MWST_SetStripColor(STRIP_LEFT, RgbwColor(0xFF,0,0,0));
+
+      
+
       MWUP_EnterBootloaderMode();
     }
 
@@ -44,7 +57,7 @@ void setup()
     MWIH_EnableInputSensor(MWIH_RIGHT_SENSOR, PIN_RIGHT_SENSOR);
     MWSM_InitalizeStateMachine();
     
-    MWST_InitializeStrip(STRIP_LEFT, LEDS_PER_STRIP, 0, LEDS_PER_STRIP); 
+     
 
 
     
@@ -77,10 +90,6 @@ void readPot()
 
     if (potValue<(4095-2048))
     {
-    
-
-;
-    Serial.println(hue);
       
     MWST_SetStripColor(STRIP_LEFT, RgbwColor(HsbColor(hue,0.8f,1.0f)));
     

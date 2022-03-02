@@ -6,7 +6,7 @@
 #define PIN_STRIP_LEFT  17
 #define PIN_STRIP_RIGHT 17
 
-#define LEDS_PER_STRIP 81
+#define LEDS_PER_STRIP 105
 
 #define MAX_BRIGHTNESS 255
 
@@ -74,10 +74,6 @@ void increase(MWST_TypeStripConfig *strip, uint32_t color)
 void MWST_InitializeStrip(uint8_t stripType, uint8_t numberOfLEDs, uint8_t numLEDsStart, uint8_t numLEDsStop)
 {
 
-  /*Adafruit_NeoPixel strip(numberOfLEDs, pins[0], NEO_GRBW + NEO_KHZ800);
-    strip.begin();
-    strip.fill(0xff000000, 0, numberOfLEDs);
-    strip.show();*/
 
   strips[stripType].stripType = stripType;
   strips[stripType].currentState = MWST_DISABLED;
@@ -136,14 +132,13 @@ void MWST_SetStripState(uint8_t stripType, bool state, uint8_t typeOfEffect)
   if (state == MWST_ENABLED)
   {
     newColor = strips[stripType].currentColor;
-    //stripLeft.SetBrightness(strips[stripType].brightness);
-    // strips[stripType].brightness = newColor; //TODO: To fix this
-    //strips[stripType].brightness = 255;
+    increaseBrightness = false;
   }
   else
   {
     newColor = RgbwColor(0, 0, 0, 0);
-    strips[stripType].brightness = 0;
+    //strips[stripType].brightness = 0;
+    increaseBrightness = true;
   }
 
   switch (typeOfEffect)
@@ -162,69 +157,10 @@ void MWST_ToggleStripState(uint8_t stripType, uint8_t typeOfEffect)
   MWST_SetStripState(stripType, !strips[stripType].currentState, typeOfEffect);
 }
 
-/*
-  void MWST_IncreaseStripIlumination(uint8_t stripType, uint8_t steps)
-  {
-  //strips[STRIP_LEFT].currentColor;
-
-  //Serial.println("Current Color");
-  //Serial.println(strips[STRIP_LEFT].brightness,HEX);
-
-  delay(5);
-
-  if (strips[stripType].brightness <= (MWST_WHITE - steps))
-  {
-    strips[STRIP_LEFT].brightness += (steps << 24);
-
-    //Serial.println("new color");
-    //Serial.println(strips[STRIP_LEFT].brightness,HEX);
-
-
-  /*    if (stripLeftCfg.doubleStrip)
-    {
-      for (uint8_t i = stripLeftCfg.numLEDsStart; i <= stripLeftCfg.numLEDsStop; i++)
-      {
-        stripLeftCfg.strip.setPixelColor(i, stripLeftCfg.brightness);
-        stripLeftCfg.strip2.setPixelColor(i, stripLeftCfg.brightness);
-      }
-      stripLeftCfg.strip.show();
-      stripLeftCfg.strip2.show();
-    }
-    else
-
-      strips[STRIP_LEFT].strip.ClearTo(strips[stripType].brightness);
-
-      strips[STRIP_LEFT].strip.Show();
-
-
-    //}
-  }
-  }
-*/
-/*
-  void MWST_IncreaseStripIlumination(uint8_t stripType, uint8_t steps)
-  {
-  delay(5);
-
-
-  Serial.println(strips[STRIP_LEFT].brightness);
-  if (strips[stripType].brightness <= (MAX_BRIGHTNESS - steps))
-  {
-      strips[STRIP_LEFT].brightness += steps;
-      stripLeft.ClearTo(strips[STRIP_LEFT].currentColor);
-
-      stripLeft.SetBrightness(strips[STRIP_LEFT].brightness);
-
-      stripLeft.Show();
-  }
-  }
-*/
-
 
 void MWST_IncreaseStripIlumination(uint8_t stripType, uint8_t steps)
 {
   delay(5);
-
 
   if (increaseBrightness && (strips[STRIP_LEFT].brightness < (MAX_BRIGHTNESS - steps)))
   {
