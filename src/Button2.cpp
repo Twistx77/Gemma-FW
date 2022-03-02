@@ -23,7 +23,14 @@ Button2::Button2(byte attachTo, byte buttonMode /* = INPUT_PULLUP */, boolean is
 /////////////////////////////////////////////////////////////////
 
 void Button2::begin(byte attachTo, byte buttonMode /* = INPUT_PULLUP */, boolean isCapacitive /* = false */, boolean activeLow /* = true */) {  
+  uint16_t temp=0;
   pin = attachTo;
+  for (int i=0; i<10; i++)
+    temp += touchRead(pin);
+    threshold = temp/10;
+
+  threshold = threshold * 0.85;
+
   longclick_detected_retriggerable = false;
   setDebounceTime(DEBOUNCE_MS);
   setLongClickTime(LONGCLICK_MS);
@@ -184,13 +191,15 @@ void Button2::loop() {
     if (!capacitive) {
       state = digitalRead(pin);
     } else {
-      #if defined(ARDUINO_ARCH_ESP32)
-        uint16_t capa=0;
-      	for (int i=0; i<10; i++)
+      #if defined(ARDUINO_ARCH_ESP32)        
+        uint16_t capa=0;   
+        
+      	for (int i=0; i<5; i++)
           capa += touchRead(pin);
-        capa = capa/10;
-        Serial.println(capa);
-        state = capa < CAPACITIVE_TOUCH_THRESHOLD ? LOW : HIGH;
+        capa = capa/5;
+        //sSerial.println(capa);
+        
+        state = capa < threshold ? LOW : HIGH;
         
         
       #endif

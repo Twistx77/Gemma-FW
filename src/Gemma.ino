@@ -18,7 +18,7 @@
 #define PIN_RIGHT_SENSOR 13
 #define PIN_LEFT_SENSOR 12
 
-#define LEDS_PER_STRIP 51
+#define LEDS_PER_STRIP 81
 
 
   float hue;

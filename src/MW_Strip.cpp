@@ -6,7 +6,7 @@
 #define PIN_STRIP_LEFT  17
 #define PIN_STRIP_RIGHT 17
 
-#define LEDS_PER_STRIP 51
+#define LEDS_PER_STRIP 81
 
 #define MAX_BRIGHTNESS 255
 
@@ -239,6 +239,7 @@ void MWST_IncreaseStripIlumination(uint8_t stripType, uint8_t steps)
     {
       increaseBrightness = false;
     }
+    strips[stripType].currentState = MWST_ENABLED;
 
   }
   else if ((increaseBrightness == false) && (strips[STRIP_LEFT].brightness >  (0 + steps)))
@@ -254,5 +255,6 @@ void MWST_IncreaseStripIlumination(uint8_t stripType, uint8_t steps)
     {
       increaseBrightness = true;
     }
+    strips[stripType].currentState = MWST_ENABLED;
   }
 }
