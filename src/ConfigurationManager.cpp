@@ -3,7 +3,7 @@
 #include "EEPROM.h"
 
 
-uint32_t ConfigParamaters[Number_Of_Parameters];
+uint32_t ConfigParamaters[NumberOfParameters];
 
 void ConfigManager_Initialize()
 {
@@ -44,5 +44,5 @@ void ConfigManager_ReadConfigFromEEPROM()
 void ConfigManager_WriteParameter(uint8_t paramId, uint32_t value)
 {   
 
-    ConfigParamaters[paramId]
+    ConfigParamaters[paramId];
 }

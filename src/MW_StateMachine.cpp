@@ -108,7 +108,6 @@ void StandByState()
       {
         currentColorIndex = 0;
       }
-      //MWST_SetStripColor(STRIP_BOTH, MWST_COLOR_PALETTE[currentColorIndex]);
 
       break;
 

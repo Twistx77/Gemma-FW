@@ -120,13 +120,13 @@ void MWST_SetStripState(uint8_t stripType, bool state, uint8_t typeOfEffect)
   if (state == MWST_ENABLED)
   {
     newColor = strips[stripType].currentColor;
-    increaseBrightness = false;
+    //increaseBrightness = false;
   }
   else
   {
     newColor = RgbwColor(0, 0, 0, 0);
     // strips[stripType].brightness = 0;
-    increaseBrightness = true;
+    //increaseBrightness = true;
   }
 
   switch (typeOfEffect)
@@ -176,7 +176,43 @@ void MWST_IncreaseStripIlumination(uint8_t stripType, uint8_t steps)
     if (strips[STRIP_LEFT].brightness == 0)
     {
       increaseBrightness = true;
+      strips[stripType].currentState = MWST_DISABLED;
     }
     strips[stripType].currentState = MWST_ENABLED;
   }
 }
+/*
+void MWST_IncreaseStripIlumination(uint8_t stripType, uint8_t steps)
+{
+  delay(5);
+
+  if ((strips[STRIP_LEFT].brightness < (MAX_BRIGHTNESS - steps)))
+  {
+    strips[STRIP_LEFT].brightness += steps;
+    stripLeft.ClearTo(strips[STRIP_LEFT].currentColor);
+
+    stripLeft.SetBrightness(strips[STRIP_LEFT].brightness);
+
+    stripLeft.Show();
+
+    strips[stripType].currentState = MWST_ENABLED;
+  }
+  else if (strips[STRIP_LEFT].brightness > (0 + steps))
+  {
+    strips[STRIP_LEFT].brightness -= steps;
+    stripLeft.ClearTo(strips[STRIP_LEFT].currentColor);
+
+    stripLeft.SetBrightness(strips[STRIP_LEFT].brightness);
+
+    stripLeft.Show();
+
+    if (strips[STRIP_LEFT].brightness == 0)
+    {
+      strips[stripType].currentState = MWST_DISABLED;
+    }
+
+    strips[stripType].currentState = MWST_ENABLED;
+  }
+}
+
+*/
