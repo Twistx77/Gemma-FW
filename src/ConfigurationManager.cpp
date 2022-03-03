@@ -2,7 +2,8 @@
 #include "ConfigurationManager.h"
 #include "EEPROM.h"
 
-TypeConfigParameters ConfigParamaters;
+
+uint32_t ConfigParamaters[Number_Of_Parameters];
 
 void ConfigManager_Initialize()
 {
@@ -40,7 +41,8 @@ void ConfigManager_ReadConfigFromEEPROM()
     }
 }
 
-TypeConfigParameters ConfigManager_Parameters()
-{
-    return ConfigParamaters;
+void ConfigManager_WriteParameter(uint8_t paramId, uint32_t value)
+{   
+
+    ConfigParamaters[paramId]
 }

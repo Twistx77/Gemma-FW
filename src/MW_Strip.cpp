@@ -1,15 +1,12 @@
 
 #include "MW_Strip.h"
 
-
-
-#define PIN_STRIP_LEFT  17
+#define PIN_STRIP_LEFT 17
 #define PIN_STRIP_RIGHT 17
 
 #define LEDS_PER_STRIP 105
 
 #define MAX_BRIGHTNESS 255
-
 
 bool bothStripsEnabled = MWST_DISABLED;
 
@@ -29,15 +26,13 @@ typedef struct
   uint16_t delayAnimation;
 } MWST_TypeStripConfig;
 
+NeoPixelBrightnessBus<NeoRgbwFeature, Neo800KbpsMethod> stripLeft(LEDS_PER_STRIP, PIN_STRIP_LEFT);
+NeoPixelBrightnessBus<NeoRgbwFeature, Neo800KbpsMethod> stripRight(LEDS_PER_STRIP, PIN_STRIP_RIGHT);
 
-NeoPixelBrightnessBus <NeoRgbwFeature, Neo800KbpsMethod> stripLeft(LEDS_PER_STRIP, PIN_STRIP_LEFT);
-NeoPixelBrightnessBus <NeoRgbwFeature, Neo800KbpsMethod> stripRight(LEDS_PER_STRIP, PIN_STRIP_RIGHT);
-
-NeoPixelBrightnessBus <NeoRgbwFeature, Neo800KbpsMethod>  stripsHW[] = { stripLeft, stripRight};
+NeoPixelBrightnessBus<NeoRgbwFeature, Neo800KbpsMethod> stripsHW[] = {stripLeft, stripRight};
 
 MWST_TypeStripConfig stripLeftCfg, stripRightCfg, stripBothCfg;
 MWST_TypeStripConfig strips[] = {stripLeftCfg, stripRightCfg, stripBothCfg};
-
 
 void effectProgressive(MWST_TypeStripConfig *strip, uint8_t firstLED, uint8_t lastLED, RgbwColor color, uint16_t waitBetweenLeds)
 {
@@ -61,20 +56,11 @@ void effectProgressive(MWST_TypeStripConfig *strip, uint8_t firstLED, uint8_t la
       stripLeft.Show();
       delay(waitBetweenLeds);
     }
-
   }
-}
-
-
-void increase(MWST_TypeStripConfig *strip, uint32_t color)
-{
-
 }
 
 void MWST_InitializeStrip(uint8_t stripType, uint8_t numberOfLEDs, uint8_t numLEDsStart, uint8_t numLEDsStop)
 {
-
-
   strips[stripType].stripType = stripType;
   strips[stripType].currentState = MWST_DISABLED;
   strips[stripType].currentColor = RgbwColor(0, 0, 0, 255);
@@ -93,15 +79,11 @@ void MWST_InitializeStrip(uint8_t stripType, uint8_t numberOfLEDs, uint8_t numLE
     stripRight.Show();
   }
 
-
   stripLeft.Begin();
   stripLeft.SetBrightness(255);
   stripLeft.ClearTo(RgbwColor(0, 0, 0, 0));
-  //stripLeft.fill(strips[stripType].currentColor, 0, numberOfLEDs);
+  // stripLeft.fill(strips[stripType].currentColor, 0, numberOfLEDs);
   stripLeft.Show();
-
-  
-
 }
 
 /*void MWST_SetStripColor(uint8_t stripType, uint32_t color)
@@ -115,13 +97,19 @@ void MWST_InitializeStrip(uint8_t stripType, uint8_t numberOfLEDs, uint8_t numLE
 void MWST_SetStripColor(uint8_t stripType, RgbwColor color)
 {
   strips[stripType].currentColor = color;
-
   stripLeft.ClearTo(color);
-  //stripLeft.SetBrightness(strips[stripType].brightness);
   stripLeft.Show();
 
 }
 
+void MWST_SetLEDsColor(uint8_t stripType, RgbwColor color, uint8_t firstLED, uint8_t lastLED)
+{
+    for (uint8_t i = firstLED; i <= lastLED; i++)
+    {
+      stripLeft.SetPixelColor(i, color);     
+    }
+    stripLeft.Show();
+}
 
 void MWST_SetStripState(uint8_t stripType, bool state, uint8_t typeOfEffect)
 {
@@ -137,18 +125,18 @@ void MWST_SetStripState(uint8_t stripType, bool state, uint8_t typeOfEffect)
   else
   {
     newColor = RgbwColor(0, 0, 0, 0);
-    //strips[stripType].brightness = 0;
+    // strips[stripType].brightness = 0;
     increaseBrightness = true;
   }
 
   switch (typeOfEffect)
   {
-    case EFFECT_PROGRESIVE_ON:
-      effectProgressive(&strips[stripType], strips[stripType].numLEDsStart, strips[stripType].numLEDsStop, newColor, strips[stripType].delayAnimation);
-      break;
+  case EFFECT_PROGRESIVE_ON:
+    effectProgressive(&strips[stripType], strips[stripType].numLEDsStart, strips[stripType].numLEDsStop, newColor, strips[stripType].delayAnimation);
+    break;
 
-    default:
-      break;
+  default:
+    break;
   }
 }
 
@@ -156,7 +144,6 @@ void MWST_ToggleStripState(uint8_t stripType, uint8_t typeOfEffect)
 {
   MWST_SetStripState(stripType, !strips[stripType].currentState, typeOfEffect);
 }
-
 
 void MWST_IncreaseStripIlumination(uint8_t stripType, uint8_t steps)
 {
@@ -176,9 +163,8 @@ void MWST_IncreaseStripIlumination(uint8_t stripType, uint8_t steps)
       increaseBrightness = false;
     }
     strips[stripType].currentState = MWST_ENABLED;
-
   }
-  else if ((increaseBrightness == false) && (strips[STRIP_LEFT].brightness >  (0 + steps)))
+  else if ((increaseBrightness == false) && (strips[STRIP_LEFT].brightness > (0 + steps)))
   {
     strips[STRIP_LEFT].brightness -= steps;
     stripLeft.ClearTo(strips[STRIP_LEFT].currentColor);
