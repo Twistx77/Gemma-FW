@@ -58,7 +58,7 @@ void StandByState()
     case MWIH_SINGLE_TAP:
       // Turn ON LED
       Serial.println("Single");
-      MWST_ToggleStripState(STRIP_LEFT, EFFECT_PROGRESIVE_ON);
+      MWST_ToggleStripState(STRIP_LEFT, EFFECT_PROGRESSIVE_FROM_CENTER);
       break;
     case MWIH_DOUBLE_TAP:
       //MWST_ToggleStripState(STRIP_LEFT, EFFECT_PROGRESIVE_ON);
@@ -98,7 +98,7 @@ void StandByState()
     case MWIH_SINGLE_TAP:
       // Turn ON LED
       Serial.println("Single");
-      MWST_ToggleStripState(STRIP_LEFT, EFFECT_PROGRESIVE_ON);
+      MWST_ToggleStripState(STRIP_LEFT, EFFECT_PROGRESSIVE_FROM_CENTER);
       break;
     case MWIH_DOUBLE_TAP:
       //MWST_ToggleStripState(STRIP_LEFT, EFFECT_PROGRESIVE_ON);

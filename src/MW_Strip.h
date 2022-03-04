@@ -11,7 +11,9 @@
 #define STRIP_RIGHT 1
 #define STRIP_BOTH 2
 
-#define EFFECT_PROGRESIVE_ON 1
+#define EFFECT_PROGRESIVE 1
+#define EFFECT_PROGRESSIVE_FROM_CENTER 2
+#define RANDOM_LED 3
 
 void MWST_InitializeStrip(uint8_t stripType, uint8_t numberOfLEDs, uint8_t numLEDsStart, uint8_t numLEDsStop);
 void MWST_ToggleStripState(uint8_t stripType, uint8_t typeOfEffect);
