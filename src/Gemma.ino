@@ -39,15 +39,16 @@ void setup()
       MWUP_EnterBootloaderMode();
     }
 
-    
+    if (touchRead(PIN_RIGHT_SENSOR)<CAPACITIVE_TOUCH_THRESHOLD)
+    {
+      MWUP_EnterBootloaderMode();
+    }
+
     MWIH_EnableInputSensor(MWIH_LEFT_SENSOR, PIN_LEFT_SENSOR);
     MWIH_EnableInputSensor(MWIH_RIGHT_SENSOR, PIN_RIGHT_SENSOR);
     MWSM_InitalizeStateMachine();
     
-    MWST_InitializeStrip(STRIP_LEFT, LEDS_PER_STRIP, 0, LEDS_PER_STRIP); 
-
-
-    
+    MWST_InitializeStrip(STRIP_LEFT, LEDS_PER_STRIP, 0, LEDS_PER_STRIP);    
 }
 
 void loop()
@@ -58,7 +59,7 @@ void loop()
    //debugHandle();
    readPot();
 }
-
+/*
 void readPot()
 {
     potValue = 0;
@@ -95,4 +96,23 @@ void readPot()
  
     }
   
+}*/
+
+
+void readPot()
+{
+    potValue = 0;
+    for (int i=0; i<10; i++)
+    {
+    potValue +=analogRead(PIN_POT);
+    }
+    potValue = potValue/10;
+
+    if (potValue < (lastPotValue - POT_THRESHOLD) || potValue > (lastPotValue + POT_THRESHOLD) )
+    {
+      lastPotValue = potValue;
+    
+    uint8_t brightness = map( potValue, 0, 4095, 0, 255);
+    MWST_SetBrightness(STRIP_LEFT, brightness);
+    }
 }

@@ -221,6 +221,23 @@ void MWST_ToggleStripState(uint8_t stripType, uint8_t typeOfEffect)
 */
 
 
+void MWST_SetBrightness(uint8_t stripType, uint8_t brightness)
+{
+    strips[STRIP_LEFT].brightness = brightness;
+
+    stripLeft.SetBrightness(strips[STRIP_LEFT].brightness);
+
+    if (strips[stripType].currentState == MWST_ENABLED)
+    {
+
+
+    stripLeft.ClearTo(strips[STRIP_LEFT].currentColor);
+
+    stripLeft.Show();
+    }
+
+}
+
 void MWST_IncreaseStripIlumination(uint8_t stripType, uint8_t steps)
 {
   delay(5);

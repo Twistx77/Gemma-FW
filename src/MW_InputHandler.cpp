@@ -110,7 +110,8 @@ void leftSensorTripleTapHandler(Button2 &btn)
 
 void leftSensorLongPressDetectedHandler(Button2 &btn)
 {
-    sensorsLongPressed[MWIH_LEFT_SENSOR] = true;
+    
+    //sensorsLongPressed[MWIH_LEFT_SENSOR] = true;
     if (increaseBrightness)
     {
     increaseBrightness = false;
@@ -125,7 +126,7 @@ void leftSensorLongPressDetectedHandler(Button2 &btn)
 
 void leftSensorLongPressHandler(Button2 &btn)
 {
-    sensorsLongPressed[MWIH_LEFT_SENSOR] = false;   
+   // sensorsLongPressed[MWIH_LEFT_SENSOR] = false;   
     Serial.write(5); 
 }
 
@@ -156,7 +157,7 @@ void rightSensorTripleTapHandler(Button2 &btn)
 
 void rightSensorLongPressDetectedHandler(Button2 &btn)
 {
-    sensorsLongPressed[MWIH_RIGHT_SENSOR] = true;
+   // sensorsLongPressed[MWIH_RIGHT_SENSOR] = true;
     if (increaseBrightness)
     {
     increaseBrightness = false;
@@ -169,7 +170,7 @@ void rightSensorLongPressDetectedHandler(Button2 &btn)
 
 void rightSensorLongPressHandler(Button2 &btn)
 {
-    sensorsLongPressed[MWIH_RIGHT_SENSOR] = false;
+   // sensorsLongPressed[MWIH_RIGHT_SENSOR] = false;
 }
 
 void MWIH_EnableInputSensor(uint8_t sensorType, uint8_t pin)

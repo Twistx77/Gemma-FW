@@ -21,8 +21,6 @@ void MWSM_RunStateMachine()
 {
   MWIH_RunInputHandler(); // Run input handler routine
   StandByState();
-  
-
 }
 
 void CheckPressedActionStandBy()
@@ -33,100 +31,96 @@ void CheckPressedActionStandBy()
     {
 
       MWST_IncreaseStripIlumination(i, 1);
-     
-
     }
-
   }
 }
 
 void StandByState()
 {
 
-
   switch (MWIH_GetEvent(MWIH_LEFT_SENSOR))
   {
-    case MWIH_NO_EVENT:
-      break;
+  case MWIH_NO_EVENT:
+    break;
 
-    case MWIH_PRESSED:
-      sensorPressed[MWIH_LEFT_SENSOR] = true;
-      break;
-    case MWIH_RELEASED:
-      sensorPressed[MWIH_LEFT_SENSOR] = false;
-      break;
-    case MWIH_SINGLE_TAP:
-      // Turn ON LED
-      Serial.println("Single");
-      MWST_ToggleStripState(STRIP_LEFT, EFFECT_PROGRESIVE_ON);
-      break;
-    case MWIH_DOUBLE_TAP:
-      //MWST_ToggleStripState(STRIP_LEFT, EFFECT_PROGRESIVE_ON);
+  case MWIH_PRESSED:
+    sensorPressed[MWIH_LEFT_SENSOR] = true;
+    break;
+  case MWIH_RELEASED:
 
-      currentColorIndex++;
-      if (currentColorIndex >= 8)
-      {
-        currentColorIndex = 0;
-      }
-      //MWST_SetStripColor(STRIP_BOTH, MWST_COLOR_PALETTE[currentColorIndex]);
+    sensorPressed[MWIH_LEFT_SENSOR] = false;
+    break;
+  case MWIH_SINGLE_TAP:
+    // Turn ON LED
+    Serial.println("Single");
+    MWST_ToggleStripState(STRIP_LEFT, EFFECT_PROGRESIVE_ON);
 
-      break;
+    break;
+  case MWIH_DOUBLE_TAP:
+    // MWST_ToggleStripState(STRIP_LEFT, EFFECT_PROGRESIVE_ON);
 
-    case MWIH_TRIPLE_TAP:
-      break;
+    currentColorIndex++;
+    if (currentColorIndex >= 8)
+    {
+      currentColorIndex = 0;
+    }
+    // MWST_SetStripColor(STRIP_BOTH, MWST_COLOR_PALETTE[currentColorIndex]);
 
-    case MWIH_SINGLE_LONG_TAP:
-    
-      MWST_IncreaseStripIlumination(STRIP_LEFT, 1);
-      break;
+    break;
 
-    default:
-      break;
+  case MWIH_TRIPLE_TAP:
+    break;
+
+  case MWIH_SINGLE_LONG_TAP:
+
+    //MWST_IncreaseStripIlumination(STRIP_LEFT, 1);
+    break;
+
+  default:
+    break;
   }
 
   switch (MWIH_GetEvent(MWIH_RIGHT_SENSOR))
   {
-    case MWIH_NO_EVENT:
-      break;
+  case MWIH_NO_EVENT:
+    break;
 
-    case MWIH_PRESSED:
-      sensorPressed[MWIH_RIGHT_SENSOR] = true;
-      break;
-    case MWIH_RELEASED:
-      sensorPressed[MWIH_RIGHT_SENSOR] = false;
-      break;
-    case MWIH_SINGLE_TAP:
-      // Turn ON LED
-      Serial.println("Single");
-      MWST_ToggleStripState(STRIP_LEFT, EFFECT_PROGRESIVE_ON);
-      break;
-    case MWIH_DOUBLE_TAP:
-      //MWST_ToggleStripState(STRIP_LEFT, EFFECT_PROGRESIVE_ON);
+  case MWIH_PRESSED:
+    sensorPressed[MWIH_RIGHT_SENSOR] = true;
+    break;
+  case MWIH_RELEASED:
+    sensorPressed[MWIH_RIGHT_SENSOR] = false;
+    break;
+  case MWIH_SINGLE_TAP:
+    // Turn ON LED
+    Serial.println("Single");
+    MWST_ToggleStripState(STRIP_LEFT, EFFECT_PROGRESIVE_ON);
+    break;
+  case MWIH_DOUBLE_TAP:
+    // MWST_ToggleStripState(STRIP_LEFT, EFFECT_PROGRESIVE_ON);
 
-      currentColorIndex++;
-      if (currentColorIndex >= 8)
-      {
-        currentColorIndex = 0;
-      }
-      //MWST_SetStripColor(STRIP_BOTH, MWST_COLOR_PALETTE[currentColorIndex]);
+    currentColorIndex++;
+    if (currentColorIndex >= 8)
+    {
+      currentColorIndex = 0;
+    }
+    // MWST_SetStripColor(STRIP_BOTH, MWST_COLOR_PALETTE[currentColorIndex]);
 
-      break;
+    break;
 
-    case MWIH_TRIPLE_TAP:
-      break;
+  case MWIH_TRIPLE_TAP:
+    break;
 
-    case MWIH_SINGLE_LONG_TAP:
-    
-      MWST_IncreaseStripIlumination(STRIP_LEFT, 1);
-      break;
+  case MWIH_SINGLE_LONG_TAP:
 
-    default:
-      break;
+    //MWST_IncreaseStripIlumination(STRIP_LEFT, 1);
+    break;
+
+  default:
+    break;
   }
 
- 
-
-  //CheckPressedActionStandBy();
+  // CheckPressedActionStandBy();
 }
 
 void ColorSettingState()
@@ -134,42 +128,42 @@ void ColorSettingState()
 
   switch (MWIH_GetEvent(MWIH_LEFT_SENSOR))
   {
-    case MWIH_NO_EVENT:
-      break;
-    case MWIH_SINGLE_TAP:
-      // Turn ON LED
-      break;
-    case MWIH_DOUBLE_TAP:
-      break;
+  case MWIH_NO_EVENT:
+    break;
+  case MWIH_SINGLE_TAP:
+    // Turn ON LED
+    break;
+  case MWIH_DOUBLE_TAP:
+    break;
 
-    case MWIH_TRIPLE_TAP:
-      break;
+  case MWIH_TRIPLE_TAP:
+    break;
 
-    case MWIH_SINGLE_LONG_TAP:
-      break;
+  case MWIH_SINGLE_LONG_TAP:
+    break;
 
-    default:
-      break;
+  default:
+    break;
   }
 
   switch (MWIH_GetEvent(MWIH_RIGHT_SENSOR))
   {
-    case MWIH_NO_EVENT:
-      break;
-    case MWIH_SINGLE_TAP:
-      // Turn ON LED
+  case MWIH_NO_EVENT:
+    break;
+  case MWIH_SINGLE_TAP:
+    // Turn ON LED
 
-      break;
-    case MWIH_DOUBLE_TAP:
-      break;
+    break;
+  case MWIH_DOUBLE_TAP:
+    break;
 
-    case MWIH_TRIPLE_TAP:
-      break;
+  case MWIH_TRIPLE_TAP:
+    break;
 
-    case MWIH_SINGLE_LONG_TAP:
-      break;
+  case MWIH_SINGLE_LONG_TAP:
+    break;
 
-    default:
-      break;
+  default:
+    break;
   }
 }
