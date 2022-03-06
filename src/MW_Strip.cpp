@@ -4,7 +4,7 @@
 #define PIN_STRIP_LEFT 17
 #define PIN_STRIP_RIGHT 17
 
-#define LEDS_PER_STRIP 105
+#define LEDS_PER_STRIP 51
 
 #define MAX_BRIGHTNESS 255
 
@@ -36,21 +36,38 @@ MWST_TypeStripConfig strips[] = {stripLeftCfg, stripRightCfg, stripBothCfg};
 
 void effectProgressive(MWST_TypeStripConfig *strip, uint8_t firstLED, uint8_t lastLED, RgbwColor color, uint16_t waitBetweenLeds)
 {
-  for (uint8_t led = firstLED; led <= lastLED; led++)
+
+  if (strip->doubleStrip)
   {
-    stripLeft.SetPixelColor(led, color);
-    stripLeft.Show();
-    delay(waitBetweenLeds);
+    for (uint8_t i = firstLED; i <= lastLED; i++)
+    {
+      stripLeft.SetPixelColor(i, color);
+      stripRight.SetPixelColor(i, color);
+      stripLeft.Show();
+      stripRight.Show();
+      delay(waitBetweenLeds);
+    }
+  }
+  else
+  {
+    for (uint8_t i = firstLED; i <= lastLED; i++)
+    {
+      stripLeft.SetPixelColor(i, color);
+      stripLeft.Show();
+      delay(waitBetweenLeds);
+    }
   }
 }
 
 void effectProgressiveFromCenter(MWST_TypeStripConfig *strip, uint8_t firstLED, uint8_t lastLED, RgbwColor color, uint16_t waitBetweenLeds)
 {
-  uint8_t centerLED = lastLED - firstLED;
+  uint8_t centerLED = (lastLED - firstLED)/2;
   if (centerLED % 2 != 0)
   {
     centerLED=+1;
   }
+  Serial.print("Center LED ");
+  Serial.println(centerLED);
   for (uint8_t led = centerLED; led <= lastLED; led++)
   {
     stripLeft.SetPixelColor(led, color);
@@ -128,15 +145,16 @@ void MWST_SetStripColor(uint8_t stripType, RgbwColor color)
   strips[stripType].currentColor = color;
   stripLeft.ClearTo(color);
   stripLeft.Show();
+
 }
 
 void MWST_SetLEDsColor(uint8_t stripType, RgbwColor color, uint8_t firstLED, uint8_t lastLED)
 {
-  for (uint8_t i = firstLED; i <= lastLED; i++)
-  {
-    stripLeft.SetPixelColor(i, color);
-  }
-  stripLeft.Show();
+    for (uint8_t i = firstLED; i <= lastLED; i++)
+    {
+      stripLeft.SetPixelColor(i, color);     
+    }
+    stripLeft.Show();
 }
 
 void MWST_SetStripState(uint8_t stripType, bool state, uint8_t typeOfEffect)
@@ -148,13 +166,13 @@ void MWST_SetStripState(uint8_t stripType, bool state, uint8_t typeOfEffect)
   if (state == MWST_ENABLED)
   {
     newColor = strips[stripType].currentColor;
-    // increaseBrightness = false;
+    //increaseBrightness = false;
   }
   else
   {
     newColor = RgbwColor(0, 0, 0, 0);
     // strips[stripType].brightness = 0;
-    // increaseBrightness = true;
+    //increaseBrightness = true;
   }
 
   switch (typeOfEffect)
@@ -167,7 +185,7 @@ void MWST_SetStripState(uint8_t stripType, bool state, uint8_t typeOfEffect)
     effectProgressiveFromCenter(&strips[stripType], strips[stripType].numLEDsStart, strips[stripType].numLEDsStop, newColor, strips[stripType].delayAnimation);
   break;
 
-  case RANDOM_LED:
+  case EFFECT_RANDOM_LED:
     effectRandomLED(&strips[stripType], strips[stripType].numLEDsStart, strips[stripType].numLEDsStop, newColor, strips[stripType].delayAnimation);
   break;
 

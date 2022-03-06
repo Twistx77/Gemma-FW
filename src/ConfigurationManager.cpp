@@ -1,15 +1,16 @@
 
 #include "ConfigurationManager.h"
 #include "EEPROM.h"
+#include "DefaultConfig.h"
 
-
-uint32_t ConfigParamaters[NumberOfParameters];
+uint32_t ConfigParamaters[NumberOfParameters] = {FW_MAJOR, FW_MINOR, FW_PATCH, MAX_NUMBER_OF_LEDS};
 
 void ConfigManager_Initialize()
 {
     EEPROM.begin(sizeof(ConfigParamaters));
     if(EEPROM.read(0) != FW_MAJOR || EEPROM.read(1) != FW_MINOR || EEPROM.read(0) != FW_PATCH )
     {
+
         ConfigManager_WriteConfigToEEPROM();
     }
     else
@@ -43,6 +44,10 @@ void ConfigManager_ReadConfigFromEEPROM()
 
 void ConfigManager_WriteParameter(uint8_t paramId, uint32_t value)
 {   
+    ConfigParamaters[paramId] = value;
+}
 
-    ConfigParamaters[paramId];
+uint32_t ConfigManager_ReadParameter(uint8_t paramId)
+{   
+    return ConfigParamaters[paramId];
 }

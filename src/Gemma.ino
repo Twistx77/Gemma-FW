@@ -14,27 +14,30 @@
 
 #define CAPACITIVE_TOUCH_THRESHOLD 11
 
-#define PIN_RIGHT_SENSOR 13
-#define PIN_LEFT_SENSOR 12
+#define PIN_RIGHT_SENSOR 12
+#define PIN_LEFT_SENSOR 13 //12 is the correct one for the rest of the devices
 
-#define LEDS_PER_STRIP 81
+
 
 #define FW_UPDATE_TIME 5000
 
 float hue;
 float potValue;
 uint16_t lastPotValue;
+uint32_t NumberOfLedsStrip = MAX_NUMBER_OF_LEDS;
 
 void setup()
 {
   ConfigManager_Initialize();
-  // ConfigManager_Parameters().NumberOfLEDs
+  
+  NumberOfLedsStrip = ConfigManager_ReadParameter(PARAM_NUMBER_OF_LEDS);
+
   Serial.begin(115200);
 
   if (touchRead(PIN_LEFT_SENSOR) < CAPACITIVE_TOUCH_THRESHOLD)
   {
     while(touchRead(PIN_LEFT_SENSOR) < CAPACITIVE_TOUCH_THRESHOLD);
-    MWST_InitializeStrip(STRIP_LEFT, LEDS_PER_STRIP, 0, MAX_NUMBER_OF_LEDS);
+    MWST_InitializeStrip(STRIP_LEFT, NumberOfLedsStrip, 0, MAX_NUMBER_OF_LEDS);
 
     // If the pot is set to one side, we adjust the numbers of LEDs otherwise we go into upload mode
     if (analogRead(PIN_POT) > 2048)
@@ -49,6 +52,7 @@ void setup()
         {
           MWST_SetLEDsColor(STRIP_LEFT, RgbwColor(0, 0, 0, 0xFF), 0,  numberOfLEDs);
           //ConfigManager_Parameters().NumberOfLEDs = numberOfLEDs;
+          ConfigManager_WriteParameter(PARAM_NUMBER_OF_LEDS,numberOfLEDs);
           ConfigManager_WriteConfigToEEPROM();
         }
       }
@@ -59,6 +63,8 @@ void setup()
       MWUP_EnterBootloaderMode();
     }
   }
+
+  MWST_InitializeStrip(STRIP_LEFT, LEDS_PER_STRIP, 0, 51);
 
   MWIH_EnableInputSensor(MWIH_LEFT_SENSOR, PIN_LEFT_SENSOR);
   MWIH_EnableInputSensor(MWIH_RIGHT_SENSOR, PIN_RIGHT_SENSOR);
