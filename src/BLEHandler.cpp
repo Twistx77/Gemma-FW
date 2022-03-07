@@ -9,11 +9,7 @@
 
 BLEServer *pServer;
 BLEService *pService;
-BLECharacteristic *pCharacteristic = pService->createCharacteristic(
-                                         CHARACTERISTIC_UUID,
-                                         BLECharacteristic::PROPERTY_READ |
-                                         BLECharacteristic::PROPERTY_WRITE
-                                       );
+BLECharacteristic *pCharacteristic;
 
 void BLEHandler_Initialize()
 {
@@ -21,22 +17,18 @@ void BLEHandler_Initialize()
   pServer = BLEDevice::createServer();
   pService = pServer->createService(SERVICE_UUID);
   pService->start();
-  
-}
-
-
-void setup() {
-  
-   
-  
-
-  pCharacteristic->setValue("Hello World says Neil");
-  
-  // BLEAdvertising *pAdvertising = pServer->getAdvertising();  // this still is working for backward compatibility
+  pCharacteristic = pService->createCharacteristic(
+                                         CHARACTERISTIC_UUID,
+                                         BLECharacteristic::PROPERTY_READ |
+                                         BLECharacteristic::PROPERTY_WRITE
+                                       );
+  pCharacteristic->setValue("Gemma Controller");
   BLEAdvertising *pAdvertising = BLEDevice::getAdvertising();
   pAdvertising->addServiceUUID(SERVICE_UUID);
   pAdvertising->setScanResponse(true);
   pAdvertising->setMinPreferred(0x06);  // functions that help with iPhone connections issue
   pAdvertising->setMinPreferred(0x12);
   BLEDevice::startAdvertising();
+
 }
+

@@ -61,26 +61,24 @@ void effectProgressive(MWST_TypeStripConfig *strip, uint8_t firstLED, uint8_t la
 
 void effectProgressiveFromCenter(MWST_TypeStripConfig *strip, uint8_t firstLED, uint8_t lastLED, RgbwColor color, uint16_t waitBetweenLeds)
 {
-  uint8_t centerLED = (lastLED - firstLED)/2;
+  uint8_t centerLED = (lastLED - firstLED) / 2;
   if (centerLED % 2 != 0)
   {
-    centerLED=+1;
+    centerLED = +1;
   }
   Serial.print("Center LED ");
   Serial.println(centerLED);
   for (uint8_t led = centerLED; led <= lastLED; led++)
   {
     stripLeft.SetPixelColor(led, color);
-    if (centerLED-led>0)
+    if (centerLED - led > 0)
     {
-      stripLeft.SetPixelColor(centerLED-led, color);
+      stripLeft.SetPixelColor(centerLED - led, color);
     }
     stripLeft.Show();
     delay(waitBetweenLeds);
   }
 }
-
-
 
 void effectRandomLED(MWST_TypeStripConfig *strip, uint8_t firstLED, uint8_t lastLED, RgbwColor color, uint16_t waitBetweenLeds)
 {
@@ -89,20 +87,19 @@ void effectRandomLED(MWST_TypeStripConfig *strip, uint8_t firstLED, uint8_t last
   uint8_t r = 0;
 
   randomSeed(millis());
-  for (uint8_t i=0;  i<= strip->numberOfLEDs; i++ )
+  for (uint8_t i = 0; i <= strip->numberOfLEDs; i++)
   {
     leds_array[i] = i;
   }
-  for (uint8_t i=0;  i<= strip->numberOfLEDs; i++ )
+  for (uint8_t i = 0; i <= strip->numberOfLEDs; i++)
   {
-    r = random(max);  
+    r = random(max);
     stripLeft.SetPixelColor(leds_array[r], color);
-    stripLeft.Show();  
-    leds_array[r] = leds_array [max];
-    max =-1;
+    stripLeft.Show();
+    leds_array[r] = leds_array[max];
+    max = -1;
     delay(waitBetweenLeds);
   }
-  
 }
 
 void MWST_InitializeStrip(uint8_t stripType, uint8_t numberOfLEDs, uint8_t numLEDsStart, uint8_t numLEDsStop)
@@ -145,16 +142,29 @@ void MWST_SetStripColor(uint8_t stripType, RgbwColor color)
   strips[stripType].currentColor = color;
   stripLeft.ClearTo(color);
   stripLeft.Show();
+}
 
+void MWST_SetBrightness(uint8_t stripType, uint8_t brightness)
+{
+  strips[STRIP_LEFT].brightness = brightness;
+
+  stripLeft.SetBrightness(strips[STRIP_LEFT].brightness);
+
+  if (strips[stripType].currentState == MWST_ENABLED)
+  {
+    stripLeft.ClearTo(strips[STRIP_LEFT].currentColor);
+
+    stripLeft.Show();
+  }
 }
 
 void MWST_SetLEDsColor(uint8_t stripType, RgbwColor color, uint8_t firstLED, uint8_t lastLED)
 {
-    for (uint8_t i = firstLED; i <= lastLED; i++)
-    {
-      stripLeft.SetPixelColor(i, color);     
-    }
-    stripLeft.Show();
+  for (uint8_t i = firstLED; i <= lastLED; i++)
+  {
+    stripLeft.SetPixelColor(i, color);
+  }
+  stripLeft.Show();
 }
 
 void MWST_SetStripState(uint8_t stripType, bool state, uint8_t typeOfEffect)
@@ -166,13 +176,13 @@ void MWST_SetStripState(uint8_t stripType, bool state, uint8_t typeOfEffect)
   if (state == MWST_ENABLED)
   {
     newColor = strips[stripType].currentColor;
-    //increaseBrightness = false;
+    // increaseBrightness = false;
   }
   else
   {
     newColor = RgbwColor(0, 0, 0, 0);
     // strips[stripType].brightness = 0;
-    //increaseBrightness = true;
+    // increaseBrightness = true;
   }
 
   switch (typeOfEffect)
@@ -183,14 +193,14 @@ void MWST_SetStripState(uint8_t stripType, bool state, uint8_t typeOfEffect)
 
   case EFFECT_PROGRESSIVE_FROM_CENTER:
     effectProgressiveFromCenter(&strips[stripType], strips[stripType].numLEDsStart, strips[stripType].numLEDsStop, newColor, strips[stripType].delayAnimation);
-  break;
+    break;
 
   case EFFECT_RANDOM_LED:
     effectRandomLED(&strips[stripType], strips[stripType].numLEDsStart, strips[stripType].numLEDsStop, newColor, strips[stripType].delayAnimation);
-  break;
+    break;
 
   default:
-  
+
     break;
   }
 }

@@ -3,7 +3,7 @@
 #include "EEPROM.h"
 #include "DefaultConfig.h"
 
-uint32_t ConfigParamaters[NumberOfParameters] = {FW_MAJOR, FW_MINOR, FW_PATCH, MAX_NUMBER_OF_LEDS};
+uint32_t ConfigParamaters[NUMBER_OF_PARAMETERS] = {FW_MAJOR, FW_MINOR, FW_PATCH, MAX_NUMBER_OF_LEDS};
 
 void ConfigManager_Initialize()
 {

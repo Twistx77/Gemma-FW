@@ -3,13 +3,15 @@
 #ifndef _H_MW_INPUTHANDLER
 #define _H_MW_INPUTHANDLER
 
+#define PIN_POT 35
+
+#define POT_THRESHOLD 5
+
 #define MWIH_AVAILABLE_SENSORS 3
 
 #define MWIH_MAIN_SENSOR 0
 #define MWIH_LEFT_SENSOR 1
 #define MWIH_RIGHT_SENSOR 2
-
-
 
 #define MWIH_NO_EVENT 0x00
 #define MWIH_PRESSED 0x01
@@ -21,10 +23,10 @@
 #define MWIH_DOUBLE_LONG_TAP 0x40
 #define MWIH_TRIPLE_LONG_TAP 0x80
 
-
 typedef uint32_t MIWH_TypeEventFlags;
 
 void MWIH_EnableInputSensor(uint8_t sensorType, uint8_t pin);
 void MWIH_RunInputHandler();
 uint32_t MWIH_GetEvent(uint8_t sensor);
+void MWIH_ReadPot();
 #endif

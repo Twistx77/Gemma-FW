@@ -5,12 +5,7 @@
 #include <NeoPixelBrightnessBus.h>
 #include "ConfigurationManager.h"
 #include "DefaultConfig.h"
-
-//#define DEBUG_MINIMUM trues
-//#define DEBUG_INITIAL_LEVEL DEBUG_LEVEL_VERBOSE
-
-#define POT_THRESHOLD 5
-#define PIN_POT 35
+//#include "BLEHandler.h"
 
 #define CAPACITIVE_TOUCH_THRESHOLD 11
 
@@ -21,9 +16,8 @@
 
 #define FW_UPDATE_TIME 5000
 
-float hue;
-float potValue;
-uint16_t lastPotValue;
+
+
 uint32_t NumberOfLedsStrip = MAX_NUMBER_OF_LEDS;
 
 void setup()
@@ -33,6 +27,8 @@ void setup()
   NumberOfLedsStrip = ConfigManager_ReadParameter(PARAM_NUMBER_OF_LEDS);
 
   Serial.begin(115200);
+
+  //BLEHandler_Initialize();
 
   if (touchRead(PIN_LEFT_SENSOR) < CAPACITIVE_TOUCH_THRESHOLD)
   {
@@ -64,7 +60,7 @@ void setup()
     }
   }
 
-  MWST_InitializeStrip(STRIP_LEFT, LEDS_PER_STRIP, 0, 51);
+  MWST_InitializeStrip(STRIP_LEFT, NumberOfLedsStrip, 0, 51);
 
   MWIH_EnableInputSensor(MWIH_LEFT_SENSOR, PIN_LEFT_SENSOR);
   MWIH_EnableInputSensor(MWIH_RIGHT_SENSOR, PIN_RIGHT_SENSOR);
@@ -73,37 +69,7 @@ void setup()
 
 void loop()
 {
-
-  MWSM_RunStateMachine();
-  // printlnD("Event: Left Sensor Released");
-  // debugHandle();
-  readPot();
+  MWSM_RunStateMachine(); 
 }
 
-void readPot()
-{
-  potValue = 0;
-  for (int i = 0; i < 10; i++)
-  {
-    potValue += analogRead(PIN_POT);
-  }
-  potValue = potValue / 10;
 
-  if (potValue < (lastPotValue - POT_THRESHOLD) || potValue > (lastPotValue + POT_THRESHOLD))
-  {
-    lastPotValue = potValue;
-
-    hue = map(potValue, 0, 4095 - 2048, 0, 60000) / 60000.0;
-
-    if (potValue < (4095 - 2048))
-    {
-
-      MWST_SetStripColor(STRIP_LEFT, RgbwColor(HsbColor(hue, 0.8f, 1.0f)));
-    }
-    else
-    {
-
-      MWST_SetStripColor(STRIP_LEFT, RgbwColor(0, 0, map(4095 - potValue, 0, 4095 - 2048, 0, 255), 255));
-    }
-  }
-}
