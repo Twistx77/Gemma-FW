@@ -5,7 +5,7 @@
 #include <NeoPixelBrightnessBus.h>
 #include "ConfigurationManager.h"
 #include "DefaultConfig.h"
-//#include "BLEHandler.h"
+#include "BLEHandler.h"
 
 #define CAPACITIVE_TOUCH_THRESHOLD 11
 
@@ -22,13 +22,14 @@ uint32_t NumberOfLedsStrip = MAX_NUMBER_OF_LEDS;
 
 void setup()
 {
+  MWUP_EnterBootloaderMode();
   ConfigManager_Initialize();
   
   NumberOfLedsStrip = ConfigManager_ReadParameter(PARAM_NUMBER_OF_LEDS);
 
   Serial.begin(115200);
 
-  //BLEHandler_Initialize();
+  BLEHandler_Initialize();
 
   if (touchRead(PIN_LEFT_SENSOR) < CAPACITIVE_TOUCH_THRESHOLD)
   {

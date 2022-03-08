@@ -13,7 +13,7 @@ BLECharacteristic *pCharacteristic;
 
 void BLEHandler_Initialize()
 {
-  BLEDevice::init("Long name works now");
+  BLEDevice::init("Gemma Controller");
   pServer = BLEDevice::createServer();
   pService = pServer->createService(SERVICE_UUID);
   pService->start();
@@ -22,7 +22,7 @@ void BLEHandler_Initialize()
                                          BLECharacteristic::PROPERTY_READ |
                                          BLECharacteristic::PROPERTY_WRITE
                                        );
-  pCharacteristic->setValue("Gemma Controller");
+  pCharacteristic->setValue("Brightness");
   BLEAdvertising *pAdvertising = BLEDevice::getAdvertising();
   pAdvertising->addServiceUUID(SERVICE_UUID);
   pAdvertising->setScanResponse(true);
