@@ -19,9 +19,9 @@
 #define LONGCLICK_MS 200
 #define DOUBLECLICK_MS 300
 #ifndef CAPACITIVE_TOUCH_THRESHOLD 
-#define CAPACITIVE_TOUCH_THRESHOLD 11//9
+#define CAPACITIVE_TOUCH_THRESHOLD 10//9
 #endif
-#define CAPACITIVE_TOUCH_THRESHOLD 11//9
+#define CAPACITIVE_TOUCH_THRESHOLD 10//9*/
 
 #define SINGLE_CLICK 1
 #define DOUBLE_CLICK 2
@@ -32,6 +32,7 @@
 
 class Button2 {
 protected:
+  uint8_t threshold = CAPACITIVE_TOUCH_THRESHOLD;
   byte pin;
   bool capacitive = false;
   byte prev_state;
