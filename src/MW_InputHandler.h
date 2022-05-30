@@ -5,6 +5,7 @@
 
 #define PIN_POT 35
 
+
 #define POT_THRESHOLD 5
 
 #define MWIH_AVAILABLE_SENSORS 3
@@ -27,6 +28,7 @@ typedef uint32_t MIWH_TypeEventFlags;
 
 void MWIH_EnableInputSensor(uint8_t sensorType, uint8_t pin);
 void MWIH_RunInputHandler();
+void MWIH_InitializeRotaryEncoder();
 uint32_t MWIH_GetEvent(uint8_t sensor);
-void MWIH_ReadPot();
+void MWIH_ReadRotary();
 #endif

@@ -30,6 +30,7 @@ void setup()
   Serial.begin(115200);
 
   BLEHandler_Initialize();
+  MWIH_InitializeRotaryEncoder();
 
   if (touchRead(PIN_LEFT_SENSOR) < CAPACITIVE_TOUCH_THRESHOLD)
   {

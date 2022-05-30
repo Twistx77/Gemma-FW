@@ -2,6 +2,18 @@
 #include "MW_InputHandler.h"
 #include "MW_Strip.h"
 #include "Button2.h"
+#include "AiEsp32RotaryEncoder.h"
+
+#define ROTARY_ENCODER_A_PIN 37
+#define ROTARY_ENCODER_B_PIN 10
+#define ROTARY_ENCODER_BUTTON_PIN 11
+
+#define ROTARY_ENCODER_STEPS 4
+
+#define ROTARY_BRIGHTNESS_MODE 0
+#define ROTARY_COLOR_MODE 1
+#define ROTARY_ENCODER_MAX_VALUE 1000
+#define ROTARY_ENCODER_ACCELEARTION 250
 
 Button2 mainSensor, leftSensor, rightSensor;
 
@@ -14,6 +26,9 @@ bool sensorsLongPressed[] = {false, false, false};
 uint32_t sensorEventFlags[3] = {0, 0, 0}; // = {&mainSensorFlags, &leftSensorFlags, &rightSensorFlags};
 
 uint32_t enabledSensors = 0;
+
+AiEsp32RotaryEncoder rotaryEncoder = AiEsp32RotaryEncoder(ROTARY_ENCODER_A_PIN, ROTARY_ENCODER_B_PIN, ROTARY_ENCODER_BUTTON_PIN, -1, ROTARY_ENCODER_STEPS);
+uint8_t rotaryMode = ROTARY_BRIGHTNESS_MODE;
 
 void mainSensorPressHandler(Button2 &btn);
 void mainSensorReleasedHandler(Button2 &btn);
@@ -45,6 +60,11 @@ EventHandlerPointer doubleTapHandlersPointers[] = {mainSensorDoubleTapHandler, l
 EventHandlerPointer tripleTapHandlersPointers[] = {mainSensorTripleTapHandler, leftSensorTripleTapHandler, rightSensorTripleTapHandler};
 EventHandlerPointer longPressDetectedHandlersPointers[] = {mainSensorLongPressDetectedHandler, leftSensorLongPressDetectedHandler, rightSensorLongPressDetectedHandler};
 EventHandlerPointer longPressHandlersPointers[] = {mainSensorLongPressHandler, leftSensorLongPressHandler, rightSensorLongPressHandler};
+
+void IRAM_ATTR readEncoderISR()
+{
+    rotaryEncoder.readEncoder_ISR();
+}
 
 // Main Sensor
 void mainSensorPressHandler(Button2 &btn)
@@ -194,6 +214,18 @@ void MWIH_EnableInputSensor(uint8_t sensorType, uint8_t pin)
     sensorEventFlags[sensorType] = 0; // Clear flags
 }
 
+void MWIH_InitializeRotaryEncoder()
+{
+    rotaryEncoder.begin();
+    rotaryEncoder.setup(readEncoderISR);
+
+    bool circleValues = false;
+    rotaryEncoder.setBoundaries(0, ROTARY_ENCODER_MAX_VALUE, circleValues);
+    rotaryEncoder.setAcceleration(ROTARY_ENCODER_ACCELEARTION);
+
+    rotaryMode = ROTARY_BRIGHTNESS_MODE;
+}
+
 void MWIH_RunInputHandler()
 {
 
@@ -205,7 +237,7 @@ void MWIH_RunInputHandler()
         }
     }
 
-    MWIH_ReadPot();
+    MWIH_ReadRotary();
 }
 
 uint32_t MWIH_GetEvent(uint8_t sensor)
@@ -220,57 +252,50 @@ uint32_t MWIH_GetEvent(uint8_t sensor)
     return temp;
 }
 
-void MWIH_ReadPot()
+void MWIH_ReadRotary()
 {
 
-    float hue;
-    float potValue;
-    static uint16_t lastPotValue;
-
-    if (sensorsLongPressed[MWIH_LEFT_SENSOR] == false || sensorsLongPressed[MWIH_RIGHT_SENSOR] == false)
+    if (rotaryEncoder.isEncoderButtonClicked())
     {
-
-        potValue = 0;
-        for (int i = 0; i < 10; i++)
+        static unsigned long lastTimePressed = 0;
+        // ignore multiple press in that time milliseconds
+        if (millis() - lastTimePressed > 500)
         {
-            potValue += analogRead(PIN_POT);
-        }
-        potValue = potValue / 10;
-
-        if (potValue < (lastPotValue - POT_THRESHOLD) || potValue > (lastPotValue + POT_THRESHOLD))
-        {
-            lastPotValue = potValue;
-
-            uint8_t brightness = map(potValue, 0, 4095, 0, 255);
-            MWST_SetBrightness(STRIP_LEFT, brightness);
+            lastTimePressed = millis();
+            // Serial.println("Button Clicked");
+            if (rotaryMode == ROTARY_BRIGHTNESS_MODE)
+            {
+                rotaryMode == ROTARY_COLOR_MODE;
+            }
+            else
+            {
+                rotaryMode == ROTARY_BRIGHTNESS_MODE;
+            }
         }
     }
-    else
+    if (rotaryEncoder.encoderChanged())
     {
-
-        potValue = 0;
-        for (int i = 0; i < 10; i++)
+        if (rotaryMode == ROTARY_BRIGHTNESS_MODE)
         {
-            potValue += analogRead(PIN_POT);
+            uint8_t brightness = map(rotaryEncoder.readEncoder(), 0, ROTARY_ENCODER_MAX_VALUE, 0, 255);
+            MWST_SetBrightness(STRIP_LEFT, brightness);
         }
-        potValue = potValue / 10;
-
-        if (potValue < (lastPotValue - POT_THRESHOLD) || potValue > (lastPotValue + POT_THRESHOLD))
+        else
         {
-            lastPotValue = potValue;
 
-            hue = map(potValue, 0, 4095 - 2048, 0, 60000) / 60000.0;
-
-            if (potValue < (4095 - 2048))
+            if (rotaryEncoder.readEncoder() < (ROTARY_ENCODER_MAX_VALUE / 2))
             {
-
+                float hue = rotaryEncoder.readEncoder() / 500.0;
                 MWST_SetStripColor(STRIP_LEFT, RgbwColor(HsbColor(hue, 0.8f, 1.0f)));
             }
             else
             {
 
-                MWST_SetStripColor(STRIP_LEFT, RgbwColor(0, 0, map(4095 - potValue, 0, 4095 - 2048, 0, 255), 255));
+                MWST_SetStripColor(STRIP_LEFT, RgbwColor(0, 0, map(rotaryEncoder.readEncoder() - 500, 0, 500, 0, 255), 255));
             }
         }
+
+        // Serial.print("Value: ");
+        // Serial.println(rotaryEncoder.readEncoder());
     }
 }
