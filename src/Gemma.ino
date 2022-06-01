@@ -1,5 +1,4 @@
-#include "MW_InputHandler.h"
-#include "MW_StateMachine.h"
+#include "HMIM_HMIManager.h"
 #include "MW_Strip.h"
 #include "MW_Uploader.h"
 #include <NeoPixelBrightnessBus.h>
@@ -17,7 +16,6 @@
 #define FW_UPDATE_TIME 5000
 
 
-
 uint32_t NumberOfLedsStrip = MAX_NUMBER_OF_LEDS;
 
 void setup()
@@ -29,8 +27,7 @@ void setup()
 
   Serial.begin(115200);
 
-  BLEHandler_Initialize();
-  MWIH_InitializeRotaryEncoder();
+  BLEHandler_Initialize();;
 
   if (touchRead(PIN_LEFT_SENSOR) < CAPACITIVE_TOUCH_THRESHOLD)
   {
@@ -49,7 +46,6 @@ void setup()
         if (touchRead(PIN_LEFT_SENSOR) < CAPACITIVE_TOUCH_THRESHOLD)
         {
           MWST_SetLEDsColor(STRIP_LEFT, RgbwColor(0, 0, 0, 0xFF), 0,  numberOfLEDs);
-          //ConfigManager_Parameters().NumberOfLEDs = numberOfLEDs;
           ConfigManager_WriteParameter(PARAM_NUMBER_OF_LEDS,numberOfLEDs);
           ConfigManager_WriteConfigToEEPROM();
         }
@@ -71,7 +67,7 @@ void setup()
 
 void loop()
 {
-  MWSM_RunStateMachine(); 
+  HMIN_ProcessHMI();
 }
 
 
