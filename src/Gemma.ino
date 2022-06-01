@@ -35,13 +35,13 @@ void setup()
     MWST_InitializeStrip(STRIP_LEFT, NumberOfLedsStrip, 0, MAX_NUMBER_OF_LEDS);
 
     // If the pot is set to one side, we adjust the numbers of LEDs otherwise we go into upload mode
-    if (analogRead(PIN_POT) > 2048)
+    if (analogRead(13) > 2048)
     {
       uint8_t numberOfLEDs;
       
       while(1)
       {
-        numberOfLEDs = map(analogRead(PIN_POT), 0, 4095, 1, MAX_NUMBER_OF_LEDS);
+        numberOfLEDs = map(analogRead(13), 0, 4095, 1, MAX_NUMBER_OF_LEDS);
         MWST_SetLEDsColor(STRIP_LEFT, RgbwColor(0xFF, 0, 0xFF, 0), 0,  numberOfLEDs);
         if (touchRead(PIN_LEFT_SENSOR) < CAPACITIVE_TOUCH_THRESHOLD)
         {
@@ -60,9 +60,6 @@ void setup()
 
   MWST_InitializeStrip(STRIP_LEFT, NumberOfLedsStrip, 0, 51);
 
-  MWIH_EnableInputSensor(MWIH_LEFT_SENSOR, PIN_LEFT_SENSOR);
-  MWIH_EnableInputSensor(MWIH_RIGHT_SENSOR, PIN_RIGHT_SENSOR);
-  MWSM_InitalizeStateMachine();
 }
 
 void loop()
