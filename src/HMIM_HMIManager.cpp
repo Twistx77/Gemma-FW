@@ -7,8 +7,8 @@
 #define LEFT_TS 1
 #define RIGHT_TS 2
 
-#define PIN_CENTER_TS 12 // TODO: REPLACE CONFIG MANAGER
-#define PIN_LEFT_TS 13   // TODO: REPLACE CONFIG MANAGER
+#define PIN_CENTER_TS 13 // TODO: REPLACE CONFIG MANAGER
+#define PIN_LEFT_TS 12   // TODO: REPLACE CONFIG MANAGER
 #define PIN_RIGHT_TS 14  // TODO: REPLACE CONFIG MANAGER
 
 #define DEBOUNCE_TIME 1     // TODO: REPLACE CONFIG MANAGER
@@ -35,25 +35,37 @@ uint8_t sensorPins[] = {PIN_CENTER_TS, PIN_LEFT_TS, PIN_RIGHT_TS};
 Button2 tsCenter, tsLeft, tsRight;
 Button2 TouchSensors[] = {tsCenter, tsLeft, tsRight};
 
-void clickHandler(Button2 &btn)
+void clickHandler(Button2& btn)
 {
-    if (btn == tsCenter)
+    switch (btn.getID())
     {
+    case PIN_CENTER_TS:
+        Serial.println("Center TS clicked");
+        MWST_ToggleStripState(STRIP_CENTER);
+        break;
+    case PIN_LEFT_TS:
+        Serial.println("Left TS clicked");
+        MWST_ToggleStripState(STRIP_LEFT);
+        break;
+    case PIN_RIGHT_TS:
+        Serial.println("Right TS clicked");
+        MWST_ToggleStripState(STRIP_RIGHT);
+        break;
+    default:
+        Serial.println("ERROR: UNKNOWN BUTTON ID");
+        break;
     }
-    else if (btn == tsLeft)
-    {
-    }
-    else if (btn == tsRight)
-    {
-    }
+    
 }
 
 void longClickDetectedHandler(Button2 &btn)
 {
+    Serial.println("longClickDetected");
 }
 
 void longClickHandler(Button2 &btn)
 {
+    Serial.println("longClick");
 }
 
 void IRAM_ATTR readEncoderISR()
@@ -67,6 +79,7 @@ void HMIM_Initialize()
     for (uint8_t sensorType = 0; sensorType < (sizeof(sensorTypes) / sizeof(sensorTypes[0])); sensorType++)
     {
         TouchSensors[sensorType] = Button2(sensorPins[sensorType], 0, true, true);
+        TouchSensors[sensorType].setID(sensorPins[sensorType]);
         TouchSensors[sensorType].setDebounceTime(DEBOUNCE_TIME);
         TouchSensors[sensorType].setLongClickTime(LONG_CLICK_TIME);
         TouchSensors[sensorType].setClickHandler(clickHandler);
