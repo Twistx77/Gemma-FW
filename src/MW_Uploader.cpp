@@ -68,9 +68,9 @@ void MWUP_EnterBootloaderMode()
 
   /*use mdns for host name resolution*/
   if (!MDNS.begin(host)) { //http://Gemma.local
-    Serial.println("Error setting up MDNS responder!");
+    
     while (1) {
-      delay(1000);
+      
     }
   }
   /* 

@@ -22,8 +22,9 @@
 
 #define ROTARY_BRIGHTNESS_MODE 0        // TODO: REPLACE CONFIG MANAGER
 #define ROTARY_COLOR_MODE 1             // TODO: REPLACE CONFIG MANAGER
-#define ROTARY_ENCODER_MAX_VALUE 1000   // TODO: REPLACE CONFIG MANAGER
-#define ROTARY_ENCODER_ACCELEARTION 250 // TODO: REPLACE CONFIG MANAGER
+#define ROTARY_ENCODER_MAX_VALUE_BRIGHTNESS 255   // TODO: REPLACE CONFIG MANAGER
+#define ROTARY_ENCODER_MAX_VALUE_COLOR 4096      // TODO: REPLACE CONFIG MANAGER
+#define ROTARY_ENCODER_ACCELERATION 250 // TODO: REPLACE CONFIG MANAGER
 
 AiEsp32RotaryEncoder rotaryEncoder = AiEsp32RotaryEncoder(ROTARY_ENCODER_A_PIN, ROTARY_ENCODER_B_PIN, ROTARY_ENCODER_BUTTON_PIN, -1, ROTARY_ENCODER_STEPS);
 
@@ -35,6 +36,8 @@ uint8_t sensorPins[] = {PIN_CENTER_TS, PIN_LEFT_TS, PIN_RIGHT_TS};
 Button2 tsCenter, tsLeft, tsRight;
 Button2 TouchSensors[] = {tsCenter, tsLeft, tsRight};
 
+uint8_t lastSensorControlled = CENTER_TS;
+
 void clickHandler(Button2& btn)
 {
     switch (btn.getID())
@@ -42,19 +45,36 @@ void clickHandler(Button2& btn)
     case PIN_CENTER_TS:
         Serial.println("Center TS clicked");
         MWST_ToggleStripState(STRIP_CENTER);
+        lastSensorControlled = STRIP_CENTER;
         break;
     case PIN_LEFT_TS:
         Serial.println("Left TS clicked");
         MWST_ToggleStripState(STRIP_LEFT);
+        lastSensorControlled = STRIP_LEFT;
         break;
     case PIN_RIGHT_TS:
         Serial.println("Right TS clicked");
         MWST_ToggleStripState(STRIP_RIGHT);
+        lastSensorControlled = STRIP_RIGHT;
         break;
     default:
         Serial.println("ERROR: UNKNOWN BUTTON ID");
         break;
     }
+    if (rotaryMode == ROTARY_BRIGHTNESS_MODE)
+    {
+        rotaryEncoder.setBoundaries(0, ROTARY_ENCODER_MAX_VALUE_BRIGHTNESS, false);
+        rotaryEncoder.setEncoderValue(MWST_GetBrightness(lastSensorControlled)); 
+    }
+    else
+    {
+        rotaryEncoder.setBoundaries(0, ROTARY_ENCODER_MAX_VALUE_COLOR, false);
+        
+        rotaryEncoder.setEncoderValue(MWST_GetColorIndex(lastSensorControlled)); 
+    }
+    
+
+    
     
 }
 
@@ -91,9 +111,8 @@ void HMIM_Initialize()
     rotaryEncoder.setup(readEncoderISR);
 
     bool circleValues = false;
-    rotaryEncoder.setBoundaries(0, ROTARY_ENCODER_MAX_VALUE, circleValues);
-    rotaryEncoder.setAcceleration(ROTARY_ENCODER_ACCELEARTION);
-
+    rotaryEncoder.setBoundaries(0, ROTARY_ENCODER_MAX_VALUE_BRIGHTNESS, false);
+    rotaryEncoder.setEncoderValue(MWST_GetBrightness(STRIP_CENTER)); 
     rotaryMode = ROTARY_BRIGHTNESS_MODE;
 }
 
@@ -121,21 +140,21 @@ void MWIH_ReadRotaryEncoder()
     {
         if (rotaryMode == ROTARY_BRIGHTNESS_MODE)
         {
-            uint8_t brightness = map(rotaryEncoder.readEncoder(), 0, ROTARY_ENCODER_MAX_VALUE, 0, 255);
-            MWST_SetBrightness(STRIP_LEFT, brightness);
+            uint8_t brightness = map(rotaryEncoder.readEncoder(), 0, ROTARY_ENCODER_MAX_VALUE_BRIGHTNESS, 0, 255);
+            MWST_SetBrightness(MWST_GetLastStripActive(), brightness);
         }
         else
         {
 
-            if (rotaryEncoder.readEncoder() < (ROTARY_ENCODER_MAX_VALUE / 2))
+            if (rotaryEncoder.readEncoder() < (ROTARY_ENCODER_MAX_VALUE_COLOR / 2))
             {
-                float hue = rotaryEncoder.readEncoder() / 500.0;
-                MWST_SetStripColor(STRIP_LEFT, RgbwColor(HsbColor(hue, 0.8f, 1.0f)));
+                float hue = rotaryEncoder.readEncoder() / (ROTARY_ENCODER_MAX_VALUE_COLOR /2);
+                MWST_SetStripColor(lastSensorControlled, RgbwColor(HsbColor(hue, 0.8f, 1.0f)));
             }
             else
             {
 
-                MWST_SetStripColor(STRIP_LEFT, RgbwColor(0, 0, map(rotaryEncoder.readEncoder() - 500, 0, 500, 0, 255), 255));
+                MWST_SetStripColor(lastSensorControlled, RgbwColor(0, 0, map(rotaryEncoder.readEncoder() - (ROTARY_ENCODER_MAX_VALUE_COLOR /2), 0, (ROTARY_ENCODER_MAX_VALUE_COLOR /2), 0, 255), 255));
             }
         }
     }

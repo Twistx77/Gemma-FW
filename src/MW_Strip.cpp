@@ -11,8 +11,9 @@
 #define DELAY_EFFECT_PROGRESSIVE_MS 3
 #define DELAY_EFFECT_RANDOM_MS 10
 
-
 extern bool increaseBrightness;
+
+uint8_t lastStripActive = STRIP_CENTER;
 
 typedef struct
 {
@@ -48,8 +49,7 @@ void effectProgressiveFromCenter(MWST_TypeStripConfig *strip, uint8_t firstLED, 
   {
     centerLED = +1;
   }
-  Serial.print("Center LED ");
-  Serial.println(centerLED);
+
   for (uint8_t led = centerLED; led <= lastLED; led++)
   {
     stripHW.SetPixelColor(led, color);
@@ -113,11 +113,9 @@ void MWST_Initialize()
   stripHW.Begin();
   stripHW.SetBrightness(255);
   stripHW.ClearTo(RgbwColor(0, 0, 0, 0));
-  
+
   stripHW.Show();
 }
-
-
 
 void MWST_SetStripColor(uint8_t stripType, RgbwColor color)
 {
@@ -126,17 +124,31 @@ void MWST_SetStripColor(uint8_t stripType, RgbwColor color)
   stripHW.Show();
 }
 
+uint8_t MWST_GetBrightness(uint8_t stripType)
+{
+  return (strips[stripType].brightness);
+}
+
+uint32_t MWST_GetColorIndex(uint8_t stripType)
+{
+  if (strips[stripType].currentColor.W > 0)
+  {
+    return (strips[stripType].currentColor.B * 8);
+  }
+  else
+  {
+    return (HsbColor(RgbColor(strips[stripType].currentColor.R,strips[stripType].currentColor.G, strips[stripType].currentColor.B)).H * 2048);
+  }
+}
+
 void MWST_SetBrightness(uint8_t stripType, uint8_t brightness)
 {
-  strips[STRIP_LEFT].brightness = brightness;
-
-  stripHW.SetBrightness(strips[STRIP_LEFT].brightness);
-
   if (strips[stripType].currentState == MWST_ENABLED)
   {
-    stripHW.ClearTo(strips[STRIP_LEFT].currentColor);
-
-    stripHW.Show();
+    strips[stripType].brightness = brightness;
+  stripHW.SetBrightness(strips[stripType].brightness);
+  stripHW.ClearTo(strips[stripType].currentColor);
+  stripHW.Show();
   }
 }
 
@@ -149,20 +161,48 @@ void MWST_SetLEDsColor(uint8_t stripType, RgbwColor color, uint8_t firstLED, uin
   stripHW.Show();
 }
 
+uint8_t MWST_GetLastStripActive()
+{
+  return lastStripActive;
+}
+
 void MWST_SetStripState(uint8_t stripType, bool state, uint8_t typeOfEffect)
 {
   RgbwColor newColor;
 
-  strips[stripType].currentState = state;
+  switch (stripType)
+  {
+  case STRIP_CENTER:
+    strips[STRIP_CENTER].currentState = state;
+    strips[STRIP_LEFT].currentState = MWST_DISABLED;
+    strips[STRIP_RIGHT].currentState = MWST_DISABLED;
+    break;
+  case STRIP_LEFT:
+    strips[STRIP_LEFT].currentState = state;
+    if (strips[STRIP_CENTER].currentState == MWST_ENABLED)
+    {
+      stripHW.ClearTo(RgbwColor(0, 0, 0, 0), strips[STRIP_LEFT].numLEDsStop, strips[STRIP_RIGHT].numLEDsStart);
+      effectProgressive(&strips[STRIP_CENTER], strips[STRIP_LEFT].numLEDsStop, strips[STRIP_RIGHT].numLEDsStart, RgbwColor(0, 0, 0, 0));
+      strips[STRIP_CENTER].currentState = MWST_DISABLED;
+    }
+  case STRIP_RIGHT:
+    strips[STRIP_RIGHT].currentState = state;
+    if (strips[STRIP_CENTER].currentState == MWST_ENABLED)
+    {
+      effectProgressive(&strips[STRIP_CENTER], strips[STRIP_LEFT].numLEDsStop, strips[STRIP_RIGHT].numLEDsStart, RgbwColor(0, 0, 0, 0));
+      strips[STRIP_CENTER].currentState = MWST_DISABLED;
+    }
+  }
 
   if (state == MWST_ENABLED)
   {
     newColor = strips[stripType].currentColor;
-    ;
+    lastStripActive = stripType;
   }
   else
   {
     newColor = RgbwColor(0, 0, 0, 0);
+    lastStripActive = STRIP_NONE;
   }
 
   switch (typeOfEffect)
@@ -184,7 +224,6 @@ void MWST_SetStripState(uint8_t stripType, bool state, uint8_t typeOfEffect)
     break;
   }
 }
-
 /*
 void MWST_ToggleStripState(uint8_t stripType, uint8_t typeOfEffect)
 {
