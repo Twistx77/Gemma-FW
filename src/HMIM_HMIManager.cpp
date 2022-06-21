@@ -7,16 +7,16 @@
 #define LEFT_TS 1
 #define RIGHT_TS 2
 
-#define PIN_CENTER_TS 13 // TODO: REPLACE CONFIG MANAGER
-#define PIN_LEFT_TS 12   // TODO: REPLACE CONFIG MANAGER
-#define PIN_RIGHT_TS 14  // TODO: REPLACE CONFIG MANAGER
+#define PIN_CENTER_TS 27 // TODO: REPLACE CONFIG MANAGER
+#define PIN_LEFT_TS 2   // TODO: REPLACE CONFIG MANAGER
+#define PIN_RIGHT_TS 4  // TODO: REPLACE CONFIG MANAGER
 
 #define DEBOUNCE_TIME 1     // TODO: REPLACE CONFIG MANAGER
 #define LONG_CLICK_TIME 400 // TODO: REPLACE CONFIG MANAGER
 
-#define ROTARY_ENCODER_A_PIN 37      // TODO: REPLACE CONFIG MANAGER
-#define ROTARY_ENCODER_B_PIN 10      // TODO: REPLACE CONFIG MANAGER
-#define ROTARY_ENCODER_BUTTON_PIN 11 // TODO: REPLACE CONFIG MANAGER
+#define ROTARY_ENCODER_A_PIN 23      // TODO: REPLACE CONFIG MANAGER
+#define ROTARY_ENCODER_B_PIN 34      // TODO: REPLACE CONFIG MANAGER
+#define ROTARY_ENCODER_BUTTON_PIN 35 // TODO: REPLACE CONFIG MANAGER
 
 #define ROTARY_ENCODER_STEPS 4 // TODO: REPLACE CONFIG MANAGER
 
@@ -107,19 +107,20 @@ void HMIM_Initialize()
         TouchSensors[sensorType].setLongClickHandler(longClickHandler);
     }
 
-    rotaryEncoder.begin();
+    /*rotaryEncoder.begin();
     rotaryEncoder.setup(readEncoderISR);
 
     bool circleValues = false;
     rotaryEncoder.setBoundaries(0, ROTARY_ENCODER_MAX_VALUE_BRIGHTNESS, false);
     rotaryEncoder.setEncoderValue(MWST_GetBrightness(STRIP_CENTER)); 
-    rotaryMode = ROTARY_BRIGHTNESS_MODE;
+    rotaryMode = ROTARY_BRIGHTNESS_MODE;*/
 }
 
 void MWIH_ReadRotaryEncoder()
 {
     if (rotaryEncoder.isEncoderButtonClicked())
     {
+        Serial.println("Clicked");
         static unsigned long lastTimePressed = 0;
         // ignore multiple press in that time milliseconds
         if (millis() - lastTimePressed > 500)
@@ -138,9 +139,11 @@ void MWIH_ReadRotaryEncoder()
     }
     if (rotaryEncoder.encoderChanged())
     {
+        Serial.println("Rotary Changed");
         if (rotaryMode == ROTARY_BRIGHTNESS_MODE)
         {
             uint8_t brightness = map(rotaryEncoder.readEncoder(), 0, ROTARY_ENCODER_MAX_VALUE_BRIGHTNESS, 0, 255);
+            Serial.println("Brightness "+String(brightness));
             MWST_SetBrightness(MWST_GetLastStripActive(), brightness);
         }
         else
@@ -148,7 +151,9 @@ void MWIH_ReadRotaryEncoder()
 
             if (rotaryEncoder.readEncoder() < (ROTARY_ENCODER_MAX_VALUE_COLOR / 2))
             {
+
                 float hue = rotaryEncoder.readEncoder() / (ROTARY_ENCODER_MAX_VALUE_COLOR /2);
+                Serial.println("Color "+String(hue));
                 MWST_SetStripColor(lastSensorControlled, RgbwColor(HsbColor(hue, 0.8f, 1.0f)));
             }
             else
@@ -167,5 +172,5 @@ void HMIN_ProcessHMI()
 
         TouchSensors[sensorType].loop();
     }
-    MWIH_ReadRotaryEncoder();
+    //MWIH_ReadRotaryEncoder();
 }

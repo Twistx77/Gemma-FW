@@ -1,8 +1,8 @@
 #include "MW_Strip.h"
 
-#define PIN_STRIP 17
+#define PIN_STRIP 16
 
-#define LEDS_STRIP 51
+#define LEDS_STRIP 106
 
 #define MAX_BRIGHTNESS 255
 
@@ -99,16 +99,18 @@ void MWST_Initialize()
   strips[STRIP_LEFT].currentColor = RgbwColor(0, 0, 0, 255);
   strips[STRIP_LEFT].brightness = 255;
   strips[STRIP_LEFT].numberOfLEDs = LEDS_NL;
-  strips[STRIP_LEFT].numLEDsStart = LEDS_STRIP - LEDS_NL;
-  strips[STRIP_LEFT].numLEDsStop = LEDS_STRIP;
+  strips[STRIP_LEFT].numLEDsStart = 0;
+  strips[STRIP_LEFT].numLEDsStop = LEDS_NL-1;
 
   strips[STRIP_RIGHT].stripType = STRIP_RIGHT;
   strips[STRIP_RIGHT].currentState = MWST_DISABLED;
   strips[STRIP_RIGHT].currentColor = RgbwColor(0, 0, 0, 255);
   strips[STRIP_RIGHT].brightness = 255;
   strips[STRIP_RIGHT].numberOfLEDs = LEDS_NL;
-  strips[STRIP_RIGHT].numLEDsStart = 0;
-  strips[STRIP_RIGHT].numLEDsStop = LEDS_NL;
+  strips[STRIP_RIGHT].numLEDsStart = (LEDS_STRIP - (LEDS_NL+1));
+  strips[STRIP_RIGHT].numLEDsStop = LEDS_STRIP;
+
+  
 
   stripHW.Begin();
   stripHW.SetBrightness(255);
@@ -172,7 +174,7 @@ void MWST_SetStripState(uint8_t stripType, bool state, uint8_t typeOfEffect)
 
   switch (stripType)
   {
-  case STRIP_CENTER:
+  case STRIP_CENTER: 
     strips[STRIP_CENTER].currentState = state;
     strips[STRIP_LEFT].currentState = MWST_DISABLED;
     strips[STRIP_RIGHT].currentState = MWST_DISABLED;
@@ -181,17 +183,36 @@ void MWST_SetStripState(uint8_t stripType, bool state, uint8_t typeOfEffect)
     strips[STRIP_LEFT].currentState = state;
     if (strips[STRIP_CENTER].currentState == MWST_ENABLED)
     {
-      stripHW.ClearTo(RgbwColor(0, 0, 0, 0), strips[STRIP_LEFT].numLEDsStop, strips[STRIP_RIGHT].numLEDsStart);
-      effectProgressive(&strips[STRIP_CENTER], strips[STRIP_LEFT].numLEDsStop, strips[STRIP_RIGHT].numLEDsStart, RgbwColor(0, 0, 0, 0));
+      if (strips[STRIP_RIGHT].currentState == MWST_DISABLED)
+      {
+        effectProgressive(&strips[STRIP_CENTER], 0, strips[STRIP_RIGHT].numLEDsStart, RgbwColor(0, 0, 0, 0));
+      }
+      else
+      {
+      effectProgressive(&strips[STRIP_CENTER], strips[STRIP_LEFT].numLEDsStop, LEDS_STRIP, RgbwColor(0, 0, 0, 0));
+      }
       strips[STRIP_CENTER].currentState = MWST_DISABLED;
     }
+    break;
   case STRIP_RIGHT:
     strips[STRIP_RIGHT].currentState = state;
     if (strips[STRIP_CENTER].currentState == MWST_ENABLED)
     {
+      if (strips[STRIP_LEFT].currentState == MWST_DISABLED)
+      {
+        effectProgressive(&strips[STRIP_CENTER], 0, strips[STRIP_RIGHT].numLEDsStart, RgbwColor(0, 0, 0, 0));
+      }
+      else
+      {
       effectProgressive(&strips[STRIP_CENTER], strips[STRIP_LEFT].numLEDsStop, strips[STRIP_RIGHT].numLEDsStart, RgbwColor(0, 0, 0, 0));
+      }
+
       strips[STRIP_CENTER].currentState = MWST_DISABLED;
     }
+    break;
+    default:
+    Serial.println("Unknown Strip");
+    break;
   }
 
   if (state == MWST_ENABLED)
@@ -204,10 +225,11 @@ void MWST_SetStripState(uint8_t stripType, bool state, uint8_t typeOfEffect)
     newColor = RgbwColor(0, 0, 0, 0);
     lastStripActive = STRIP_NONE;
   }
-
+  Serial.println("Start LED: " + String(strips[stripType].numLEDsStart)+ "Stop LED:"+ String(strips[stripType].numLEDsStop));
   switch (typeOfEffect)
   {
   case EFFECT_PROGRESIVE:
+    
     effectProgressive(&strips[stripType], strips[stripType].numLEDsStart, strips[stripType].numLEDsStop, newColor);
     break;
 
@@ -232,7 +254,7 @@ void MWST_ToggleStripState(uint8_t stripType, uint8_t typeOfEffect)
 
 void MWST_ToggleStripState(uint8_t stripType)
 {
-  MWST_SetStripState(stripType, !strips[stripType].currentState, EFFECT_PROGRESSIVE_FROM_CENTER);
+  MWST_SetStripState(stripType, !strips[stripType].currentState, EFFECT_PROGRESIVE);
 }
 
 void MWST_IncreaseStripIlumination(uint8_t stripType, uint8_t steps)
