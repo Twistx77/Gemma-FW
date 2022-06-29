@@ -38,7 +38,7 @@ void Button2::begin(byte attachTo, byte buttonMode /* = INPUT_PULLUP */, boolean
   }    
   threshold = temp;
 
-  threshold = threshold * 0.85;
+  threshold = threshold - 3;
 
   
   id = _nextID++;
@@ -300,10 +300,16 @@ byte Button2::_getState() {
     return digitalRead(pin);
   } else {
     #if defined(ARDUINO_ARCH_ESP32)
-      int capa = touchRead(pin);
+      uint16_t capa = 0;
       for (int i=0; i<5; i++)
           capa += touchRead(pin);
-        
+          
+      if (pin == 27)
+      {
+        Serial.print(capa);
+        Serial.print(",");
+        Serial.println(threshold);
+      }
       return capa < threshold ? LOW : HIGH;
     #endif
   }

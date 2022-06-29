@@ -8,10 +8,10 @@
 
 #define LEDS_NL 5
 
-#define DELAY_EFFECT_PROGRESSIVE_MS 3
+#define DELAY_EFFECT_PROGRESSIVE_MS 0
 #define DELAY_EFFECT_RANDOM_MS 10
 
-extern bool increaseBrightness;
+bool increaseBrightness = true;
 
 uint8_t lastStripActive = STRIP_CENTER;
 
@@ -44,6 +44,7 @@ void effectProgressive(MWST_TypeStripConfig *strip, uint8_t firstLED, uint8_t la
 
 void effectProgressiveFromCenter(MWST_TypeStripConfig *strip, uint8_t firstLED, uint8_t lastLED, RgbwColor color)
 {
+  Serial.println("Start LED: " + String(firstLED) + "Stop LED:" + String(lastLED));
   uint8_t centerLED = (lastLED - firstLED) / 2;
   if (centerLED % 2 != 0)
   {
@@ -100,17 +101,15 @@ void MWST_Initialize()
   strips[STRIP_LEFT].brightness = 255;
   strips[STRIP_LEFT].numberOfLEDs = LEDS_NL;
   strips[STRIP_LEFT].numLEDsStart = 0;
-  strips[STRIP_LEFT].numLEDsStop = LEDS_NL-1;
+  strips[STRIP_LEFT].numLEDsStop = LEDS_NL - 1;
 
   strips[STRIP_RIGHT].stripType = STRIP_RIGHT;
   strips[STRIP_RIGHT].currentState = MWST_DISABLED;
   strips[STRIP_RIGHT].currentColor = RgbwColor(0, 0, 0, 255);
   strips[STRIP_RIGHT].brightness = 255;
   strips[STRIP_RIGHT].numberOfLEDs = LEDS_NL;
-  strips[STRIP_RIGHT].numLEDsStart = (LEDS_STRIP - (LEDS_NL+1));
+  strips[STRIP_RIGHT].numLEDsStart = (LEDS_STRIP - (LEDS_NL + 1));
   strips[STRIP_RIGHT].numLEDsStop = LEDS_STRIP;
-
-  
 
   stripHW.Begin();
   stripHW.SetBrightness(255);
@@ -135,22 +134,27 @@ uint32_t MWST_GetColorIndex(uint8_t stripType)
 {
   if (strips[stripType].currentColor.W > 0)
   {
-    return (strips[stripType].currentColor.B * 8);
+    return (strips[stripType].currentColor.B);
   }
   else
   {
-    return (HsbColor(RgbColor(strips[stripType].currentColor.R,strips[stripType].currentColor.G, strips[stripType].currentColor.B)).H * 2048);
+    return (HsbColor(RgbColor(strips[stripType].currentColor.R, strips[stripType].currentColor.G, strips[stripType].currentColor.B)).H * 255);
   }
 }
 
 void MWST_SetBrightness(uint8_t stripType, uint8_t brightness)
 {
+  stripHW.ClearTo(strips[stripType].currentColor);
+
+  stripHW.SetBrightness(strips[stripType].brightness);
+
+  stripHW.Show();
   if (strips[stripType].currentState == MWST_ENABLED)
   {
     strips[stripType].brightness = brightness;
-  stripHW.SetBrightness(strips[stripType].brightness);
-  stripHW.ClearTo(strips[stripType].currentColor);
-  stripHW.Show();
+    stripHW.SetBrightness(strips[stripType].brightness);
+    stripHW.ClearTo(strips[stripType].currentColor);
+    stripHW.Show();
   }
 }
 
@@ -174,11 +178,12 @@ void MWST_SetStripState(uint8_t stripType, bool state, uint8_t typeOfEffect)
 
   switch (stripType)
   {
-  case STRIP_CENTER: 
+  case STRIP_CENTER:
     strips[STRIP_CENTER].currentState = state;
     strips[STRIP_LEFT].currentState = MWST_DISABLED;
     strips[STRIP_RIGHT].currentState = MWST_DISABLED;
     break;
+
   case STRIP_LEFT:
     strips[STRIP_LEFT].currentState = state;
     if (strips[STRIP_CENTER].currentState == MWST_ENABLED)
@@ -189,11 +194,12 @@ void MWST_SetStripState(uint8_t stripType, bool state, uint8_t typeOfEffect)
       }
       else
       {
-      effectProgressive(&strips[STRIP_CENTER], strips[STRIP_LEFT].numLEDsStop, LEDS_STRIP, RgbwColor(0, 0, 0, 0));
+        effectProgressive(&strips[STRIP_CENTER], strips[STRIP_LEFT].numLEDsStop, LEDS_STRIP, RgbwColor(0, 0, 0, 0));
       }
       strips[STRIP_CENTER].currentState = MWST_DISABLED;
     }
     break;
+
   case STRIP_RIGHT:
     strips[STRIP_RIGHT].currentState = state;
     if (strips[STRIP_CENTER].currentState == MWST_ENABLED)
@@ -204,13 +210,13 @@ void MWST_SetStripState(uint8_t stripType, bool state, uint8_t typeOfEffect)
       }
       else
       {
-      effectProgressive(&strips[STRIP_CENTER], strips[STRIP_LEFT].numLEDsStop, strips[STRIP_RIGHT].numLEDsStart, RgbwColor(0, 0, 0, 0));
+        effectProgressive(&strips[STRIP_CENTER], strips[STRIP_LEFT].numLEDsStop, strips[STRIP_RIGHT].numLEDsStart, RgbwColor(0, 0, 0, 0));
       }
 
       strips[STRIP_CENTER].currentState = MWST_DISABLED;
     }
     break;
-    default:
+  default:
     Serial.println("Unknown Strip");
     break;
   }
@@ -225,12 +231,10 @@ void MWST_SetStripState(uint8_t stripType, bool state, uint8_t typeOfEffect)
     newColor = RgbwColor(0, 0, 0, 0);
     lastStripActive = STRIP_NONE;
   }
-  Serial.println("Start LED: " + String(strips[stripType].numLEDsStart)+ "Stop LED:"+ String(strips[stripType].numLEDsStop));
   switch (typeOfEffect)
   {
-  case EFFECT_PROGRESIVE:
-    
-    effectProgressive(&strips[stripType], strips[stripType].numLEDsStart, strips[stripType].numLEDsStop, newColor);
+  case EFFECT_PROGRESSIVE:
+      effectProgressive(&strips[stripType], strips[stripType].numLEDsStart, strips[stripType].numLEDsStop, newColor);
     break;
 
   case EFFECT_PROGRESSIVE_FROM_CENTER:
@@ -246,46 +250,37 @@ void MWST_SetStripState(uint8_t stripType, bool state, uint8_t typeOfEffect)
     break;
   }
 }
-/*
-void MWST_ToggleStripState(uint8_t stripType, uint8_t typeOfEffect)
-{
-  MWST_SetStripState(stripType, !strips[stripType].currentState, typeOfEffect);
-}*/
+
 
 void MWST_ToggleStripState(uint8_t stripType)
 {
-  MWST_SetStripState(stripType, !strips[stripType].currentState, EFFECT_PROGRESIVE);
+  MWST_SetStripState(stripType, !strips[stripType].currentState, EFFECT_PROGRESSIVE);
+  
 }
 
 void MWST_IncreaseStripIlumination(uint8_t stripType, uint8_t steps)
 {
   delay(5);
 
-  if (increaseBrightness && (strips[STRIP_LEFT].brightness < (MAX_BRIGHTNESS - steps)))
+  Serial.println("IncreaseStripIlumination " + String(stripType) + " " + String(steps));
+
+  if (increaseBrightness && (strips[stripType].brightness < (MAX_BRIGHTNESS - steps)))
   {
-    strips[STRIP_LEFT].brightness += steps;
-    stripHW.ClearTo(strips[STRIP_LEFT].currentColor);
+    strips[stripType].brightness += steps;
+    MWST_SetBrightness(stripType, strips[stripType].brightness);
 
-    stripHW.SetBrightness(strips[STRIP_LEFT].brightness);
-
-    stripHW.Show();
-
-    if (strips[STRIP_LEFT].brightness >= MAX_BRIGHTNESS)
+    if (strips[stripType].brightness >= MAX_BRIGHTNESS)
     {
       increaseBrightness = false;
     }
     strips[stripType].currentState = MWST_ENABLED;
   }
-  else if ((increaseBrightness == false) && (strips[STRIP_LEFT].brightness > (0 + steps)))
+  else if ((increaseBrightness == false) && (strips[stripType].brightness > steps))
   {
-    strips[STRIP_LEFT].brightness -= steps;
-    stripHW.ClearTo(strips[STRIP_LEFT].currentColor);
+    strips[stripType].brightness -= steps;
+    MWST_SetBrightness(stripType, strips[stripType].brightness);
 
-    stripHW.SetBrightness(strips[STRIP_LEFT].brightness);
-
-    stripHW.Show();
-
-    if (strips[STRIP_LEFT].brightness == 0)
+    if (strips[stripType].brightness == 0)
     {
       increaseBrightness = true;
       strips[stripType].currentState = MWST_DISABLED;

@@ -6,7 +6,7 @@
 #include "DefaultConfig.h"
 #include "BLEHandler.h"
 
-#define CAPACITIVE_TOUCH_THRESHOLD 7
+#define CAPACITIVE_TOUCH_THRESHOLD 10
 
 #define PIN_CENTER_TS 27 // TODO: REPLACE CONFIG MANAGER
 #define PIN_LEFT_TS 2   // TODO: REPLACE CONFIG MANAGER
@@ -30,20 +30,23 @@ void setup()
  
   
   MWST_Initialize();
-  /*
-  if (touchRead(PIN_CENTER_TS) < CAPACITIVE_TOUCH_THRESHOLD)
+  
+   
+
+  if (touchRead(PIN_LEFT_TS) < CAPACITIVE_TOUCH_THRESHOLD)
   {
-    while(touchRead(PIN_CENTER_TS) < CAPACITIVE_TOUCH_THRESHOLD)
+
+    MWST_SetStripColor(STRIP_LEFT, RgbwColor(0, 0x30, 0x10, 0));
+    while(touchRead(PIN_LEFT_TS) < CAPACITIVE_TOUCH_THRESHOLD)
     {
       Serial.println("Boot");
     }  
 
-      MWST_SetStripColor(STRIP_CENTER, RgbwColor(0xFF, 0, 0, 0));
+      MWST_SetStripColor(STRIP_LEFT, RgbwColor(0x30, 0, 0x30));
       MWUP_EnterBootloaderMode();
     
-  }*/
-  Serial.println("Initialized");
-  BLEHandler_Initialize();
+  }
+  //BLEHandler_Initialize();
   HMIM_Initialize();
 
 }

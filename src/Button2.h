@@ -36,7 +36,7 @@ enum clickType {
 class Button2 {
 
 protected:
-  uint8_t threshold = CAPACITIVE_TOUCH_THRESHOLD;
+  uint16_t threshold = CAPACITIVE_TOUCH_THRESHOLD;
   int id;
   byte pin;
   byte state;
