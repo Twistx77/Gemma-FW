@@ -14,9 +14,6 @@
 
 
 
-#define FW_UPDATE_TIME 5000
-
-
 uint32_t NumberOfLedsStrip = MAX_NUMBER_OF_LEDS;
 
 void setup()
@@ -27,8 +24,8 @@ void setup()
   NumberOfLedsStrip = ConfigManager_ReadParameter(PARAM_NUMBER_OF_LEDS);
 
   Serial.begin(115200);
- 
-  
+
+
   MWST_Initialize();
   
    
