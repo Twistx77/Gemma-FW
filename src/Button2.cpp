@@ -295,6 +295,7 @@ void Button2::waitForLong(bool keepState  /* = false */) {
 /////////////////////////////////////////////////////////////////
 
 byte Button2::_getState() {
+  uint8_t state = LOW;
   if (get_state_cb != NULL) return get_state_cb();
   if (!is_capacitive) {
     return digitalRead(pin);
@@ -303,14 +304,17 @@ byte Button2::_getState() {
       uint16_t capa = 0;
       for (int i=0; i<5; i++)
           capa += touchRead(pin);
-          
+      state = capa < threshold ? LOW : HIGH;
+      /*
       if (pin == 27)
       {
         Serial.print(capa);
         Serial.print(",");
-        Serial.println(threshold);
-      }
-      return capa < threshold ? LOW : HIGH;
+        Serial.print(threshold);
+        Serial.print(",");
+        Serial.println(threshold + 5* state);
+      }*/
+      return state;
     #endif
   }
   return state;

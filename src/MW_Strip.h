@@ -12,9 +12,11 @@
 #define STRIP_LEFT 2
 #define STRIP_RIGHT 3
 
+
 #define EFFECT_PROGRESSIVE 1
 #define EFFECT_PROGRESSIVE_FROM_CENTER 2
 #define EFFECT_RANDOM_LED 3
+#define EFFECT_FADE 4
 
 
 void MWST_Initialize(void);
