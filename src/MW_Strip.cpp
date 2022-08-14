@@ -178,6 +178,11 @@ uint32_t MWST_GetColorIndex(uint8_t stripType)
   }
 }
 
+uint8_t MWST_GetState(uint8_t stripType)
+{
+  return (strips[stripType].currentState);
+}
+
 void MWST_SetBrightness(uint8_t stripType, uint8_t brightness)
 {
   if (strips[stripType].currentState == MWST_ENABLED)
