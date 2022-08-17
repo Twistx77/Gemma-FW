@@ -5,7 +5,7 @@
 #include <Arduino.h>
 #include "MW_Strip.h"
 #include <NeoPixelBrightnessBus.h>
-
+#include <stdint.h>
 
 #define SERVICE_UUID "667d724e-4540-4123-984f-9ad6082212bb"
 #define DEVICE_INFO_UUID "052699e8-1a9b-40fb-a14b-00b0772187d9"
@@ -34,22 +34,22 @@ float hue = 0;
 class callbackSwitch : public BLECharacteristicCallbacks
 {
 
-  uint8_t stripType;
-  switch (pchar->getUUID().toString()[35])
-  {
-  case '1':
-    stripType = STRIP_CENTER;
-    break;
-  case '4':
-    stripType = STRIP_LEFT;
-    break;
-  case '7':
-    stripType = STRIP_RIGHT;
-    break;
-  }
-
   void onWrite(BLECharacteristic *pCharacteristic)
   {
+
+    uint8_t stripType;
+    switch (pCharacteristic->getUUID().toString()[35])
+    {
+    case '1':
+      stripType = STRIP_CENTER;
+      break;
+    case '4':
+      stripType = STRIP_LEFT;
+      break;
+    case '7':
+      stripType = STRIP_RIGHT;
+      break;
+    }
     std::string value = pCharacteristic->getValue();
 
     if (value.length() > 0)
@@ -69,9 +69,22 @@ class callbackSwitch : public BLECharacteristicCallbacks
 
   void onRead(BLECharacteristic *pCharacteristic)
   {
+    uint8_t stripType;
+    switch (pCharacteristic->getUUID().toString()[35])
+    {
+    case '1':
+      stripType = STRIP_CENTER;
+      break;
+    case '4':
+      stripType = STRIP_LEFT;
+      break;
+    case '7':
+      stripType = STRIP_RIGHT;
+      break;
+    }
     Serial.println("onRead switch");
     bool state = MWST_GetState(stripType);
-    pCharacteristic->setValue(state ? 1 : 0);
+    //pCharacteristic->setValue(state ? '1' : '0');
 
   } // onRead
 };
@@ -79,21 +92,21 @@ class callbackSwitch : public BLECharacteristicCallbacks
 class callbackBrightness : public BLECharacteristicCallbacks
 {
 
-  uint8_t stripType;
-  switch (pchar->getUUID().toString()[35])
-  {
-  case '2':
-    stripType = STRIP_CENTER;
-    break;
-  case '5':
-    stripType = STRIP_LEFT;
-    break;
-  case '8':
-    stripType = STRIP_RIGHT;
-    break;
-  }
   void onWrite(BLECharacteristic *pCharacteristic)
   {
+    uint8_t stripType;
+    switch (pCharacteristic->getUUID().toString()[35])
+    {
+    case '2':
+      stripType = STRIP_CENTER;
+      break;
+    case '5':
+      stripType = STRIP_LEFT;
+      break;
+    case '8':
+      stripType = STRIP_RIGHT;
+      break;
+    }
     std::string value = pCharacteristic->getValue();
 
     if (value.length() > 0)
@@ -109,6 +122,19 @@ class callbackBrightness : public BLECharacteristicCallbacks
   }
   void onRead(BLECharacteristic *pCharacteristic)
   {
+    uint8_t stripType;
+    switch (pCharacteristic->getUUID().toString()[35])
+    {
+    case '2':
+      stripType = STRIP_CENTER;
+      break;
+    case '5':
+      stripType = STRIP_LEFT;
+      break;
+    case '8':
+      stripType = STRIP_RIGHT;
+      break;
+    }
     Serial.println("onRead brightness");
     int brightness = MWST_GetBrightness(stripType);
     std::string value = pCharacteristic->setValue(String(brightness));
@@ -118,20 +144,21 @@ class callbackBrightness : public BLECharacteristicCallbacks
 class callbackColor : public BLECharacteristicCallbacks
 {
   uint8_t stripType;
-  switch (pchar->getUUID().toString()[35])
-  {
-  case '3':
-    stripType = STRIP_CENTER;
-    break;
-  case '6':
-    stripType = STRIP_LEFT;
-    break;
-  case '9':
-    stripType = STRIP_RIGHT;
-    break;
-  }
   void onWrite(BLECharacteristic *pCharacteristic)
   {
+
+    switch (pCharacteristic->getUUID().toString()[35])
+    {
+    case '3':
+      stripType = STRIP_CENTER;
+      break;
+    case '6':
+      stripType = STRIP_LEFT;
+      break;
+    case '9':
+      stripType = STRIP_RIGHT;
+      break;
+    }
     std::string value = pCharacteristic->getValue();
     if (value.length() > 0)
     {
@@ -157,9 +184,22 @@ class callbackColor : public BLECharacteristicCallbacks
       };
     }
   } // onWrite
-  
+
   void onRead(BLECharacteristic *pCharacteristic)
   {
+
+    switch (pCharacteristic->getUUID().toString()[35])
+    {
+    case '3':
+      stripType = STRIP_CENTER;
+      break;
+    case '6':
+      stripType = STRIP_LEFT;
+      break;
+    case '9':
+      stripType = STRIP_RIGHT;
+      break;
+    }
     Serial.println("onRead color");
     int color = MWST_GetColorIndex(stripType);
     pCharacteristic->setValue(String(color));
