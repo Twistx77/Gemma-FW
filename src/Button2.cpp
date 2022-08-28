@@ -38,7 +38,7 @@ void Button2::begin(byte attachTo, byte buttonMode /* = INPUT_PULLUP */, boolean
   }    
   threshold = temp;
 
-  threshold = threshold - 3;
+  threshold = threshold*0.95;
 
   
   id = _nextID++;

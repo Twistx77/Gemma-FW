@@ -148,8 +148,9 @@ void MWST_Initialize()
 
 void MWST_SetStripColor(uint8_t stripType, RgbwColor color)
 {
+
   if (strips[stripType].currentState == MWST_DISABLED)
-  {
+  {   
     strips[stripType].currentColor = color;
     return;
   }
@@ -164,6 +165,11 @@ void MWST_SetStripColor(uint8_t stripType, RgbwColor color)
 uint8_t MWST_GetBrightness(uint8_t stripType)
 {
   return (strips[stripType].brightness);
+}
+
+RgbwColor MWST_GetColor(uint8_t stripType)
+{
+  return(strips[stripType].currentColor);
 }
 
 uint32_t MWST_GetColorIndex(uint8_t stripType)
@@ -188,9 +194,9 @@ void MWST_SetBrightness(uint8_t stripType, uint8_t brightness)
   if (strips[stripType].currentState == MWST_ENABLED)
   {
     strips[stripType].brightness = brightness;
-    Serial.println("Brightness: " + String(brightness)+ " numLEDsStart: " + String(strips[stripType].numLEDsStart) + " numLEDsStop: " + String(strips[stripType].numLEDsStop));
+    //Serial.println("Strip Type: "+ String(stripType)+" Brightness: " + String(brightness)+ " numLEDsStart: " + String(strips[stripType].numLEDsStart) + " numLEDsStop: " + String(strips[stripType].numLEDsStop));
     stripHW.SetBrightness(strips[stripType].brightness, strips[stripType].numLEDsStart, strips[stripType].numLEDsStop);
-    stripHW.ClearTo(strips[stripType].currentColor);
+    stripHW.ClearTo(strips[stripType].currentColor, strips[stripType].numLEDsStart, strips[stripType].numLEDsStop);
     stripHW.Show();
 
   }
@@ -274,6 +280,8 @@ void MWST_SetStripState(uint8_t stripType, bool state, uint8_t typeOfEffect)
     lastStripActive = STRIP_NONE;
   }
 
+  Serial.println("Preeffect: " + String(typeOfEffect));
+
   switch (typeOfEffect)
   {
     
@@ -300,6 +308,7 @@ void MWST_SetStripState(uint8_t stripType, bool state, uint8_t typeOfEffect)
 
 void MWST_ToggleStripState(uint8_t stripType)
 {
+  Serial.println("ToggleStripState");
   MWST_SetStripState(stripType, !strips[stripType].currentState, EFFECT_FADE);
 }
 
@@ -329,7 +338,6 @@ void MWST_IncreaseStripIlumination(uint8_t stripType, uint8_t steps)
   {
     Serial.println("DecreaseStripIlumination " + String(stripType) + " " + String(steps));
     strips[stripType].brightness -= steps;
-    //MWST_SetBrightness(stripType, strips[stripType].brightness);
     stripHW.ClearTo(strips[stripType].currentColor);//, strips[stripType].numLEDsStart, strips[stripType].numLEDsStop); 
     stripHW.SetBrightness(strips[stripType].brightness);// strips[stripType].numLEDsStart, strips[stripType].numLEDsStop);         
     stripHW.Show();

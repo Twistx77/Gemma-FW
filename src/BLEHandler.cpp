@@ -6,6 +6,7 @@
 #include "MW_Strip.h"
 #include <NeoPixelBrightnessBus.h>
 #include <stdint.h>
+#include "DefaultConfig.h"
 
 #define SERVICE_UUID "667d724e-4540-4123-984f-9ad6082212bb"
 #define DEVICE_INFO_UUID "052699e8-1a9b-40fb-a14b-00b0772187d9"
@@ -50,20 +51,15 @@ class callbackSwitch : public BLECharacteristicCallbacks
       stripType = STRIP_RIGHT;
       break;
     }
-    std::string value = pCharacteristic->getValue();
 
-    if (value.length() > 0)
+    uint8_t *state = pCharacteristic->getData();
+    if (state[0] == 1)
     {
-      Serial.println(value[0]);
-
-      if (value[0] == '1')
-      {
-        MWST_SetStripState(stripType, MWST_ENABLED, EFFECT_PROGRESSIVE);
-      }
-      else if (value[0] == '0')
-      {
-        MWST_SetStripState(stripType, MWST_DISABLED, EFFECT_PROGRESSIVE);
-      }
+      MWST_SetStripState(stripType, MWST_ENABLED, EFFECT_PROGRESSIVE);
+    }
+    else if (state[0] == 0)
+    {
+      MWST_SetStripState(stripType, MWST_DISABLED, EFFECT_PROGRESSIVE);
     }
   } // onWrite
 
@@ -83,8 +79,10 @@ class callbackSwitch : public BLECharacteristicCallbacks
       break;
     }
     Serial.println("onRead switch");
-    bool state = MWST_GetState(stripType);
-    //pCharacteristic->setValue(state ? '1' : '0');
+    uint32_t state = 0;
+    if (MWST_GetState(stripType))
+      state = 1;
+    pCharacteristic->setValue(state);
 
   } // onRead
 };
@@ -107,18 +105,9 @@ class callbackBrightness : public BLECharacteristicCallbacks
       stripType = STRIP_RIGHT;
       break;
     }
-    std::string value = pCharacteristic->getValue();
-
-    if (value.length() > 0)
-    {
-      Serial.print("Value:");
-      // Serial.println(value.c_str());
-
-      // Convert value to int
-      int brightness = atoi(value.c_str());
-      Serial.println(brightness);
-      MWST_SetBrightness(stripType, brightness);
-    }
+    uint8_t *brightness = pCharacteristic->getData();
+    MWST_SetBrightness(stripType, brightness[0]);
+  
   }
   void onRead(BLECharacteristic *pCharacteristic)
   {
@@ -135,9 +124,8 @@ class callbackBrightness : public BLECharacteristicCallbacks
       stripType = STRIP_RIGHT;
       break;
     }
-    Serial.println("onRead brightness");
     int brightness = MWST_GetBrightness(stripType);
-    std::string value = pCharacteristic->setValue(String(brightness));
+    pCharacteristic->setValue(brightness);
   }
 };
 
@@ -159,8 +147,11 @@ class callbackColor : public BLECharacteristicCallbacks
       stripType = STRIP_RIGHT;
       break;
     }
-    std::string value = pCharacteristic->getValue();
-    if (value.length() > 0)
+    uint8_t *rgbwValue = pCharacteristic->getData();
+
+    MWST_SetStripColor(stripType, RgbwColor(rgbwValue[1], rgbwValue[0], rgbwValue[2], rgbwValue[3]));
+
+    /*if (value.length() > 0)
     {
       Serial.print("Value:");
       // Serial.println(value.c_str());
@@ -170,9 +161,9 @@ class callbackColor : public BLECharacteristicCallbacks
 
       Serial.println(color);
 
-      hue = map(color, 0, 4095 - 1500, 0, 60000) / 60000.0;
+      hue = map(color, 0, 512 - 255, 0, 60000) / 60000.0;
 
-      if (color < (4095 - 1500))
+      if (color < (512 - 255))
       {
 
         MWST_SetStripColor(stripType, RgbwColor(HsbColor(hue, 0.8f, 1.0f)));
@@ -180,9 +171,10 @@ class callbackColor : public BLECharacteristicCallbacks
       else
       {
 
-        MWST_SetStripColor(stripType, RgbwColor(0, 0, map(4095 - color, 0, 4095 - 2048, 0, 255), 255));
-      };
-    }
+        MWST_SetStripColor(stripType, RgbwColor(0, 0, map(512 - color, 0, 512 - 255, 0, 255), 255));
+      };*/
+
+    //}
   } // onWrite
 
   void onRead(BLECharacteristic *pCharacteristic)
@@ -200,9 +192,9 @@ class callbackColor : public BLECharacteristicCallbacks
       stripType = STRIP_RIGHT;
       break;
     }
-    Serial.println("onRead color");
-    int color = MWST_GetColorIndex(stripType);
-    pCharacteristic->setValue(String(color));
+    RgbwColor color = MWST_GetColor(stripType);
+    uint8_t rgbwValue[] = {color.R, color.G, color.B, color.W};
+    pCharacteristic->setValue(rgbwValue, 4);
   } // onRead
 };
 
@@ -211,7 +203,8 @@ class callbackFWVersion : public BLECharacteristicCallbacks
   void onRead(BLECharacteristic *pCharacteristic)
   {
     Serial.println("onRead FWVersion");
-    pCharacteristic->setValue("1.0");
+    uint8_t version[] = {FW_MAJOR,FW_MINOR,FW_PATCH};
+    pCharacteristic->setValue(version,3);
   }
 };
 
@@ -220,7 +213,7 @@ class callbackHWVersion : public BLECharacteristicCallbacks
   void onRead(BLECharacteristic *pCharacteristic)
   {
     Serial.println("onRead HWVersion");
-    pCharacteristic->setValue("1.0");
+    pCharacteristic->setValue("0.2");
   }
 };
 
@@ -334,11 +327,11 @@ void BLEHandler_Initialize()
       BLECharacteristic::PROPERTY_READ |
           BLECharacteristic::PROPERTY_WRITE);
 
-  BLECharacteristic *pCharFWVersion = pSwitchService->createCharacteristic(
+  BLECharacteristic *pCharFWVersion = pDeviceInfoService->createCharacteristic(
       FW_VERSION_UUID,
       BLECharacteristic::PROPERTY_READ);
 
-  BLECharacteristic *pCharHWVersion = pSwitchService->createCharacteristic(
+  BLECharacteristic *pCharHWVersion = pDeviceInfoService->createCharacteristic(
       HW_VERSION_UUID,
       BLECharacteristic::PROPERTY_READ);
 
@@ -356,6 +349,7 @@ void BLEHandler_Initialize()
   pCharHWVersion->setCallbacks(new callbackHWVersion());
 
   pSwitchService->start();
+  pDeviceInfoService->start();
 
   BLEAdvertising *pAdvertising = pServer->getAdvertising();
 

@@ -189,9 +189,9 @@ void MWIH_ReadRotaryEncoder()
             if (rotaryEncoder.readEncoder() < (ROTARY_ENCODER_MAX_VALUE_COLOR / 2))
             {
                 float hue = rotaryEncoder.readEncoder() / (ROTARY_ENCODER_MAX_VALUE_COLOR / 2.0);
-                MWST_SetStripColor(STRIP_CENTER, RgbwColor(HsbColor(hue, 0.8f, 1.0f)));
-                MWST_SetStripColor(STRIP_LEFT, RgbwColor(HsbColor(hue, 0.8f, 1.0f)));
-                MWST_SetStripColor(STRIP_RIGHT, RgbwColor(HsbColor(hue, 0.8f, 1.0f)));
+                MWST_SetStripColor(STRIP_CENTER, RgbwColor(HsbColor(hue, 0.6f, 1.0f)));
+                MWST_SetStripColor(STRIP_LEFT, RgbwColor(HsbColor(hue, 0.6f, 1.0f)));
+                MWST_SetStripColor(STRIP_RIGHT, RgbwColor(HsbColor(hue, 0.6f, 1.0f)));
             }
             else
             {
@@ -209,10 +209,10 @@ void HMIN_ProcessHMI()
     for (uint8_t sensorType = 0; sensorType < (sizeof(sensorTypes) / sizeof(sensorTypes[0])); sensorType++)
     {
         TouchSensors[sensorType].loop();
-        if (buttonLongPressed[sensorType])
+       /* if (buttonLongPressed[sensorType])
         {
             MWST_IncreaseStripIlumination(sensorType, 10);
-        }
+        }*/
     }
     MWIH_ReadRotaryEncoder();
 }
