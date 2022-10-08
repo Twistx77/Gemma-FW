@@ -1,19 +1,12 @@
 #include "MW_Strip.h"
-
-#define PIN_STRIP 16
+#include "DefaultConfig.h"
 
 #define MAX_BRIGHTNESS 255
 
 //#define TEST_BOARD
 
-#if defined(TEST_BOARD)
-#define LEDS_NL 3
-#define LEDS_STRIP 20
-#else
-#define LEDS_NL 3
-#define LEDS_STRIP 106
-#endif
 
+ 
 #define DELAY_EFFECT_PROGRESSIVE_MS 0
 #define DELAY_EFFECT_RANDOM_MS 10
 

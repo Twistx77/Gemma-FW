@@ -8,6 +8,38 @@
 #define MAX_NUMBER_OF_LEDS 105
 
 
+#define TEST_BOARD
+
+#if defined(TEST_BOARD)
+#define LEDS_NL 3
+#define LEDS_STRIP 20
+#define PIN_STRIP 14
+
+#define PIN_CENTER_TS 27 // TODO: REPLACE CONFIG MANAGER
+#define PIN_LEFT_TS 2    // TODO: REPLACE CONFIG MANAGER
+#define PIN_RIGHT_TS 4   // TODO: REPLACE CONFIG MANAGER
+
+#define PIN_LED 2
+
+#define CAPACITIVE_INPUT false
+
+#else
+#define LEDS_NL 3
+#define LEDS_STRIP 106
+#define PIN_STRIP 16
+
+#define PIN_CENTER_TS 27 // TODO: REPLACE CONFIG MANAGER
+#define PIN_LEFT_TS 2    // TODO: REPLACE CONFIG MANAGER
+#define PIN_RIGHT_TS 4   // TODO: REPLACE CONFIG MANAGER
+
+#define PIN_LED 19
+
+#define CAPACITIVE_INPUT true
+#endif
+
+
+
+
 
 
 

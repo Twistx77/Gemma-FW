@@ -2,14 +2,13 @@
 #include "MW_Strip.h"
 #include "Button2.h"
 #include "AiEsp32RotaryEncoder.h"
+#include "DefaultConfig.h"
 
 #define CENTER_TS 0
 #define LEFT_TS 1
 #define RIGHT_TS 2
 
-#define PIN_CENTER_TS 27 // TODO: REPLACE CONFIG MANAGER
-#define PIN_LEFT_TS 2    // TODO: REPLACE CONFIG MANAGER
-#define PIN_RIGHT_TS 4   // TODO: REPLACE CONFIG MANAGER
+
 
 #define DEBOUNCE_TIME 1     // TODO: REPLACE CONFIG MANAGER
 #define LONG_CLICK_TIME 2000 // TODO: REPLACE CONFIG MANAGER
@@ -129,7 +128,8 @@ void HMIM_Initialize()
     // Initialize Touch sensors
     for (uint8_t sensorType = 0; sensorType < (sizeof(sensorTypes) / sizeof(sensorTypes[0])); sensorType++)
     {
-        TouchSensors[sensorType] = Button2(sensorPins[sensorType], 0, true, true);
+         
+        TouchSensors[sensorType] = Button2(sensorPins[sensorType], 0, CAPACITIVE_INPUT, CAPACITIVE_INPUT);
         TouchSensors[sensorType].setID(sensorPins[sensorType]);
         TouchSensors[sensorType].setDebounceTime(DEBOUNCE_TIME);
         TouchSensors[sensorType].setClickHandler(clickHandler);
