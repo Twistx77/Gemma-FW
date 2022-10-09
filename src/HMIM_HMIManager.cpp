@@ -55,7 +55,6 @@ void clickHandler(Button2 &btn)
         break;
     case PIN_RIGHT_TS:
         Serial.println("Right TS clicked");
-
         MWST_ToggleStripState(STRIP_RIGHT);
         lastSensorControlled = STRIP_RIGHT;
         break;
@@ -175,14 +174,11 @@ void MWIH_ReadRotaryEncoder()
     if (rotaryEncoder.encoderChanged())
     {
         if (rotaryMode == ROTARY_BRIGHTNESS_MODE)
-        {
-           
+        {           
                 uint8_t brightness = map(rotaryEncoder.readEncoder(), 0, ROTARY_ENCODER_MAX_VALUE_BRIGHTNESS, 0, 255);
                 MWST_SetBrightness(STRIP_CENTER, brightness);
                 MWST_SetBrightness(STRIP_LEFT, brightness);
-                MWST_SetBrightness(STRIP_RIGHT, brightness);
-
-            
+                MWST_SetBrightness(STRIP_RIGHT, brightness);            
         }
         else
         {
