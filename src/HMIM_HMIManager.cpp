@@ -4,6 +4,9 @@
 #include "AiEsp32RotaryEncoder.h"
 #include "DefaultConfig.h"
 
+//#define DEBUG_THIS_FILE 
+#include "PrettyDebug.h"
+
 #define CENTER_TS 0
 #define LEFT_TS 1
 #define RIGHT_TS 2
@@ -11,7 +14,7 @@
 
 
 #define DEBOUNCE_TIME 1     // TODO: REPLACE CONFIG MANAGER
-#define LONG_CLICK_TIME 2000 // TODO: REPLACE CONFIG MANAGER
+#define LONG_CLICK_TIME 1000 // TODO: REPLACE CONFIG MANAGER
 
 #define ROTARY_ENCODER_A_PIN 25      // TODO: REPLACE CONFIG MANAGER
 #define ROTARY_ENCODER_B_PIN 23      // TODO: REPLACE CONFIG MANAGER
@@ -31,6 +34,7 @@ uint8_t rotaryMode = ROTARY_BRIGHTNESS_MODE;
 
 uint8_t sensorTypes[] = {CENTER_TS, LEFT_TS, RIGHT_TS};
 uint8_t sensorPins[] = {PIN_CENTER_TS, PIN_LEFT_TS, PIN_RIGHT_TS};
+const char *SENSOR_NAMES[] = { "Center", "Left", "Right"};
 
 Button2 tsCenter, tsLeft, tsRight;
 Button2 TouchSensors[] = {tsCenter, tsLeft, tsRight};
@@ -40,49 +44,37 @@ uint8_t lastSensorControlled = CENTER_TS;
 bool buttonLongPressed[] = {false, false, false};
 
 void clickHandler(Button2 &btn)
-{
+{   
+    DEBUG_OK("Short Press %s Button", SENSOR_NAMES[btn.getID()]);
     switch (btn.getID())
     {
     case PIN_CENTER_TS:
-        Serial.println("Center TS clicked");
+       
         MWST_ToggleStripState(STRIP_CENTER);
         lastSensorControlled = STRIP_CENTER;
         break;
     case PIN_LEFT_TS:
-        Serial.println("Left TS clicked");
         MWST_ToggleStripState(STRIP_LEFT);
         lastSensorControlled = STRIP_LEFT;
         break;
     case PIN_RIGHT_TS:
-        Serial.println("Right TS clicked");
         MWST_ToggleStripState(STRIP_RIGHT);
         lastSensorControlled = STRIP_RIGHT;
         break;
     default:
-        Serial.println("ERROR: UNKNOWN BUTTON ID");
+        DEBUG_ERROR("Unknown button ID %d", btn.getID());
         break;
     }
-    /*if (rotaryMode == ROTARY_BRIGHTNESS_MODE)
-    {
-        rotaryEncoder.setBoundaries(0, ROTARY_ENCODER_MAX_VALUE_BRIGHTNESS, false);
-        rotaryEncoder.setEncoderValue(MWST_GetBrightness(lastSensorControlled));
-    }
-    else
-    {
-        rotaryEncoder.setBoundaries(0, ROTARY_ENCODER_MAX_VALUE_COLOR, false);
-        rotaryEncoder.setEncoderValue(MWST_GetColorIndex(lastSensorControlled));
-    }
-    rotaryEncoder.encoderChanged(); // Read encoder after change to avoid being detected in next iteration
-    */
 }
 
 void longClickDetectedHandler(Button2 &btn)
 {
-    Serial.println("longClickDetected");
+    DEBUG_OK("Long Press %s Button Started", SENSOR_NAMES[btn.getID()]);
     switch (btn.getID())
     {
     case PIN_CENTER_TS:
-        buttonLongPressed[CENTER_TS] = true;
+        // Ignore for center sensor
+        //buttonLongPressed[CENTER_TS] = true;
         break;
     case PIN_LEFT_TS:
         buttonLongPressed[LEFT_TS] = true;
@@ -91,30 +83,35 @@ void longClickDetectedHandler(Button2 &btn)
         buttonLongPressed[RIGHT_TS] = true;
         break;
     default:
-        Serial.println("ERROR: UNKNOWN BUTTON ID");
+    DEBUG_ERROR("Unknown button ID %d", btn.getID());
         break;
     }    
 }
 
 void longClickHandler(Button2 &btn)
 {
-    Serial.println("longClick");
+    DEBUG_OK("Long Press %s Button Ended", SENSOR_NAMES[btn.getID()]);
     
     switch (btn.getID())
-    {
+    {        
     case PIN_CENTER_TS:
-        buttonLongPressed[CENTER_TS] = false;
+        // Ignore for center sensor
+        //buttonLongPressed[CENTER_TS] = false;
         break;
     case PIN_LEFT_TS:
         buttonLongPressed[LEFT_TS] = false;
+        MWST_ToggleIncreaseBrightness(STRIP_LEFT);
         break;
     case PIN_RIGHT_TS:
         buttonLongPressed[RIGHT_TS] = false;
+        MWST_ToggleIncreaseBrightness(STRIP_RIGHT);
         break;
     default:
-        Serial.println("ERROR: UNKNOWN BUTTON ID");
-        break;
+        DEBUG_ERROR("Unknown button ID %d", btn.getID());
+        break;        
     }
+
+    
 }
 
 void IRAM_ATTR readEncoderISR()
@@ -143,7 +140,7 @@ void HMIM_Initialize()
 
     bool circleValues = false;
     rotaryEncoder.setBoundaries(0, ROTARY_ENCODER_MAX_VALUE_BRIGHTNESS, circleValues);
-    rotaryEncoder.setEncoderValue(MWST_GetBrightness(STRIP_CENTER));
+    rotaryEncoder.setEncoderValue(MWST_GetCurrentBrightness(STRIP_CENTER));
     rotaryMode = ROTARY_BRIGHTNESS_MODE;
 }
 
@@ -167,7 +164,7 @@ void MWIH_ReadRotaryEncoder()
             {
                 rotaryMode = ROTARY_BRIGHTNESS_MODE;
                 rotaryEncoder.setBoundaries(0, ROTARY_ENCODER_MAX_VALUE_BRIGHTNESS, false);
-                rotaryEncoder.setEncoderValue(MWST_GetBrightness(lastSensorControlled));
+                rotaryEncoder.setEncoderValue(MWST_GetCurrentBrightness(lastSensorControlled));
             }
         }
     }
@@ -205,10 +202,10 @@ void HMIN_ProcessHMI()
     for (uint8_t sensorType = 0; sensorType < (sizeof(sensorTypes) / sizeof(sensorTypes[0])); sensorType++)
     {
         TouchSensors[sensorType].loop();
-       /* if (buttonLongPressed[sensorType])
+        if (buttonLongPressed[sensorType])
         {
-            MWST_IncreaseStripIlumination(sensorType, 10);
-        }*/
+            MWST_IncreaseStripIlumination(sensorType+1, 1);
+        }
     }
     MWIH_ReadRotaryEncoder();
 }

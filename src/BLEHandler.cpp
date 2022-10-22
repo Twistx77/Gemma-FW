@@ -124,7 +124,7 @@ class callbackBrightness : public BLECharacteristicCallbacks
       stripType = STRIP_RIGHT;
       break;
     }
-    int brightness = MWST_GetBrightness(stripType);
+    int brightness = MWST_GetCurrentBrightness(stripType);
     pCharacteristic->setValue(brightness);
   }
 };

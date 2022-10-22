@@ -1,4 +1,5 @@
 #include "MW_Uploader.h"
+#include "DefaultConfig.h"
 #include <WiFi.h>
 #include <WiFiClient.h>
 #include <WebServer.h>
@@ -152,8 +153,7 @@ void MWUP_EnterBootloaderMode()
   const char *ssid = "Gemma";
   const char *password = "123456789";
 
-  // Connect to WiFi network
-  // WiFi.begin(ssid, password);
+  // CCreate software Access Point
   WiFi.softAP(ssid, password);
   Serial.println();
   Serial.print("software version: ");

@@ -21,6 +21,7 @@
 
 void MWST_Initialize(void);
 uint8_t MWST_GetLastStripActive(void);
+void MWST_ToggleIncreaseBrightness(uint8_t stripType);
 void MWST_ToggleStripState(uint8_t stripType);
 void MWST_IncreaseStripIlumination(uint8_t stripType, uint8_t steps);
 void MWST_SetStripColor(uint8_t stripType, RgbwColor color);
@@ -28,8 +29,9 @@ void MWST_SetLEDsColor(uint8_t stripType, RgbwColor color, uint8_t firstLED, uin
 void MWST_SetStripState(uint8_t stripType, bool state, uint8_t typeOfEffect);
 bool MWST_GetState(uint8_t stripType);
 RgbwColor MWST_GetColor(uint8_t stripType);
-uint8_t MWST_GetBrightness(uint8_t stripType);
+uint8_t MWST_GetCurrentBrightness(uint8_t stripType);
 uint32_t MWST_GetColorIndex(uint8_t stripType);
 void MWST_SetBrightness(uint8_t stripType, uint8_t brightness);
+
 
 #endif

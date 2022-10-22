@@ -8,11 +8,9 @@
 #include "BLEHandler.h"
 #include "MW_Strip.h"
 
-#define CAPACITIVE_TOUCH_THRESHOLD 6
+//#define DEBUG_THIS_FILE 
+#include "PrettyDebug.h"
 
-#define PIN_CENTER_TS 27 // TODO: REPLACE CONFIG MANAGER
-#define PIN_LEFT_TS 2    // TODO: REPLACE CONFIG MANAGER
-#define PIN_RIGHT_TS 4   // TODO: REPLACE CONFIG MANAGER
 
 
 
@@ -20,22 +18,23 @@ uint32_t NumberOfLedsStrip = MAX_NUMBER_OF_LEDS;
 
 void setup()
 {
-
+  
   Serial.begin(115200);
+
+
+  ATTACH_DEBUG_STREAM(&Serial);
+  DEBUG_OK("Booting");
   
   ConfigManager_Initialize();
 
   NumberOfLedsStrip = ConfigManager_ReadParameter(PARAM_NUMBER_OF_LEDS);
 
-  
+  // Strip initialization
   MWST_Initialize();
-
   
-
-  if (touchRead(PIN_CENTER_TS) < CAPACITIVE_TOUCH_THRESHOLD || touchRead(PIN_LEFT_TS) < CAPACITIVE_TOUCH_THRESHOLD )
-  {
-  
-
+  // Check if wifi update has to be started
+  if (touchRead(PIN_CENTER_TS) < CAPTOUCH_THLD_BOOT || touchRead(PIN_LEFT_TS) < CAPTOUCH_THLD_BOOT )
+  {  
     MWST_ToggleStripState (STRIP_CENTER);
     MWST_SetBrightness(STRIP_CENTER, 100);
     MWST_SetStripColor(STRIP_CENTER, RgbwColor(0, 0x30, 0x10, 0));
@@ -44,8 +43,13 @@ void setup()
     MWST_SetStripColor(STRIP_CENTER, RgbwColor(0x30, 0, 0x30));
     MWUP_EnterBootloaderMode();
   }
+
+  // Initialize BLE
   BLEHandler_Initialize();
+
+  // HMI Interface
   HMIM_Initialize();
+  DEBUG_OK("Initialization finished");
 }
 
 void loop()
