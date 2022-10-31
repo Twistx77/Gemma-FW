@@ -61,6 +61,11 @@ void Button2::begin(byte attachTo, byte buttonMode /* = INPUT_PULLUP */, boolean
     threshold = temp;
 
     threshold = threshold * 0.95;
+
+    /*
+    average_reading = touchRead(pin);
+    threshold = average_reading * THRESHOLD_PROPORTION;
+    */
   }
   //  state = activeLow ? HIGH : LOW;
   state = _getState();
@@ -360,11 +365,10 @@ byte Button2::_getState()
   }
   else
   {
-#if defined(ARDUINO_ARCH_ESP32)
     uint16_t capa = 0;
     for (int i = 0; i < 5; i++)
       capa += touchRead(pin);
-    state = capa < threshold ? LOW : HIGH;
+     state = capa < threshold ? LOW : HIGH;
     /*
     if (pin == 27)
     {
@@ -374,8 +378,19 @@ byte Button2::_getState()
       Serial.print(",");
       Serial.println(threshold + 5* state);
     }*/
-    return state;
-#endif
+    /*
+    average_reading = average_reading * PROPORTION_AVERAGE + touchRead(pin);
+    state = average_reading < threshold ? LOW : HIGH;
+
+    
+
+    if  (state == LOW):   
+        threshold = average_reading * THRESHOLD_PROPORTION;
+
+    
+    Serial.println("Avg:"+String(average_reading)+" thld:"+String(threshold)+ " state"+ String(state))
+    */   
+
   }
   return state;
 }

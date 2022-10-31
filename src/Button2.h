@@ -19,6 +19,10 @@
 #define LONGCLICK_MS 200
 #define DOUBLECLICK_MS 300
 #define CAPACITIVE_TOUCH_THRESHOLD 8
+#define THRESHOLD_PROPORTION (float) 0.9
+#define PROPORTION_NEW_SAMPLE = 0.1
+#define PROPORTION_AVERAGE = float(1.0-PROPORTION_NEW_SAMPLE) 
+
 
 #define UNDEFINED_PIN 255
 #define VIRTUAL_PIN 254
@@ -36,7 +40,8 @@ enum clickType {
 class Button2 {
 
 protected:
-  uint16_t threshold = CAPACITIVE_TOUCH_THRESHOLD;
+  float threshold = CAPACITIVE_TOUCH_THRESHOLD;
+  float average_reading;
   int id;
   byte pin;
   byte state;
