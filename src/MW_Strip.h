@@ -1,5 +1,5 @@
 #include <stdint.h>
-#include <NeoPixelBrightnessBus.h>
+#include "NeoPixelBus/src/NeoPixelBrightnessBus.h"
 
 #ifndef _H_MW_STRIP
 #define _H_MW_STRIP
@@ -17,6 +17,8 @@
 #define EFFECT_PROGRESSIVE_FROM_CENTER 2
 #define EFFECT_RANDOM_LED 3
 #define EFFECT_FADE 4
+
+#define CURRENT_EFFECT EFFECT_FADE
 
 
 void MWST_Initialize(void);

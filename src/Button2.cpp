@@ -6,6 +6,7 @@
 /////////////////////////////////////////////////////////////////
 
 #include "Button2.h"
+#include "DefaultConfig.h"
 
 /////////////////////////////////////////////////////////////////
 // initalize static counter
@@ -49,25 +50,12 @@ void Button2::begin(byte attachTo, byte buttonMode /* = INPUT_PULLUP */, boolean
     }
   }
   else
-  {
+  {    
     is_capacitive = true;
-
-    uint16_t temp = 0;
     pin = attachTo;
-    for (int i = 0; i < 5; i++)
-    {
-      temp += touchRead(pin);
-    }
-    threshold = temp;
-
-    threshold = threshold * 0.95;
-
-    /*
     average_reading = touchRead(pin);
     threshold = average_reading * THRESHOLD_PROPORTION;
-    */
   }
-  //  state = activeLow ? HIGH : LOW;
   state = _getState();
   prev_state = state;
 }
@@ -357,40 +345,38 @@ void Button2::waitForLong(bool keepState /* = false */)
 byte Button2::_getState()
 {
   uint8_t state = LOW;
-  if (get_state_cb != NULL)
+  
+  if (get_state_cb != NULL){    
     return get_state_cb();
+  }
   if (!is_capacitive)
   {
     return digitalRead(pin);
   }
   else
-  {
-    uint16_t capa = 0;
-    for (int i = 0; i < 5; i++)
-      capa += touchRead(pin);
-     state = capa < threshold ? LOW : HIGH;
-    /*
-    if (pin == 27)
+  {    
+    uint8_t sample =  touchRead(pin);
+
+    state = sample < threshold ? LOW : HIGH;
+
+    if  (state == HIGH) {
+        threshold = threshold*PROPORTION_AVERAGE_THRESHOLD +  (sample * THRESHOLD_PROPORTION)*PROPORTION_NEW_THRESHOLD;
+    }
+
+    #ifdef BT_DEBUG
+    
+    if (pin == 27){
+    uint8_t arr[] = {'>',pin,(uint8_t)(sample*10),(uint8_t) (threshold*10)};
+    SerialBT.write(arr,4);
+    }
+    //SerialBT.println(String(pin)+ ","+String(sample) + ","+ String(threshold)+ ","+ String(state));
+    
+    #endif
+    if (pin==27)
     {
-      Serial.print(capa);
-      Serial.print(",");
-      Serial.print(threshold);
-      Serial.print(",");
-      Serial.println(threshold + 5* state);
-    }*/
-    /*
-    average_reading = average_reading * PROPORTION_AVERAGE + touchRead(pin);
-    state = average_reading < threshold ? LOW : HIGH;
-
-    
-
-    if  (state == LOW):   
-        threshold = average_reading * THRESHOLD_PROPORTION;
-
-    
-    Serial.println("Avg:"+String(average_reading)+" thld:"+String(threshold)+ " state"+ String(state))
-    */   
-
+      Serial.println(String(sample) + ","+ String(threshold)+ ","+ String(state));
+    }
+     
   }
   return state;
 }

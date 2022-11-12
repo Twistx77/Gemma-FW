@@ -16,17 +16,7 @@
 #define DEBOUNCE_TIME 1     // TODO: REPLACE CONFIG MANAGER
 #define LONG_CLICK_TIME 1000 // TODO: REPLACE CONFIG MANAGER
 
-#define ROTARY_ENCODER_A_PIN 25      // TODO: REPLACE CONFIG MANAGER
-#define ROTARY_ENCODER_B_PIN 23      // TODO: REPLACE CONFIG MANAGER
-#define ROTARY_ENCODER_BUTTON_PIN 26 // TODO: REPLACE CONFIG MANAGER
 
-#define ROTARY_ENCODER_STEPS 4 // TODO: REPLACE CONFIG MANAGER
-
-#define ROTARY_BRIGHTNESS_MODE 0                  // TODO: REPLACE CONFIG MANAGER
-#define ROTARY_COLOR_MODE 1                       // TODO: REPLACE CONFIG MANAGER
-#define ROTARY_ENCODER_MAX_VALUE_BRIGHTNESS 255.0 // TODO: REPLACE CONFIG MANAGER
-#define ROTARY_ENCODER_MAX_VALUE_COLOR 512.0      // TODO: REPLACE CONFIG MANAGER
-#define ROTARY_ENCODER_ACCELERATION 250           // TODO: REPLACE CONFIG MANAGER
 
 AiEsp32RotaryEncoder rotaryEncoder = AiEsp32RotaryEncoder(ROTARY_ENCODER_A_PIN, ROTARY_ENCODER_B_PIN, ROTARY_ENCODER_BUTTON_PIN, -1, ROTARY_ENCODER_STEPS);
 
@@ -125,7 +115,7 @@ void HMIM_Initialize()
     for (uint8_t sensorType = 0; sensorType < (sizeof(sensorTypes) / sizeof(sensorTypes[0])); sensorType++)
     {
          
-        TouchSensors[sensorType] = Button2(sensorPins[sensorType], 0, CAPACITIVE_INPUT, CAPACITIVE_INPUT);
+        TouchSensors[sensorType] = Button2(sensorPins[sensorType], 0, CAPACITIVE_INPUT, ACTIVE_LOW);
         TouchSensors[sensorType].setID(sensorPins[sensorType]);
         TouchSensors[sensorType].setDebounceTime(DEBOUNCE_TIME);
         TouchSensors[sensorType].setClickHandler(clickHandler);
@@ -140,7 +130,7 @@ void HMIM_Initialize()
 
     bool circleValues = false;
     rotaryEncoder.setBoundaries(0, ROTARY_ENCODER_MAX_VALUE_BRIGHTNESS, circleValues);
-    rotaryEncoder.setEncoderValue(MWST_GetCurrentBrightness(STRIP_CENTER));
+    rotaryEncoder.setEncoderValue(MAX_BRIGHTNESS);
     rotaryMode = ROTARY_BRIGHTNESS_MODE;
 }
 
@@ -158,40 +148,41 @@ void MWIH_ReadRotaryEncoder()
             {
                 rotaryMode = ROTARY_COLOR_MODE;
                 rotaryEncoder.setBoundaries(0, ROTARY_ENCODER_MAX_VALUE_COLOR, false);
-                rotaryEncoder.setEncoderValue(MWST_GetColorIndex(lastSensorControlled));
+                rotaryEncoder.setEncoderValue(MWST_GetColorIndex(STRIP_CENTER));
             }
             else
             {
                 rotaryMode = ROTARY_BRIGHTNESS_MODE;
                 rotaryEncoder.setBoundaries(0, ROTARY_ENCODER_MAX_VALUE_BRIGHTNESS, false);
-                rotaryEncoder.setEncoderValue(MWST_GetCurrentBrightness(lastSensorControlled));
+                rotaryEncoder.setEncoderValue(MWST_GetCurrentBrightness(STRIP_CENTER));
             }
         }
     }
     if (rotaryEncoder.encoderChanged())
     {
+        uint16_t encoder_value = rotaryEncoder.readEncoder();
         if (rotaryMode == ROTARY_BRIGHTNESS_MODE)
-        {           
-                uint8_t brightness = map(rotaryEncoder.readEncoder(), 0, ROTARY_ENCODER_MAX_VALUE_BRIGHTNESS, 0, 255);
+        {   
+                uint8_t brightness = encoder_value;
                 MWST_SetBrightness(STRIP_CENTER, brightness);
                 MWST_SetBrightness(STRIP_LEFT, brightness);
                 MWST_SetBrightness(STRIP_RIGHT, brightness);            
         }
         else
-        {
-            if (rotaryEncoder.readEncoder() < (ROTARY_ENCODER_MAX_VALUE_COLOR / 2))
+        {        
+            if (encoder_value < (ROTARY_ENCODER_MAX_VALUE_COLOR / 2))
             {
-                float hue = rotaryEncoder.readEncoder() / (ROTARY_ENCODER_MAX_VALUE_COLOR / 2.0);
-                MWST_SetStripColor(STRIP_CENTER, RgbwColor(HsbColor(hue, 0.6f, 1.0f)));
-                MWST_SetStripColor(STRIP_LEFT, RgbwColor(HsbColor(hue, 0.6f, 1.0f)));
-                MWST_SetStripColor(STRIP_RIGHT, RgbwColor(HsbColor(hue, 0.6f, 1.0f)));
+                float hue = encoder_value / (ROTARY_ENCODER_MAX_VALUE_COLOR / 2.0);
+                MWST_SetStripColor(STRIP_CENTER, RgbwColor(HsbColor(hue, DEFAULT_SATURATION, 1.0f)));
+                MWST_SetStripColor(STRIP_LEFT, RgbwColor(HsbColor(hue, DEFAULT_SATURATION, 1.0f)));
+                MWST_SetStripColor(STRIP_RIGHT, RgbwColor(HsbColor(hue, DEFAULT_SATURATION, 1.0f)));
             }
             else
             {
-                uint16_t encoder_value = rotaryEncoder.readEncoder();
-                MWST_SetStripColor(STRIP_CENTER, RgbwColor(0, 0, map(encoder_value - (ROTARY_ENCODER_MAX_VALUE_COLOR / 2), (ROTARY_ENCODER_MAX_VALUE_COLOR / 2),0 , 0, 255), 255));
-                MWST_SetStripColor(STRIP_LEFT, RgbwColor(0, 0, map(encoder_value - (ROTARY_ENCODER_MAX_VALUE_COLOR / 2), 0, 0, (ROTARY_ENCODER_MAX_VALUE_COLOR / 2), 255), 255));
-                MWST_SetStripColor(STRIP_RIGHT, RgbwColor(0, 0, map(encoder_value - (ROTARY_ENCODER_MAX_VALUE_COLOR / 2), 0, 0, (ROTARY_ENCODER_MAX_VALUE_COLOR / 2), 255), 255));
+                RgbwColor Color = RgbwColor(0, 0, map(encoder_value - (ROTARY_ENCODER_MAX_VALUE_COLOR / 2), (ROTARY_ENCODER_MAX_VALUE_COLOR / 2),0 , 0, 255), 255); 
+                MWST_SetStripColor(STRIP_CENTER, Color);
+                MWST_SetStripColor(STRIP_LEFT, Color);
+                MWST_SetStripColor(STRIP_RIGHT, Color);
             }
         }
     }

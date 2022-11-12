@@ -4,7 +4,6 @@
 #include <BLEServer.h>
 #include <Arduino.h>
 #include "MW_Strip.h"
-#include <NeoPixelBrightnessBus.h>
 #include <stdint.h>
 #include "DefaultConfig.h"
 
