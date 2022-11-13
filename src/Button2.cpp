@@ -53,7 +53,9 @@ void Button2::begin(byte attachTo, byte buttonMode /* = INPUT_PULLUP */, boolean
   {    
     is_capacitive = true;
     pin = attachTo;
-    average_reading = touchRead(pin);
+    for (uint8_t i = 0; i<5; i++)
+      average_reading += touchRead(pin);
+    //average_reading =  average_reading/20;
     threshold = average_reading * THRESHOLD_PROPORTION;
   }
   state = _getState();
@@ -355,12 +357,17 @@ byte Button2::_getState()
   }
   else
   {    
-    uint8_t sample =  touchRead(pin);
+    //uint8_t sample =  touchRead(pin);  
 
-    state = sample < threshold ? LOW : HIGH;
+    for (uint8_t i = 0; i<5; i++)
+      average_reading += touchRead(pin);  
 
-    if  (state == HIGH) {
-        threshold = threshold*PROPORTION_AVERAGE_THRESHOLD +  (sample * THRESHOLD_PROPORTION)*PROPORTION_NEW_THRESHOLD;
+    state = average_reading < threshold ? LOW : HIGH;
+
+    // If the sensor is not being touched, update the threshold
+    if  (state == HIGH) { 
+        average_reading = average_reading*PROPORTION_CURRENT_AVERAGE + sample*PROPORTION_NEW_SAMPLE;         
+        threshold = average_reading* THRESHOLD_PROPORTION;
     }
 
     #ifdef BT_DEBUG
@@ -372,10 +379,10 @@ byte Button2::_getState()
     //SerialBT.println(String(pin)+ ","+String(sample) + ","+ String(threshold)+ ","+ String(state));
     
     #endif
-    if (pin==27)
+    /*if (pin==27)
     {
       Serial.println(String(sample) + ","+ String(threshold)+ ","+ String(state));
-    }
+    }*/
      
   }
   return state;

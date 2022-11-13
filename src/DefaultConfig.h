@@ -3,7 +3,7 @@
  
 #define FW_MAJOR 0
 #define FW_MINOR 5
-#define FW_PATCH 5
+#define FW_PATCH 6
 
 //#define BT_DEBUG 
 
