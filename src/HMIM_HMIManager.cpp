@@ -3,6 +3,8 @@
 #include "Button2.h"
 #include "AiEsp32RotaryEncoder.h"
 #include "DefaultConfig.h"
+#include "driver/touch_sensor.h"
+#include "esp32-hal-touch.h"
 
 //#define DEBUG_THIS_FILE 
 #include "PrettyDebug.h"
@@ -63,7 +65,6 @@ void longClickDetectedHandler(Button2 &btn)
     switch (btn.getID())
     {
     case PIN_CENTER_TS:
-        // Ignore for center sensor
         //buttonLongPressed[CENTER_TS] = true;
         break;
     case PIN_LEFT_TS:
@@ -85,8 +86,8 @@ void longClickHandler(Button2 &btn)
     switch (btn.getID())
     {        
     case PIN_CENTER_TS:
-        // Ignore for center sensor
         //buttonLongPressed[CENTER_TS] = false;
+        //WST_ToggleIncreaseBrightness(STRIP_CENTER);
         break;
     case PIN_LEFT_TS:
         buttonLongPressed[LEFT_TS] = false;
@@ -111,9 +112,22 @@ void IRAM_ATTR readEncoderISR()
 
 void HMIM_Initialize()
 {
+
+    
+    
+    touch_pad_init();    
+    
+    touch_pad_set_voltage(TOUCH_HVOLT_2V7, TOUCH_LVOLT_0V5, TOUCH_HVOLT_ATTEN_0V); 
+    // Set measuring time for the Touch Sensor FSM to improve resolution for bigger capacitive surface
+    touch_pad_set_meas_time(50, 20000);
+    // Touch Sensor Timer initiated
+    touch_pad_set_fsm_mode(TOUCH_FSM_MODE_TIMER);  
+    touch_pad_filter_start(20);
+
     // Initialize Touch sensors
     for (uint8_t sensorType = 0; sensorType < (sizeof(sensorTypes) / sizeof(sensorTypes[0])); sensorType++)
     {
+        
          
         TouchSensors[sensorType] = Button2(sensorPins[sensorType], 0, CAPACITIVE_INPUT, ACTIVE_LOW);
         TouchSensors[sensorType].setID(sensorPins[sensorType]);

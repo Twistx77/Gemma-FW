@@ -15,13 +15,13 @@
 #include "Arduino.h"
 /////////////////////////////////////////////////////////////////
 
-#define DEBOUNCE_MS 50
+#define DEBOUNCE_MS 1
 #define LONGCLICK_MS 200
 #define DOUBLECLICK_MS 300
 #define CAPACITIVE_TOUCH_THRESHOLD 8
-#define PROPORTION_CURRENT_AVERAGE 0.99
+#define PROPORTION_CURRENT_AVERAGE 0.999
 #define PROPORTION_NEW_SAMPLE (float)(1.0-PROPORTION_CURRENT_AVERAGE) 
-#define THRESHOLD_PROPORTION (float) 0.95
+#define THRESHOLD_PROPORTION (float) 0.9
 //#define PROPORTION_NEW_THRESHOLD 0.002
 //#define PROPORTION_AVERAGE_THRESHOLD (float)(1.0-PROPORTION_NEW_THRESHOLD) 
 
@@ -42,7 +42,7 @@ enum clickType {
 class Button2 {
 
 protected:
-  float threshold = CAPACITIVE_TOUCH_THRESHOLD;
+  uint16_t threshold = CAPACITIVE_TOUCH_THRESHOLD;
   float average_reading;
   int id;
   byte pin;

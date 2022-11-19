@@ -57,7 +57,7 @@ static BluetoothSerial SerialBT;
 
 
 #else
-#define LEDS_NL 3
+#define LEDS_NL 4
 #define LEDS_STRIP 106
 #define PIN_STRIP 16
 
@@ -65,9 +65,14 @@ static BluetoothSerial SerialBT;
 #define PIN_LEFT_TS 2    // TODO: REPLACE CONFIG MANAGER
 #define PIN_RIGHT_TS 4   // TODO: REPLACE CONFIG MANAGER
 
-#define PIN_LED 19
+#define PIN_LED 2
 
 #define CAPACITIVE_INPUT true
+
+
+
+#define TOUCH_MESUREMENT_INTERVAL 5 // Interval between each measurement. t_sleep = TOUCH_MESUREMENT_INTERVAL / SOC_CLK_RC_SLOW_FREQ_APPROX
+#define TOUCH_MESURAMENT_TIME 20000 // Duration of the touch sensor measurement. t_meas = TOUCH_MESURAMENT_TIME / SOC_CLK_RC_FAST_FREQ_APPROX, the maximum measure time is 0xffff 
 
 #define MAX_BRIGHTNESS 255
 #endif

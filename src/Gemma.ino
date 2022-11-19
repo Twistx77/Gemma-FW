@@ -7,11 +7,7 @@
 #include "BLEHandler.h"
 #include "MW_Strip.h"
 
-//#define DEBUG_THIS_FILE 
 #include "PrettyDebug.h"
-
-#include "driver/touch_sensor.h"
-#include "esp32-hal-touch.h"
 
 
 
@@ -20,9 +16,7 @@ uint32_t NumberOfLedsStrip = MAX_NUMBER_OF_LEDS;
 
 void setup()
 {
-  touch_pad_set_voltage(TOUCH_HVOLT_2V4, TOUCH_LVOLT_0V8, TOUCH_HVOLT_ATTEN_0V); 
-  touch_pad_set_meas_time(0x1000, 0x100);
-  Serial.begin(115200);
+  Serial.begin(900000);
 
   pinMode(ROTARY_ENCODER_BUTTON_PIN, INPUT_PULLUP);
 

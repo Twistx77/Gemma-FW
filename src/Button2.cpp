@@ -8,6 +8,9 @@
 #include "Button2.h"
 #include "DefaultConfig.h"
 
+#include "driver/touch_sensor.h"
+#include "esp32-hal-touch.h"
+
 /////////////////////////////////////////////////////////////////
 // initalize static counter
 
@@ -51,12 +54,11 @@ void Button2::begin(byte attachTo, byte buttonMode /* = INPUT_PULLUP */, boolean
   }
   else
   {    
+    touch_pad_config((touch_pad_t)digitalPinToTouchChannel(pin), SOC_TOUCH_PAD_THRESHOLD_MAX); 
     is_capacitive = true;
-    pin = attachTo;
-    for (uint8_t i = 0; i<5; i++)
-      average_reading += touchRead(pin);
-    //average_reading =  average_reading/20;
-    threshold = average_reading * THRESHOLD_PROPORTION;
+    pin = attachTo;    
+    touch_pad_read_raw_data((touch_pad_t)digitalPinToTouchChannel(pin), &threshold);
+    threshold *= THRESHOLD_PROPORTION;
   }
   state = _getState();
   prev_state = state;
@@ -357,18 +359,16 @@ byte Button2::_getState()
   }
   else
   {    
-    //uint8_t sample =  touchRead(pin);  
+    uint16_t sample =  touchRead(pin); 
+    touch_pad_read_raw_data((touch_pad_t)digitalPinToTouchChannel(pin), &sample);
 
-    for (uint8_t i = 0; i<5; i++)
-      average_reading += touchRead(pin);  
-
-    state = average_reading < threshold ? LOW : HIGH;
+    state = sample < threshold ? LOW : HIGH;
 
     // If the sensor is not being touched, update the threshold
-    if  (state == HIGH) { 
+    //if  (state == LOW) { 
         average_reading = average_reading*PROPORTION_CURRENT_AVERAGE + sample*PROPORTION_NEW_SAMPLE;         
         threshold = average_reading* THRESHOLD_PROPORTION;
-    }
+    //}
 
     #ifdef BT_DEBUG
     
@@ -379,6 +379,9 @@ byte Button2::_getState()
     //SerialBT.println(String(pin)+ ","+String(sample) + ","+ String(threshold)+ ","+ String(state));
     
     #endif
+
+    delay(20);
+    
     /*if (pin==27)
     {
       Serial.println(String(sample) + ","+ String(threshold)+ ","+ String(state));
