@@ -34,7 +34,7 @@ typedef struct
 NeoPixelBrightnessBus<NeoRgbwFeature, Neo800KbpsMethod> stripHW(LEDS_STRIP, PIN_STRIP);
 
 MWST_TypeStripConfig stripLeftCfg, stripRightCfg, stripCenterCfg;
-MWST_TypeStripConfig strips[] = {stripCenterCfg, stripLeftCfg, stripRightCfg};
+MWST_TypeStripConfig strips[] = {stripCenterCfg, stripCenterCfg, stripLeftCfg, stripRightCfg};
 
 void effectFade(MWST_TypeStripConfig *strip, uint8_t firstLED, uint8_t lastLED)
 {
@@ -43,7 +43,6 @@ void effectFade(MWST_TypeStripConfig *strip, uint8_t firstLED, uint8_t lastLED)
   if (strip->currentState == MWST_ENABLED)
   {
     uint16_t i = 0;
-    uint16_t limit = strip->setBrightness;   
    
     while (i < strip->setBrightness)
     {
@@ -178,11 +177,11 @@ void MWST_ToggleIncreaseBrightness(uint8_t stripType)
   strips[stripType].brightnessDir = !strips[stripType].brightnessDir;
   if (strips[stripType].setBrightness == 0)
   {
-    strips[stripType].currentState == MWST_DISABLED;
+    strips[stripType].currentState = MWST_DISABLED;
   }
   else
   {
-    strips[stripType].currentState == MWST_ENABLED;
+    strips[stripType].currentState = MWST_ENABLED;
   }
 }
 

@@ -3,6 +3,14 @@
 
 #include <stdint.h>
 
+typedef enum
+{
+    TS_CENTER = 0,
+    TS_LEFT = 1,
+    TS_RIGHT= 2,
+    MAX_TOUCH_SENSORS
+} TouchSensor_t;
+
 void HMIM_Initialize();
 void HMIN_ProcessHMI();
 

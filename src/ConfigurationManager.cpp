@@ -1,4 +1,3 @@
-
 #include "ConfigurationManager.h"
 #include "EEPROM.h"
 #include "DefaultConfig.h"
