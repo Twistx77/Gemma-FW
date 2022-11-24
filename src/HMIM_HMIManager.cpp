@@ -8,12 +8,11 @@
 // #define DEBUG_THIS_FILE
 #include "PrettyDebug.h"
 
-#define DEBOUNCE_TIME 1            // TODO: REPLACE CONFIG MANAGER
-#define LONG_CLICK_TIME 1000       // TODO: REPLACE CONFIG MANAGER
+#define DEBOUNCE_TIME 50 // TODO: REPLACE CONFIG MANAGER
 
-#define LONG_TOUCH_DURATION_MS 1000 // TODO: REPLACE CONFIG MANAGER
+#define LONG_TOUCH_DURATION_MS 1000       // TODO: REPLACE CONFIG MANAGER
 #define TOUCHPAD_FILTER_TOUCH_PERIOD (10) // TODO: REPLACE CONFIG MANAGER
-#define TOUCH_THRESH_NO_USE   (0)
+#define TOUCH_THRESH_NO_USE (0)
 #define TOUCH_THRESHOLD_PRPORTION (0.8)
 
 // TODO: Check if this is actually needed
@@ -125,7 +124,7 @@ TouchState_T readTouchSensorState(touch_pad_t sensorInput, uint16_t threshold)
 {
     uint16_t touchValue;
     touch_pad_read_raw_data(sensorInput, &touchValue);
-    Serial.println("Val: " + String(touchValue) + " trhld " + String(threshold));
+    // Serial.println("Val: " + String(touchValue) + " trhld " + String(threshold));
 
     if (touchValue < threshold)
     {
@@ -156,23 +155,34 @@ void processTouchInputs()
                 if (touchSensorsEvents[sensor] == NO_EVENT && (millis() - lastTimePressed[sensor]) > LONG_TOUCH_DURATION_MS)
                 {
                     touchSensorsEvents[sensor] = LONG_TOUCH_EVENT;
+                    Serial.println("Long " + String(SENSOR_NAMES[sensor]));
                     // longClickDetectedHandler(touchSensorTypes[sensor]);
                 }
             }
             else
             {
+                lastState[sensor] = TOUCHED;
                 lastTimePressed[sensor] = millis();
+
                 // longClickHandler(stouchSensorTypes[sensor]);
             }
-
-            lastState[sensor] = TOUCHED;
-            clickHandler(touchSensorTypes[sensor]);
+          /* if (touchSensorsEvents[sensor] == NOT_TOUCHED && (millis() - lastTimePressed[sensor]) > DEBOUNCE_TIME)
+            {
+                lastState[sensor] = TOUCHED;
+                touchSensorsEvents[sensor] = TOUCHED;
+                Serial.println("Touched " + String(SENSOR_NAMES[sensor]));
+                clickHandler(touchSensorTypes[sensor]);
+            }*/
         }
         else
         {
 
             if (lastState[sensor] == TOUCHED)
             {
+            
+                Serial.println("Touched " + String(SENSOR_NAMES[sensor]));
+                clickHandler(touchSensorTypes[sensor]);
+                Serial.println("Release " + String(SENSOR_NAMES[sensor]));
                 lastState[sensor] = NOT_TOUCHED;
             }
 
@@ -200,8 +210,9 @@ void HMIM_Initialize()
         touch_pad_config(sensorsInput[sensor], TOUCH_THRESH_NO_USE);
 
         delay(100); // Wait for configuration to settle
-
-        touchThresholds[sensor] = touch_pad_read_filtered(sensorsInput[sensor], &touchValue) * TOUCH_THRESHOLD_PRPORTION;
+        touch_pad_read_filtered(sensorsInput[sensor], &touchValue);
+        touchThresholds[sensor] = touchValue * TOUCH_THRESHOLD_PRPORTION;
+        // Serial.println(touchThresholds[sensor]);
     }
 
     rotaryEncoder.begin();

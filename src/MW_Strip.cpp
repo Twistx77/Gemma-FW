@@ -39,7 +39,7 @@ MWST_TypeStripConfig strips[] = {stripCenterCfg, stripCenterCfg, stripLeftCfg, s
 void effectFade(MWST_TypeStripConfig *strip, uint8_t firstLED, uint8_t lastLED)
 {
   
-  uint8_t step = 3;
+  uint8_t step = 1;
   if (strip->currentState == MWST_ENABLED)
   {
     uint16_t i = 0;
@@ -59,7 +59,6 @@ void effectFade(MWST_TypeStripConfig *strip, uint8_t firstLED, uint8_t lastLED)
       stripHW.SetBrightness(i, firstLED, lastLED);
       stripHW.Show();
     }
-
   }
   else
   {

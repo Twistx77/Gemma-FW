@@ -74,7 +74,7 @@ static BluetoothSerial SerialBT;
 #define TOUCH_MESUREMENT_INTERVAL 5 // Interval between each measurement. t_sleep = TOUCH_MESUREMENT_INTERVAL / SOC_CLK_RC_SLOW_FREQ_APPROX
 #define TOUCH_MESURAMENT_TIME 20000 // Duration of the touch sensor measurement. t_meas = TOUCH_MESURAMENT_TIME / SOC_CLK_RC_FAST_FREQ_APPROX, the maximum measure time is 0xffff 
 
-#define MAX_BRIGHTNESS 255
+#define MAX_BRIGHTNESS 50
 #endif
 
 #define ACTIVE_LOW CAPACITIVE_INPUT

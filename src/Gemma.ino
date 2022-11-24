@@ -16,7 +16,7 @@ uint32_t NumberOfLedsStrip = MAX_NUMBER_OF_LEDS;
 
 void setup()
 {
-  Serial.begin(900000);
+  Serial.begin(115200);
 
   pinMode(ROTARY_ENCODER_BUTTON_PIN, INPUT_PULLUP);
 
