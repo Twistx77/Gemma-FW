@@ -34,12 +34,12 @@ typedef struct
 NeoPixelBrightnessBus<NeoRgbwFeature, Neo800KbpsMethod> stripHW(LEDS_STRIP, PIN_STRIP);
 
 MWST_TypeStripConfig stripLeftCfg, stripRightCfg, stripCenterCfg;
-MWST_TypeStripConfig strips[] = {stripCenterCfg, stripCenterCfg, stripLeftCfg, stripRightCfg};
+MWST_TypeStripConfig strips[] = {stripCenterCfg, stripLeftCfg, stripRightCfg};
 
 void effectFade(MWST_TypeStripConfig *strip, uint8_t firstLED, uint8_t lastLED)
 {
   
-  uint8_t step = 1;
+  uint8_t step = 5;
   if (strip->currentState == MWST_ENABLED)
   {
     uint16_t i = 0;
@@ -168,7 +168,6 @@ void MWST_Initialize()
   stripHW.Begin();
   stripHW.SetBrightness(255);
   stripHW.ClearTo(RgbwColor(0, 0, 0, 0));
-
   stripHW.Show();
 }
 void MWST_ToggleIncreaseBrightness(uint8_t stripType)
@@ -303,7 +302,7 @@ void MWST_SetStripState(uint8_t stripType, bool state, uint8_t typeOfEffect)
     break;
 
   default:
-    DEBUG_ERROR("Unknown Strip Type %d", stripType);
+    Serial.println("Unknown Strip Type "+ String(stripType));
     return;
     break;
   }
@@ -348,6 +347,7 @@ void MWST_SetStripState(uint8_t stripType, bool state, uint8_t typeOfEffect)
 
     break;
   }
+
 }
 
 void MWST_ToggleStripState(uint8_t stripType)

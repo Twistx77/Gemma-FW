@@ -19,6 +19,9 @@ void setup()
   Serial.begin(115200);
 
   pinMode(ROTARY_ENCODER_BUTTON_PIN, INPUT_PULLUP);
+  pinMode(PIN_LED, OUTPUT);
+
+  digitalWrite(PIN_LED, HIGH);
 
   ATTACH_DEBUG_STREAM(&Serial);
   DEBUG_OK("Booting");

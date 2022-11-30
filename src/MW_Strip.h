@@ -7,10 +7,11 @@
 #define MWST_DISABLED false
 #define MWST_ENABLED true
 
-#define STRIP_NONE 0
-#define STRIP_CENTER 1
-#define STRIP_LEFT 2
-#define STRIP_RIGHT 3
+
+#define STRIP_CENTER 0
+#define STRIP_LEFT 1
+#define STRIP_RIGHT 2
+#define STRIP_NONE 4
 
 
 #define EFFECT_PROGRESSIVE 1
