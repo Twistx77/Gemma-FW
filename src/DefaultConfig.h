@@ -5,7 +5,7 @@
 #define FW_MINOR 5
 #define FW_PATCH 6
 
-//#define BT_DEBUG 
+#define BT_DEBUG 
 
 #ifdef BT_DEBUG
 #include "BluetoothSerial.h"

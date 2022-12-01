@@ -21,7 +21,7 @@ void setup()
   pinMode(ROTARY_ENCODER_BUTTON_PIN, INPUT_PULLUP);
   pinMode(PIN_LED, OUTPUT);
 
-  digitalWrite(PIN_LED, HIGH);
+  digitalWrite(PIN_LED, LOW);
 
   ATTACH_DEBUG_STREAM(&Serial);
   DEBUG_OK("Booting");

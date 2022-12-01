@@ -134,18 +134,21 @@ TouchState_T readTouchSensorState(uint8_t sensor)
         touchValue += sample;
     }
 
-    
+     touchThresholds[sensor] = touchThresholds[sensor]* CURRENT_THRESHOLD_PROPORTION + touchValue * TOUCH_THRESHOLD_PROPORTION*NEW_THRESHOLD_PROPORTION;
 
     if (touchValue < touchThresholds[sensor])
     {
 
-        Serial.println("1," + String(sensorsInput[sensor]) + "," + String(touchValue) + "," + String(touchThresholds[sensor]));
+        //Serial.println("1," + String(sensorsInput[sensor]) + "," + String(touchValue) + "," + String(touchThresholds[sensor]));
+        SerialBT.println("1," + String(sensorsInput[sensor]) + "," + String(touchValue) + "," + String(touchThresholds[sensor]));
 
         return (TOUCHED);
     }
     else
     {
-        Serial.println("0," + String(sensorsInput[sensor]) + "," + String(touchValue) + "," + String(touchThresholds[sensor]));
+       
+        SerialBT.println ("0," + String(sensorsInput[sensor]) + "," + String(touchValue) + "," + String(touchThresholds[sensor]));
+        //Serial.println("0," + String(sensorsInput[sensor]) + "," + String(touchValue) + "," + String(touchThresholds[sensor]));
         // touchThresholds[sensor] = touchThresholds[sensor] * CURRENT_THRESHOLD_PROPORTION +  touchValue * TOUCH_THRESHOLD_PROPORTION * NEW_THRESHOLD_PROPORTION;
         return (NOT_TOUCHED);
     }
@@ -173,7 +176,7 @@ void processTouchInputs()
                      {
                          touchSensorsEvents[sensor] = LONG_TOUCH_EVENT;
                          MWST_ToggleIncreaseBrightness(sensor);
-                         Serial.println("Long " + String(sensor));
+                         SerialBT.println("Long " + String(sensor));
                          // longClickDetectedHandler(touchSensorTypes[sensor]);
                      }
                      else if (touchSensorsEvents[sensor] == LONG_TOUCH_EVENT)
@@ -184,6 +187,8 @@ void processTouchInputs()
             }
             else
             {
+
+                clickHandler(touchSensorTypes[sensor]);
                 lastState[sensor] = TOUCHED;
                 lastTimePressed[sensor] = millis();
                 // longClickHandler(stouchSensorTypes[sensor]);
@@ -200,9 +205,7 @@ void processTouchInputs()
         {
             if (lastState[sensor] == TOUCHED)
             {
-                Serial.println("Touched " + String(sensor));
-                clickHandler(touchSensorTypes[sensor]);
-                digitalWrite(PIN_LED, !digitalRead(PIN_LED));
+                SerialBT.println("Touched " + String(sensor));
                 lastState[sensor] = NOT_TOUCHED;
                 touchSensorsEvents[sensor] == NO_EVENT;
                 /*
@@ -232,7 +235,7 @@ void HMIM_Initialize()
     touch_pad_set_voltage(TOUCH_HVOLT_2V7, TOUCH_LVOLT_0V5, TOUCH_HVOLT_ATTEN_0V);
 
     // Set measuring time for the Touch Sensor FSM to improve resolution for bigger capacitive surface
-    touch_pad_set_meas_time(4096, 4096);
+    touch_pad_set_meas_time(50, 7000);
     touch_pad_filter_start(TOUCHPAD_FILTER_TOUCH_PERIOD);
     // touch_pad_filter_stop();
     // touch_pad_filter_delete();
