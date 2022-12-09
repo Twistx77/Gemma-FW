@@ -1,18 +1,42 @@
 
 #include "HMIM_HMIManager.h"
-
 #include "MW_Uploader.h"
 #include "ConfigurationManager.h"
 #include "DefaultConfig.h"
 #include "BLEHandler.h"
 #include "MW_Strip.h"
+#include "Preferences.h"
 
-#include "PrettyDebug.h"
+Preferences preferences;
+
+void writeDefaultPreferences(void)
+{
+  preferences.putUShort(FW_MAJOR, DEFAULT_FW_MAJOR);
+  preferences.putUShort(FW_MINOR, DEFAULT_FW_MINOR);
+  preferences.putUShort(FW_PATCH, DEFAULT_FW_PATCH);
+  preferences.putUShort(PIN_STRIP, DEFAULT_PIN_STRIP);
+
+  preferences.putUShort(NUMBER_OF_LEDS, DEFAULT_NUMBER_OF_LEDS);
+  preferences.putUShort(NUMBER_OF_NL_LEDS, DEFAULT_NUMBER_OF_LEDS_NL);
+  preferences.putUShort(MAX_BRIGHTNESS, DEFAULT_MAX_BRIGHTNESS);
+  preferences.putUShort(MAX_BRIGHTNESS_NL, DEFAULT_MAX_BRIGHTNESS_NL);
+
+  preferences.putBool('EMPTY', false);
 
 
+}
+
+void initializePreference(void)
+{
+  preferences.begin("GLOBAL", false);
+
+// Check if the preferences are empty . If it is (New chip) then set the default values
+if (preferences.getBool('EMPTY'), true ){
+
+}
 
 
-uint32_t NumberOfLedsStrip = MAX_NUMBER_OF_LEDS;
+}
 
 void setup()
 {
@@ -24,7 +48,6 @@ void setup()
   digitalWrite(PIN_LED, LOW);
 
   ATTACH_DEBUG_STREAM(&Serial);
-  DEBUG_OK("Booting");
   
   ConfigManager_Initialize();
 
