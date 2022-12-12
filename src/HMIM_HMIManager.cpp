@@ -4,9 +4,7 @@
 #include "DefaultConfig.h"
 #include "driver/touch_pad.h"
 #include "soc/sens_periph.h"
-
-// #define DEBUG_THIS_FILE
-#include "PrettyDebug.h"
+#include "ConfigurationManager.h"
 
 #define DEBOUNCE_TIME 50 // TODO: REPLACE CONFIG MANAGER
 
@@ -34,7 +32,7 @@ typedef enum
 TouchEvent_T touchSensorsEvents[] = {NO_EVENT, NO_EVENT, NO_EVENT}; // TODO: Check if this is actually needed
 TouchSensor_t touchSensorTypes[] = {TS_CENTER, TS_LEFT, TS_RIGHT};  // TODO: Remove
 
-static const touch_pad_t sensorsInput[] = {TOUCH_PAD_NUM7, TOUCH_PAD_NUM2, TOUCH_PAD_NUM0}; // CENTER - LEFT - RIGHT
+touch_pad_t sensorsInput[] = {TOUCH_PAD_NUM7, TOUCH_PAD_NUM2, TOUCH_PAD_NUM0}; // CENTER - LEFT - RIGHT
 
 static float touchThresholds[MAX_TOUCH_SENSORS] = {0xFFFF, 0xFFFF, 0xFFFF}; // Started at Max to be adjusted after booting
 
@@ -45,8 +43,6 @@ uint8_t rotaryMode = ROTARY_BRIGHTNESS_MODE;
 const char *SENSOR_NAMES[] = {"Center", "Left", "Right"};
 
 uint8_t lastSensorControlled = STRIP_CENTER;
-
-// bool buttonLongPressed[] = {false, false, false};
 
 // TODO: Check if these handlers are still needed. Implement one liner if possible
 void clickHandler(TouchSensor_t &sensor)
@@ -69,7 +65,6 @@ void clickHandler(TouchSensor_t &sensor)
         break;
 
     default:
-        DEBUG_ERROR("Unknown button ID %d", sensor);
         break;
     }
 }
@@ -83,7 +78,6 @@ TouchState_T readTouchSensorState(uint8_t sensor)
 {
     uint16_t touchValue;
     touch_pad_read_raw_data(sensorsInput[sensor], &touchValue);
-
 
     // touchThresholds[sensor] = touchThresholds[sensor]* CURRENT_THRESHOLD_PROPORTION + touchValue * TOUCH_THRESHOLD_PROPORTION*NEW_THRESHOLD_PROPORTION;
 
@@ -167,12 +161,18 @@ void processTouchInputs()
 
 void HMIM_Initialize()
 {
+   // ConfigurationManager configManager = ConfigurationManager::getInstance();
+
+    /*sensorsInput[TS_CENTER] =TOUCH_PAD_NUM7; // (touch_pad_t) configManager.readParameter(PARAM_PIN_CENTER_TS);
+    sensorsInput[TS_LEFT] = TOUCH_PAD_NUM2;//(touch_pad_t) configManager.readParameter(PARAM_PIN_LEFT_TS);
+    sensorsInput[TS_RIGHT] = TOUCH_PAD_NUM0; //(touch_pad_t)configManager.readParameter(PARAM_PIN_RIGHT_TS);*/
+
     touch_pad_init();
     touch_pad_set_fsm_mode(TOUCH_FSM_MODE_SW); // TOUCH_FSM_MODE_TIMER);
     touch_pad_set_voltage(TOUCH_HVOLT_2V7, TOUCH_LVOLT_0V5, TOUCH_HVOLT_ATTEN_0V);
 
     // Set measuring time for the Touch Sensor FSM to improve resolution for bigger capacitive surface
-   // touch_pad_set_meas_time(50, 7000);
+    // touch_pad_set_meas_time(50, 7000);
     touch_pad_filter_start(TOUCHPAD_FILTER_TOUCH_PERIOD);
 
     uint16_t touchValue = 0;
@@ -184,6 +184,8 @@ void HMIM_Initialize()
 
         touch_pad_read_filtered(sensorsInput[sensor], &touchValue);
 
+        Serial.println("Touch sensor " + String(sensor) + " value: " + String(touchValue));
+
         touchThresholds[sensor] = touchValue * TOUCH_THRESHOLD_PROPORTION;
     }
 
@@ -192,7 +194,7 @@ void HMIM_Initialize()
 
     bool circleValues = false;
     rotaryEncoder.setBoundaries(0, ROTARY_ENCODER_MAX_VALUE_BRIGHTNESS, circleValues);
-    rotaryEncoder.setEncoderValue(MAX_BRIGHTNESS);
+    rotaryEncoder.setEncoderValue(MWST_GetMaxBrightness());
     rotaryEncoder.encoderChanged();
     rotaryMode = ROTARY_BRIGHTNESS_MODE;
 }

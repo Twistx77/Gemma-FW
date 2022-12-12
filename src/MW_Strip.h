@@ -35,6 +35,7 @@ RgbwColor MWST_GetColor(uint8_t stripType);
 uint8_t MWST_GetCurrentBrightness(uint8_t stripType);
 uint32_t MWST_GetColorIndex(uint8_t stripType);
 void MWST_SetBrightness(uint8_t stripType, uint8_t brightness);
+uint8_t MWST_GetMaxBrightness(void);
 
 
 #endif

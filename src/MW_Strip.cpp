@@ -1,11 +1,6 @@
 #include "MW_Strip.h"
 #include "DefaultConfig.h"
-
-//#define DEBUG_THIS_FILE 
-#include "PrettyDebug.h"
-
-
-
+#include "ConfigurationManager.h"
 
 #define DELAY_EFFECT_PROGRESSIVE_MS 0
 #define DELAY_EFFECT_RANDOM_MS 10
@@ -31,25 +26,26 @@ typedef struct
   uint8_t brightnessDir;
 } MWST_TypeStripConfig;
 
-NeoPixelBrightnessBus<NeoRgbwFeature, Neo800KbpsMethod> stripHW(LEDS_STRIP, PIN_STRIP);
+NeoPixelBrightnessBus<NeoRgbwFeature, Neo800KbpsMethod> stripHW(LEDS_STRIP,PIN_STRIP);
 
 MWST_TypeStripConfig stripLeftCfg, stripRightCfg, stripCenterCfg;
 MWST_TypeStripConfig strips[] = {stripCenterCfg, stripLeftCfg, stripRightCfg};
 
+uint8_t maxBrightness;
+
 void effectFade(MWST_TypeStripConfig *strip, uint8_t firstLED, uint8_t lastLED)
 {
-  
+
   uint8_t step = 5;
   if (strip->currentState == MWST_ENABLED)
   {
     uint16_t i = 0;
-   
+
     while (i < strip->setBrightness)
     {
-      if (i < strip->setBrightness+step)
+      if (i < strip->setBrightness + step)
       {
         i += step;
-        
       }
       else
       {
@@ -63,7 +59,7 @@ void effectFade(MWST_TypeStripConfig *strip, uint8_t firstLED, uint8_t lastLED)
   else
   {
     uint16_t i = strip->setBrightness;
- 
+
     while (i > 0)
     {
       if (i < step)
@@ -76,7 +72,6 @@ void effectFade(MWST_TypeStripConfig *strip, uint8_t firstLED, uint8_t lastLED)
       }
       stripHW.SetBrightness(i, firstLED, lastLED);
       stripHW.Show();
-      
     }
   }
 }
@@ -135,34 +130,41 @@ void effectRandomLED(MWST_TypeStripConfig *strip, uint8_t firstLED, uint8_t last
 
 void MWST_Initialize()
 {
+
+  ConfigurationManager configManager = ConfigurationManager::getInstance();
+  uint8_t ledsInStrip = (uint8_t)configManager.readParameter(PARAM_NUMBER_OF_LEDS);
+  uint8_t ledsNightLight = (uint8_t)configManager.readParameter(PARAM_NUMBER_OF_NL_LEDS);
+  uint8_t pinStrip = (uint8_t)configManager.readParameter(PARAM_PIN_STRIP);
+  maxBrightness = (uint8_t)configManager.readParameter(PARAM_MAX_BRIGHTNESS);
+
   strips[STRIP_CENTER].stripType = STRIP_CENTER;
   strips[STRIP_CENTER].currentState = MWST_DISABLED;
   strips[STRIP_CENTER].currentColor = RgbwColor(0, 0, 0, 255);
-  strips[STRIP_CENTER].setBrightness = MAX_BRIGHTNESS;
+  strips[STRIP_CENTER].setBrightness = maxBrightness;
   strips[STRIP_CENTER].currentBrightness = 0;
-  strips[STRIP_CENTER].numberOfLEDs = LEDS_STRIP;
+  strips[STRIP_CENTER].numberOfLEDs = ledsInStrip;
   strips[STRIP_CENTER].numLEDsStart = 0;
-  strips[STRIP_CENTER].numLEDsStop = LEDS_STRIP - 1;
+  strips[STRIP_CENTER].numLEDsStop = ledsInStrip - 1;
   strips[STRIP_CENTER].brightnessDir = INCREASE_BRIGHTNESS;
 
   strips[STRIP_LEFT].stripType = STRIP_LEFT;
   strips[STRIP_LEFT].currentState = MWST_DISABLED;
   strips[STRIP_LEFT].currentColor = RgbwColor(0, 0, 0, 255);
-  strips[STRIP_LEFT].setBrightness = MAX_BRIGHTNESS;
+  strips[STRIP_LEFT].setBrightness = maxBrightness;
   strips[STRIP_LEFT].currentBrightness = 0;
-  strips[STRIP_LEFT].numberOfLEDs = LEDS_NL;
+  strips[STRIP_LEFT].numberOfLEDs = ledsNightLight;
   strips[STRIP_LEFT].numLEDsStart = 0;
-  strips[STRIP_LEFT].numLEDsStop = LEDS_NL - 1;
+  strips[STRIP_LEFT].numLEDsStop = ledsNightLight - 1;
   strips[STRIP_LEFT].brightnessDir = INCREASE_BRIGHTNESS;
 
   strips[STRIP_RIGHT].stripType = STRIP_RIGHT;
   strips[STRIP_RIGHT].currentState = MWST_DISABLED;
   strips[STRIP_RIGHT].currentColor = RgbwColor(0, 0, 0, 255);
-  strips[STRIP_RIGHT].setBrightness = MAX_BRIGHTNESS;
+  strips[STRIP_RIGHT].setBrightness = maxBrightness;
   strips[STRIP_RIGHT].currentBrightness = 0;
-  strips[STRIP_RIGHT].numberOfLEDs = LEDS_NL;
-  strips[STRIP_RIGHT].numLEDsStart = LEDS_STRIP - LEDS_NL;
-  strips[STRIP_RIGHT].numLEDsStop = LEDS_STRIP - 1;
+  strips[STRIP_RIGHT].numberOfLEDs = ledsNightLight;
+  strips[STRIP_RIGHT].numLEDsStart = ledsInStrip - ledsNightLight;
+  strips[STRIP_RIGHT].numLEDsStop = ledsInStrip - 1;
   strips[STRIP_RIGHT].brightnessDir = INCREASE_BRIGHTNESS;
 
   stripHW.Begin();
@@ -213,7 +215,7 @@ uint32_t MWST_GetColorIndex(uint8_t stripType)
 {
   if (strips[stripType].currentColor.W > 0)
   {
-    return (ROTARY_ENCODER_MAX_VALUE_COLOR-strips[stripType].currentColor.B);
+    return (ROTARY_ENCODER_MAX_VALUE_COLOR - strips[stripType].currentColor.B);
   }
   else
   {
@@ -302,28 +304,26 @@ void MWST_SetStripState(uint8_t stripType, bool state, uint8_t typeOfEffect)
     break;
 
   default:
-    Serial.println("Unknown Strip Type "+ String(stripType));
+    Serial.println("Unknown Strip Type " + String(stripType));
     return;
     break;
   }
 
   // Brightness should never be 0. It is either Off with a certain brightness set or ON
   if (strips[stripType].setBrightness == 0)
-      strips[stripType].setBrightness = MAX_BRIGHTNESS;
+    strips[stripType].setBrightness = maxBrightness;
 
   if (state == MWST_ENABLED)
   {
     newColor = strips[stripType].currentColor;
     lastStripActive = stripType;
     strips[stripType].brightnessDir = DECREASE_BRIGHTNESS;
-
   }
   else
   {
     newColor = RgbwColor(0, 0, 0, 0);
     lastStripActive = STRIP_NONE;
-    strips[stripType].brightnessDir = INCREASE_BRIGHTNESS;    
- 
+    strips[stripType].brightnessDir = INCREASE_BRIGHTNESS;
   }
 
   switch (typeOfEffect)
@@ -347,7 +347,6 @@ void MWST_SetStripState(uint8_t stripType, bool state, uint8_t typeOfEffect)
 
     break;
   }
-
 }
 
 void MWST_ToggleStripState(uint8_t stripType)
@@ -359,19 +358,19 @@ void MWST_IncreaseStripIlumination(uint8_t stripType, uint8_t steps)
 {
   static uint32_t lastStepTime = millis();
 
-  while (millis()< (lastStepTime+NL_BRIGHTNESS_CHANGE_DELAY_MS)); // Wait until the step time delay has passed.
+  while (millis() < (lastStepTime + NL_BRIGHTNESS_CHANGE_DELAY_MS))
+    ; // Wait until the step time delay has passed.
   lastStepTime = millis();
 
-  if ((strips[stripType].brightnessDir == INCREASE_BRIGHTNESS) && (strips[stripType].currentBrightness < (MAX_BRIGHTNESS - steps)))
+  if ((strips[stripType].brightnessDir == INCREASE_BRIGHTNESS) && (strips[stripType].currentBrightness < (maxBrightness - steps)))
   {
     strips[stripType].currentState = MWST_ENABLED;
     strips[stripType].currentBrightness += steps;
     strips[stripType].setBrightness = strips[stripType].currentBrightness;
     stripHW.ClearTo(strips[stripType].currentColor, strips[stripType].numLEDsStart, strips[stripType].numLEDsStop);
     stripHW.SetBrightness(strips[stripType].currentBrightness, strips[stripType].numLEDsStart, strips[stripType].numLEDsStop);
-    
-    stripHW.Show();
 
+    stripHW.Show();
   }
   else if ((strips[stripType].brightnessDir == DECREASE_BRIGHTNESS) && (strips[stripType].currentBrightness > 0))
   {
@@ -389,4 +388,9 @@ void MWST_IncreaseStripIlumination(uint8_t stripType, uint8_t steps)
     stripHW.SetBrightness(strips[stripType].setBrightness, strips[stripType].numLEDsStart, strips[stripType].numLEDsStop);
     stripHW.Show();
   }
+}
+
+uint8_t MWST_GetMaxBrightness()
+{
+  return maxBrightness;
 }

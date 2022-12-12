@@ -48,8 +48,6 @@ static BluetoothSerial SerialBT;
 
 #define CAPACITIVE_INPUT true
 
-#define MAX_BRIGHTNESS 55
-
 
 #else
 #define LEDS_NL 4
@@ -69,55 +67,9 @@ static BluetoothSerial SerialBT;
 #define TOUCH_MESUREMENT_INTERVAL 5 // Interval between each measurement. t_sleep = TOUCH_MESUREMENT_INTERVAL / SOC_CLK_RC_SLOW_FREQ_APPROX
 #define TOUCH_MESURAMENT_TIME 20000 // Duration of the touch sensor measurement. t_meas = TOUCH_MESURAMENT_TIME / SOC_CLK_RC_FAST_FREQ_APPROX, the maximum measure time is 0xffff 
 
-#define MAX_BRIGHTNESS 255
 #endif
 
 #define ACTIVE_LOW CAPACITIVE_INPUT
-
-// Default Preferences
-enum DefaultPreferencesValues
-{
-    DEFAULT_FW_MAJOR = 0,
-    DEFAULT_FW_MINOR = 5,
-    DEFAULT_FW_PATCH = 6,
-    DEFAULT_NUMBER_OF_LEDS = 106,
-    DEFAULT_ROTARY_ENCODER_STEPS = 4
-    DEFAUL_PIN_STRIP = 16,
-    DEFAULT_PIN_CENTER_TS = 27,
-    DEFAULT_PIN_LEFT_TS = 2,
-    DEFAULT_PIN_RIGHT_TS = 4,
-    DEFAULT_PIN_LED = 19,
-    DEFAULT_ROTARY_ENCODER_A_PIN = 25,
-    DEFAULT_ROTARY_ENCODER_B_PIN = 23,
-    DEFAULT_ROTARY_ENCODER_BUTTON_PIN = 26,
-    DEFAULT_ROTARY_ENCODER_ACCELERATION = 250,
-    DEFAULT_MAX_BRIGHTNESS = 255,
-    DEFAULT_CAPTOUCH_THLD_BOOT = 6,
-    DEFAULT_NUMBER_OF_NL_LEDS = 4,
-    DEFAULT_DEBUG_OUTPUT = false
-}
-
-enum Parameters
-{
-    FW_MAJOR = 0,
-    FW_MINOR = 1,
-    FW_PATCH = 2,
-    PIN_STRIP = 4,
-    PIN_CENTER_TS = 5,
-    PIN_LEFT_TS = 6,
-    PIN_RIGHT_TS = 7,
-    PIN_LED = 8,
-    ROTARY_ENCODER_A_PIN = 9,
-    ROTARY_ENCODER_B_PIN = 10,
-    ROTARY_ENCODER_BUTTON_PIN = 11,
-    ROTARY_ENCODER_STEPS = 12, 
-    ROTARY_ENCODER_ACCELERATION = 13,    
-    NUMBER_OF_LEDS = 14,
-    NUMBER_OF_NL_LEDS = 15,
-    MAX_BRIGHTNESS = 16,
-    CAPTOUCH_THLD_BOOT = 17,    
-    DEBUG_OUTPUT = 18
-};
 
 
 
