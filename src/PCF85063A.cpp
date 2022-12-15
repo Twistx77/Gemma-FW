@@ -2,7 +2,7 @@
 
 
 // INIT
-PCF85063A::PCF85063A(void)
+PCF85063A::initialize(void)
 {
 	Wire.begin();
 }

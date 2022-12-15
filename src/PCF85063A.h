@@ -42,9 +42,7 @@
 
 class PCF85063A
 {
-public:
-    PCF85063A();
-
+public: 
     enum CountdownSrcClock
     {
         TIMER_CLOCK_4096HZ = 0,
@@ -52,6 +50,14 @@ public:
         TIMER_CLOCK_1HZ = 2,
         TIMER_CLOCK_1PER60HZ = 3
     };
+
+    // Get the instance of the PCF85063A
+    static PCF85063A &getInstance()
+    {
+        //Constructed on first access
+        static PCF85063A instance;
+        return instance;
+    }
 
     void setTime(uint8_t hour, uint8_t minute, uint8_t sec);
     void setDate(uint8_t weekday, uint8_t day, uint8_t month, uint8_t yr);

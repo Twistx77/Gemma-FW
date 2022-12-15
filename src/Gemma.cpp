@@ -1,4 +1,4 @@
-
+#include <Arduino.h>
 #include "HMIM_HMIManager.h"
 #include "MW_Uploader.h"
 #include "DefaultConfig.h"
@@ -6,18 +6,21 @@
 #include "MW_Strip.h"
 #include "ConfigurationManager.h"
 #include "PF85063A.h"
- PCF85063A rtc;
+
 
 
 void setup()
 {
   Serial.begin(115200);
 
-
+  // Initialize Configuration Manager
   ConfigurationManager configManager;
   configManager.initialize();
 
+
   // Initialize RTC
+  PCF85063A rtc;
+  rtc.initialize();
  
   rtc.setTime(10, 30, 0);
   rtc.setDate(2, 13, 12, 2022);

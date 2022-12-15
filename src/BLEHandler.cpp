@@ -7,6 +7,7 @@
 #include <stdint.h>
 #include "DefaultConfig.h"
 #include "ConfigurationManager.h"
+#include "PCF85063A.h"
 
 enum UUID
 {
@@ -40,8 +41,12 @@ enum UUID
   PARAM_MAX_BRIGHTNESS_UUID = 25,
   PARAM_CAPTOUCH_THLD_BOOT_UUID = 26,
 
-  FW_VERSION_UUID = 27,
-  HW_VERSION_UUID = 28
+  SET_TIME_UUID = 27,
+  SET_ALARM_STATE = 28,
+  SET_ALARM_TIME = 29,
+
+  FW_VERSION_UUID = 30,
+  HW_VERSION_UUID = 31
 };
 
 const char *UUID_STRINGS[] = {
@@ -75,26 +80,20 @@ const char *UUID_STRINGS[] = {
     "f0e9cb41-1b2b-4799-ab36-0ddb25e70913",
     "f0e9cb41-1b2b-4799-ab36-0ddb25e70914",
 
+    "21ec2541-a87d-45f6-a5d8-27aa9f742501",
+    "21ec2541-a87d-45f6-a5d8-27aa9f742502",
+    "21ec2541-a87d-45f6-a5d8-27aa9f742503", 
+    
+
     "99704284-4d6b-4812-a599-cfd570230c47",
     "4b88d539-a706-426e-885c-69bb0c04fa84"};
-
-BLEServer *pServer;
-BLEService *pSwitchService, *pDeviceInfoService;
-BLECharacteristic *pCharSwitch, *pCharBrightness, *pCharColor;
-BLECharacteristic *pCharSwitchLeft, *pCharBrightnessLeft, *pCharColorLeft;
-BLECharacteristic *pCharSwitchRight, *pCharBrightnessRight, *pCharColorRight;
-BLECharacteristic *pCharParamDebugOutput, *pCharParamPinStrip, *pCharParamPinCenterTS, *pCharParamPinLeftTS,
-    *pCharParamPinRightTS, *pCharParamPinLED, *pCharParamRotaryEncoderAPin, *pCharParamRotaryEncoderBPin,
-    *pCharParamRotaryEncoderButtonPin, *pCharParamRotaryEncoderSteps, *pCharParamRotaryEncoderAcceleration,
-    *pCharParamNumberOfLEDs, *pCharParamNumberOfNLLEDs, *pCharParamMaxBrightness, *pCharParamCapTouchThldBoot;
-BLECharacteristic *pCharFWVersion, *pCharHWVersion;
 
 ConfigurationManager configManager;
 
 bool deviceConnected = false;
 float hue = 0;
 
-class callbackSwitch : public BLECharacteristicCallbacks
+class CallbackSwitch : public BLECharacteristicCallbacks
 {
 
   void onWrite(BLECharacteristic *pCharacteristic)
@@ -149,7 +148,7 @@ class callbackSwitch : public BLECharacteristicCallbacks
   } // onRead
 };
 
-class callbackBrightness : public BLECharacteristicCallbacks
+class CallbackBrightness : public BLECharacteristicCallbacks
 {
 
   void onWrite(BLECharacteristic *pCharacteristic)
@@ -190,12 +189,11 @@ class callbackBrightness : public BLECharacteristicCallbacks
   }
 };
 
-class callbackColor : public BLECharacteristicCallbacks
+class CallbackColor : public BLECharacteristicCallbacks
 {
   uint8_t stripType;
   void onWrite(BLECharacteristic *pCharacteristic)
   {
-
     switch (pCharacteristic->getUUID().toString()[35])
     {
     case '3':
@@ -240,7 +238,6 @@ class callbackColor : public BLECharacteristicCallbacks
 
   void onRead(BLECharacteristic *pCharacteristic)
   {
-
     switch (pCharacteristic->getUUID().toString()[35])
     {
     case '3':
@@ -259,9 +256,8 @@ class callbackColor : public BLECharacteristicCallbacks
   } // onRead
 };
 
-class callbackParameters : public BLECharacteristicCallbacks
+class CallbackParameters : public BLECharacteristicCallbacks
 {
-
   void onWrite(BLECharacteristic *pCharacteristic)
   {
     // Get the parameter from the UUID last 2 characters converting them to a number by subtracting 30 (ASCII 0) and multiplying by 10 the first
@@ -277,16 +273,30 @@ class callbackParameters : public BLECharacteristicCallbacks
     // Get the parameter from the UUID last 2 characters converting them to a number by subtracting 30 (ASCII 0) and multiplying by 10 the first
     // character and adding the second character + PARAM_DEBUG_OUTPUT to add the offset of the parameters in the enum.
     enum ConfigParameter offset = PARAM_DEBUG_OUTPUT;
-    ConfigParameter parameter =(ConfigParameter) (offset + pCharacteristic->getUUID().getNative()->uuid.uuid128[1] - 30 * 10 + pCharacteristic->getUUID().getNative()->uuid.uuid128[0] - 30);// +( (uint8_t) offset));
+    ConfigParameter parameter = (ConfigParameter)(offset + pCharacteristic->getUUID().getNative()->uuid.uuid128[1] - 30 * 10 + pCharacteristic->getUUID().getNative()->uuid.uuid128[0] - 30); // +( (uint8_t) offset));
     if (parameter < MAX_PARAMETERS && parameter >= PARAM_DEBUG_OUTPUT)
     {
-      uint32_t value = configManager.readParameter(parameter);      
+      uint32_t value = configManager.readParameter(parameter);
       pCharacteristic->setValue(value);
     }
   }
 };
 
-class callbackFWVersion : public BLECharacteristicCallbacks
+class CallbackTime : public BLECharacteristicCallbacks
+{
+  PCF85063A rtc = rtc.getInstance();
+  void onRead(BLECharacteristic)
+  {
+
+  }
+
+  void onWrite(BLECharacteristic)
+  {
+    
+  }
+}
+
+class CallbackFWVersion : public BLECharacteristicCallbacks
 {
   void onRead(BLECharacteristic *pCharacteristic)
   {
@@ -300,7 +310,6 @@ class callbackHWVersion : public BLECharacteristicCallbacks
 {
   void onRead(BLECharacteristic *pCharacteristic)
   {
-    Serial.println("onRead HWVersion");
     pCharacteristic->setValue("0.2");
   }
 };
@@ -322,52 +331,25 @@ class MyServerCallbacks : public BLEServerCallbacks
 
 void BLEHandler_Initialize()
 {
-  /*BLEDevice::init("Long name works now");
-  pServer = BLEDevice::createServer();
-  pSwitchService = pServer->createService(SERVICE_UUID);
-  pSwitchService->start();
-  pCharacteristic = pSwitchService->createCharacteristic(
-                                         SWITCH_UUID,
-                                         BLECharacteristic::PROPERTY_READ |
-                                         BLECharacteristic::PROPERTY_WRITE
-                                       );
-  pCharacteristic->setValue("Gemma Controller");
-  BLEAdvertising *pAdvertising = BLEDevice::getAdvertising();
-  pAdvertising->addServiceUUID(SERVICE_UUID);
-  pAdvertising->setScanResponse(true);
-  pAdvertising->setMinPreferred(0x06);  // functions that help with iPhone connections issue
-  pAdvertising->setMinPreferred(0x12);
-  BLEDevice::startAdvertising();
+  uint32_t chipId.ESP.getChipId()
 
+      BLEDevice::init("Gemma Controller " + String(chipId));
 
-  BLEDevice::init("ESP32-BLE-Server");
-  BLEServer *pServer = BLEDevice::createServer();
+  BLECharacteristic *pCharSwitch, *pCharBrightness, *pCharColor;
+  BLECharacteristic *pCharSwitchLeft, *pCharBrightnessLeft, *pCharColorLeft;
+  BLECharacteristic *pCharSwitchRight, *pCharBrightnessRight, *pCharColorRight;
+  BLECharacteristic *pCharParamDebugOutput, *pCharParamPinStrip, *pCharParamPinCenterTS, *pCharParamPinLeftTS,
+      *pCharParamPinRightTS, *pCharParamPinLED, *pCharParamRotaryEncoderAPin, *pCharParamRotaryEncoderBPin,
+      *pCharParamRotaryEncoderButtonPin, *pCharParamRotaryEncoderSteps, *pCharParamRotaryEncoderAcceleration,
+      *pCharParamNumberOfLEDs, *pCharParamNumberOfNLLEDs, *pCharParamMaxBrightness, *pCharParamCapTouchThldBoot;
 
-  BLEService *pSwitchService = pServer->createService(SERVICE_UUID);
-
-  BLECharacteristic *pCharacteristic = pSwitchService->createCharacteristic(
-                                         SWITCH_UUID,
-                                         BLECharacteristic::PROPERTY_READ |
-                                         BLECharacteristic::PROPERTY_WRITE
-                                       );
-
-  pCharacteristic->setCallbacks(new MyCallbacks());
-
-  pCharacteristic->setValue("Hello World");
-  pSwitchService->start();
-
-  BLEAdvertising *pAdvertising = pServer->getAdvertising();
-  pAdvertising->start();*/
-
-  Serial.println("Initializing BLE");
-
-  BLEDevice::init("Gemma Controller");
+  BLECharacteristic *pCharCurrentTime, *pCharAlarmState, *pCharCurrentState;
+  BLECharacteristic *pCharFWVersion, *pCharHWVersion;
 
   BLEServer *pServer = BLEDevice::createServer();
+  pServer->setCallbacks(new MyServerCallbacks());
 
   configManager = ConfigurationManager::getInstance();
-
-  pServer->setCallbacks(new MyServerCallbacks());
 
   BLEService *pSwitchService = pServer->createService(UUID_STRINGS[SWITCH_SERVICE_UUID]);
   BLEService *pConfigurationService = pServer->createService(UUID_STRINGS[PARAMETERS_SERVICE_UUID]);
