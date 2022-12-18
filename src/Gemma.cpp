@@ -58,11 +58,5 @@ void setup()
 
 void loop()
 {
-  Serial.print(rtc.getDay()); Serial.print(".");
-  Serial.print(rtc.getMonth()); Serial.print(".");
-  Serial.print(rtc.getYear()); Serial.print(". ");
-  Serial.print(rtc.getHour()); Serial.print(":");
-  Serial.print(rtc.getMinute()); Serial.print(":");
-  Serial.println(rtc.getSecond());
   HMIN_ProcessHMI();
 }

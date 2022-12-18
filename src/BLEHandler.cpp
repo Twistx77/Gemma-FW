@@ -13,41 +13,41 @@ enum UUID
 {
   SWITCH_SERVICE_UUID = 0,
   PARAMETERS_SERVICE_UUID = 1,
-  DEVICE_INFO_SERVICE_UUID = 2,
+  TIME_SERVICE_UUID = 2,
+  DEVICE_INFO_SERVICE_UUID = 3,
 
-  SWITCH_UUID = 3,
-  BRIGHTNESS_UUID = 4,
-  COLOR_UUID = 5,
-  SWITCH_LEFT_UUID = 6,
-  BRIGHTNESS_LEFT_UUID = 7,
-  COLOR_LEFT_UUID = 8,
-  SWITCH_RIGHT_UUID = 9,
-  BRIGHTNESS_RIGHT_UUID = 10,
-  COLOR_RIGHT_UUID = 11,
+  SWITCH_UUID = 4,
+  BRIGHTNESS_UUID = 5,
+  COLOR_UUID = 6,
+  SWITCH_LEFT_UUID = 7,
+  BRIGHTNESS_LEFT_UUID = 8,
+  COLOR_LEFT_UUID = 9,
+  SWITCH_RIGHT_UUID = 10,
+  BRIGHTNESS_RIGHT_UUID = 11,
+  COLOR_RIGHT_UUID = 12,
 
-  PARAM_DEBUG_OUTPUT_UUID = 12,
-  PARAM_PIN_STRIP_UUID = 13,
-  PARAM_PIN_CENTER_TS_UUID = 14,
-  PARAM_PIN_LEFT_TS_UUID = 15,
-  PARAM_PIN_RIGHT_TS_UUID = 16,
-  PARAM_PIN_LED_UUID = 17,
-  PARAM_ROTARY_ENCODER_A_PIN_UUID = 18,
-  PARAM_ROTARY_ENCODER_B_PIN_UUID = 19,
-  PARAM_ROTARY_ENCODER_BUTTON_PIN_UUID = 20,
-  PARAM_ROTARY_ENCODER_STEPS_UUID = 21,
-  PARAM_ROTARY_ENCODER_ACCELERATION_UUID = 22,
-  PARAM_NUMBER_OF_LEDS_UUID = 23,
-  PARAM_NUMBER_OF_NL_LEDS_UUID = 24,
-  PARAM_MAX_BRIGHTNESS_UUID = 25,
-  PARAM_CAPTOUCH_THLD_BOOT_UUID = 26,
+  PARAM_DEBUG_OUTPUT_UUID = 13,
+  PARAM_PIN_STRIP_UUID = 14,
+  PARAM_PIN_CENTER_TS_UUID = 15,
+  PARAM_PIN_LEFT_TS_UUID = 16,
+  PARAM_PIN_RIGHT_TS_UUID = 17,
+  PARAM_PIN_LED_UUID = 18,
+  PARAM_ROTARY_ENCODER_A_PIN_UUID = 19,
+  PARAM_ROTARY_ENCODER_B_PIN_UUID = 20,
+  PARAM_ROTARY_ENCODER_BUTTON_PIN_UUID = 21,
+  PARAM_ROTARY_ENCODER_STEPS_UUID = 22,
+  PARAM_ROTARY_ENCODER_ACCELERATION_UUID = 23,
+  PARAM_NUMBER_OF_LEDS_UUID = 24,
+  PARAM_NUMBER_OF_NL_LEDS_UUID = 25,
+  PARAM_MAX_BRIGHTNESS_UUID = 26,
+  PARAM_CAPTOUCH_THLD_BOOT_UUID = 27,
 
-  SET_TIME_UUID = 27,
-  SET_ALARM_TIME = 28,
-  SET_ALARM_STATE = 28,
-  
+  SET_TIME_UUID = 28,
+  SET_ALARM_TIME_UUID = 29,
+  SET_ALARM_STATE_UUID = 30,
 
-  FW_VERSION_UUID = 30,
-  HW_VERSION_UUID = 31
+  FW_VERSION_UUID = 31,
+  HW_VERSION_UUID = 32
 };
 
 const char *UUID_STRINGS[] = {
@@ -83,8 +83,7 @@ const char *UUID_STRINGS[] = {
 
     "21ec2541-a87d-45f6-a5d8-27aa9f742501",
     "21ec2541-a87d-45f6-a5d8-27aa9f742502",
-    "21ec2541-a87d-45f6-a5d8-27aa9f742503", 
-    
+    "21ec2541-a87d-45f6-a5d8-27aa9f742503",
 
     "99704284-4d6b-4812-a599-cfd570230c47",
     "4b88d539-a706-426e-885c-69bb0c04fa84"};
@@ -263,7 +262,7 @@ class CallbackParameters : public BLECharacteristicCallbacks
   {
     // Get the parameter from the UUID last 2 characters converting them to a number by subtracting 30 (ASCII 0) and multiplying by 10 the first
     // character and adding the second character + PARAM_DEBUG_OUTPUT to add the offset of the parameters in the enum.
-    ConfigParameter parameter =  PARAM_DEBUG_OUTPUT;//pCharacteristic->getUUID().getNative()->uuid.uuid128[1] - 30 * 10 + pCharacteristic->getUUID().getNative()->uuid.uuid128[0] - 30 + PARAM_DEBUG_OUTPUT;
+    ConfigParameter parameter = PARAM_DEBUG_OUTPUT; // pCharacteristic->getUUID().getNative()->uuid.uuid128[1] - 30 * 10 + pCharacteristic->getUUID().getNative()->uuid.uuid128[0] - 30 + PARAM_DEBUG_OUTPUT;
     if (parameter < MAX_PARAMETERS && parameter >= PARAM_DEBUG_OUTPUT)
     {
       configManager.writeParameter(parameter, pCharacteristic->getData()[0]);
@@ -292,31 +291,32 @@ class CallbackTime : public BLECharacteristicCallbacks
     switch (pCharacteristic->getUUID().toString()[35])
     {
     case '1':
+    {
       rtc.readTime();
-      uint8_t time[] = {rtc.getYear(), rtc.getMonth(), rtc.getDay(), rtc.getHour(), rtc.getMinute(), rtc.getSecond()};
+      uint8_t time[] = {uint8_t (rtc.getYear()-2000), rtc.getMonth(), rtc.getDay(), rtc.getHour(), rtc.getMinute(), rtc.getSecond()};
       pCharacteristic->setValue(time, 6);
-      break;  
+    }
+    break;
+
     case '2':
     {
       rtc.readAlarm();
       uint8_t alarm[] = {rtc.getAlarmWeekday(), rtc.getAlarmDay(), rtc.getAlarmHour(), rtc.getAlarmMinute(), rtc.getAlarmSecond()};
       pCharacteristic->setValue(alarm, 5);
-    
-    break;
     }
+    break;
 
     case '3':
     {
-     // rtc.readAlarmState();
+      // rtc.readAlarmState();
       uint8_t alarmState[] = {0};
       pCharacteristic->setValue(alarmState, 1);
     }
-      break;
+    break;
 
     default:
       break;
-    }   
-
+    }
   }
 
   void onWrite(BLECharacteristic *pCharacteristic)
@@ -326,15 +326,16 @@ class CallbackTime : public BLECharacteristicCallbacks
     case '1':
     {
       uint8_t *currentTime = pCharacteristic->getData();
-      rtc.setTime(currentTime[0], currentTime[1], currentTime[2], currentTime[3], currentTime[4], currentTime[5]);
-      break;
+      rtc.setTime(currentTime[0], currentTime[1], currentTime[2]);
+      rtc.setDate(currentTime[6]+2000, currentTime[5], currentTime[4], currentTime[3]);
     }
+    break;
     case '2':
     {
       uint8_t *currentAlarm = pCharacteristic->getData();
       rtc.setAlarm(currentAlarm[0], currentAlarm[1], currentAlarm[2], currentAlarm[3], currentAlarm[4]);
-      break;
     }
+    break;
     case '3':
     {
       uint8_t *alarmStateSet = pCharacteristic->getData();
@@ -345,241 +346,257 @@ class CallbackTime : public BLECharacteristicCallbacks
       }
       else
       {
-        //rtc.disableAlarm();
+        // rtc.disableAlarm();
       }
       break;
     }
     default:
       break;
     }
-    
   }
-};
-
-class CallbackFWVersion : public BLECharacteristicCallbacks
-{
-  void onRead(BLECharacteristic *pCharacteristic)
-  {
-    Serial.println("onRead FWVersion");
-    // uint8_t version[] = {FW_MAJOR,FW_MINOR,FW_PATCH};
-    // pCharacteristic->setValue(version,3);
-  }
-};
-
-class CallbackHWVersion : public BLECharacteristicCallbacks
-{
-  void onRead(BLECharacteristic *pCharacteristic)
-  {
-    pCharacteristic->setValue("0.2");
-  }
-};
-
-class MyServerCallbacks : public BLEServerCallbacks
-{
-  void onConnect(BLEServer *pServer)
-  {
-    Serial.println("Connected");
-    deviceConnected = true;
   };
 
-  void onDisconnect(BLEServer *pServer)
+  class CallbackFWVersion : public BLECharacteristicCallbacks
   {
-    deviceConnected = false;
-    Serial.println("Connected");
-  }
-};
+    void onRead(BLECharacteristic *pCharacteristic)
+    {
+      Serial.println("onRead FWVersion");
+      // uint8_t version[] = {FW_MAJOR,FW_MINOR,FW_PATCH};
+      // pCharacteristic->setValue(version,3);
+    }
+  };
 
-void BLEHandler_Initialize()
-{
- // uint32_t chipId = ESP.getChipId();
+  class CallbackHWVersion : public BLECharacteristicCallbacks
+  {
+    void onRead(BLECharacteristic *pCharacteristic)
+    {
+      pCharacteristic->setValue("0.2");
+    }
+  };
 
-      BLEDevice::init("Gemma Controller");// + String(chipId));
+  class BLEConnectionsCallback : public BLEServerCallbacks
+  {
+    void onConnect(BLEServer *pServer)
+    {
+      deviceConnected = true;
+      BLEDevice::startAdvertising();
+    };
 
-  /*BLECharacteristic *pCharSwitch, *pCharBrightness, *pCharColor;
-  BLECharacteristic *pCharSwitchLeft, *pCharBrightnessLeft, *pCharColorLeft;
-  BLECharacteristic *pCharSwitchRight, *pCharBrightnessRight, *pCharColorRight;
-  BLECharacteristic *pCharParamDebugOutput, *pCharParamPinStrip, *pCharParamPinCenterTS, *pCharParamPinLeftTS,
-      *pCharParamPinRightTS, *pCharParamPinLED, *pCharParamRotaryEncoderAPin, *pCharParamRotaryEncoderBPin,
-      *pCharParamRotaryEncoderButtonPin, *pCharParamRotaryEncoderSteps, *pCharParamRotaryEncoderAcceleration,
-      *pCharParamNumberOfLEDs, *pCharParamNumberOfNLLEDs, *pCharParamMaxBrightness, *pCharParamCapTouchThldBoot;*/
+    void onDisconnect(BLEServer *pServer)
+    {
+      deviceConnected = false;
+      BLEDevice::startAdvertising();
+    }
+  };
 
-  BLECharacteristic *pCharCurrentTime, *pCharAlarmState, *pCharCurrentState;
-  //BLECharacteristic *pCharFWVersion, *pCharHWVersion;
+  void BLEHandler_Initialize()
+  {
+    // uint32_t chipId = ESP.getChipId();
 
-  BLEServer *pServer = BLEDevice::createServer();
-  pServer->setCallbacks(new MyServerCallbacks());
+    BLEDevice::init("Gemma"); // + String(chipId));
 
-  configManager = ConfigurationManager::getInstance();
+    /*BLECharacteristic *pCharSwitch, *pCharBrightness, *pCharColor;
+    BLECharacteristic *pCharSwitchLeft, *pCharBrightnessLeft, *pCharColorLeft;
+    BLECharacteristic *pCharSwitchRight, *pCharBrightnessRight, *pCharColorRight;
+    BLECharacteristic *pCharParamDebugOutput, *pCharParamPinStrip, *pCharParamPinCenterTS, *pCharParamPinLeftTS,
+        *pCharParamPinRightTS, *pCharParamPinLED, *pCharParamRotaryEncoderAPin, *pCharParamRotaryEncoderBPin,
+        *pCharParamRotaryEncoderButtonPin, *pCharParamRotaryEncoderSteps, *pCharParamRotaryEncoderAcceleration,
+        *pCharParamNumberOfLEDs, *pCharParamNumberOfNLLEDs, *pCharParamMaxBrightness, *pCharParamCapTouchThldBoot;*/
 
-  BLEService *pSwitchService = pServer->createService(UUID_STRINGS[SWITCH_SERVICE_UUID]);
-  BLEService *pConfigurationService = pServer->createService(UUID_STRINGS[PARAMETERS_SERVICE_UUID]);
-  BLEService *pDeviceInfoService = pServer->createService(UUID_STRINGS[DEVICE_INFO_SERVICE_UUID]);
+    //BLECharacteristic *pCharCurrentTime, *pCharAlarmState, *pCharCurrentState;
+    // BLECharacteristic *pCharFWVersion, *pCharHWVersion;
 
-  BLECharacteristic *pCharSwitch = pSwitchService->createCharacteristic(
-      UUID_STRINGS[SWITCH_UUID],
-      BLECharacteristic::PROPERTY_READ |
-          BLECharacteristic::PROPERTY_WRITE);
+    BLEServer *pServer = BLEDevice::createServer();
+    pServer->setCallbacks(new BLEConnectionsCallback());
 
-  BLECharacteristic *pCharBrightness = pSwitchService->createCharacteristic(
-      UUID_STRINGS[BRIGHTNESS_UUID],
-      BLECharacteristic::PROPERTY_READ |
-          BLECharacteristic::PROPERTY_WRITE);
+    configManager = ConfigurationManager::getInstance();
 
-  BLECharacteristic *pCharColor = pSwitchService->createCharacteristic(
-      UUID_STRINGS[COLOR_UUID],
-      BLECharacteristic::PROPERTY_READ |
-          BLECharacteristic::PROPERTY_WRITE);
+    BLEService *pSwitchService = pServer->createService(UUID_STRINGS[SWITCH_SERVICE_UUID]);
+    BLEService *pConfigurationService = pServer->createService(UUID_STRINGS[PARAMETERS_SERVICE_UUID]);
+    BLEService *pTimeService = pServer->createService(UUID_STRINGS[TIME_SERVICE_UUID]);
+    BLEService *pDeviceInfoService = pServer->createService(UUID_STRINGS[DEVICE_INFO_SERVICE_UUID]);
 
-  BLECharacteristic *pCharSwitchLeft = pSwitchService->createCharacteristic(
-      UUID_STRINGS[SWITCH_LEFT_UUID],
-      BLECharacteristic::PROPERTY_READ |
-          BLECharacteristic::PROPERTY_WRITE);
+    BLECharacteristic *pCharSwitch = pSwitchService->createCharacteristic(
+        UUID_STRINGS[SWITCH_UUID],
+        BLECharacteristic::PROPERTY_READ |
+            BLECharacteristic::PROPERTY_WRITE);
 
-  BLECharacteristic *pCharBrightnessLeft = pSwitchService->createCharacteristic(
-      UUID_STRINGS[BRIGHTNESS_LEFT_UUID],
-      BLECharacteristic::PROPERTY_READ |
-          BLECharacteristic::PROPERTY_WRITE);
+    BLECharacteristic *pCharBrightness = pSwitchService->createCharacteristic(
+        UUID_STRINGS[BRIGHTNESS_UUID],
+        BLECharacteristic::PROPERTY_READ |
+            BLECharacteristic::PROPERTY_WRITE);
 
-  BLECharacteristic *pCharColorLeft = pSwitchService->createCharacteristic(
-      UUID_STRINGS[COLOR_LEFT_UUID],
-      BLECharacteristic::PROPERTY_READ |
-          BLECharacteristic::PROPERTY_WRITE);
+    BLECharacteristic *pCharColor = pSwitchService->createCharacteristic(
+        UUID_STRINGS[COLOR_UUID],
+        BLECharacteristic::PROPERTY_READ |
+            BLECharacteristic::PROPERTY_WRITE);
 
-  BLECharacteristic *pCharSwitchRight = pSwitchService->createCharacteristic(
-      UUID_STRINGS[SWITCH_RIGHT_UUID],
-      BLECharacteristic::PROPERTY_READ |
-          BLECharacteristic::PROPERTY_WRITE);
+    BLECharacteristic *pCharSwitchLeft = pSwitchService->createCharacteristic(
+        UUID_STRINGS[SWITCH_LEFT_UUID],
+        BLECharacteristic::PROPERTY_READ |
+            BLECharacteristic::PROPERTY_WRITE);
 
-  BLECharacteristic *pCharBrightnessRight = pSwitchService->createCharacteristic(
-      UUID_STRINGS[BRIGHTNESS_RIGHT_UUID],
-      BLECharacteristic::PROPERTY_READ |
-          BLECharacteristic::PROPERTY_WRITE);
+    BLECharacteristic *pCharBrightnessLeft = pSwitchService->createCharacteristic(
+        UUID_STRINGS[BRIGHTNESS_LEFT_UUID],
+        BLECharacteristic::PROPERTY_READ |
+            BLECharacteristic::PROPERTY_WRITE);
 
-  BLECharacteristic *pCharColorRight = pSwitchService->createCharacteristic(
-      UUID_STRINGS[COLOR_RIGHT_UUID],
-      BLECharacteristic::PROPERTY_READ |
-          BLECharacteristic::PROPERTY_WRITE);
+    BLECharacteristic *pCharColorLeft = pSwitchService->createCharacteristic(
+        UUID_STRINGS[COLOR_LEFT_UUID],
+        BLECharacteristic::PROPERTY_READ |
+            BLECharacteristic::PROPERTY_WRITE);
 
-  BLECharacteristic *pCharParamDebugOutput = pConfigurationService->createCharacteristic(
-      UUID_STRINGS[PARAM_DEBUG_OUTPUT_UUID],
-      BLECharacteristic::PROPERTY_READ |
-          BLECharacteristic::PROPERTY_WRITE);
+    BLECharacteristic *pCharSwitchRight = pSwitchService->createCharacteristic(
+        UUID_STRINGS[SWITCH_RIGHT_UUID],
+        BLECharacteristic::PROPERTY_READ |
+            BLECharacteristic::PROPERTY_WRITE);
 
-  BLECharacteristic *pCharParamPinStrip = pConfigurationService->createCharacteristic(
-      UUID_STRINGS[PARAM_PIN_STRIP_UUID],
-      BLECharacteristic::PROPERTY_READ |
-          BLECharacteristic::PROPERTY_WRITE);
+    BLECharacteristic *pCharBrightnessRight = pSwitchService->createCharacteristic(
+        UUID_STRINGS[BRIGHTNESS_RIGHT_UUID],
+        BLECharacteristic::PROPERTY_READ |
+            BLECharacteristic::PROPERTY_WRITE);
 
-  BLECharacteristic *pCharParamPinCenterTS = pConfigurationService->createCharacteristic(
-      UUID_STRINGS[PARAM_PIN_CENTER_TS_UUID],
-      BLECharacteristic::PROPERTY_READ |
-          BLECharacteristic::PROPERTY_WRITE);
+    BLECharacteristic *pCharColorRight = pSwitchService->createCharacteristic(
+        UUID_STRINGS[COLOR_RIGHT_UUID],
+        BLECharacteristic::PROPERTY_READ |
+            BLECharacteristic::PROPERTY_WRITE);
 
-  BLECharacteristic *pCharParamPinLeftTS = pConfigurationService->createCharacteristic(
-      UUID_STRINGS[PARAM_PIN_LEFT_TS_UUID],
-      BLECharacteristic::PROPERTY_READ |
-          BLECharacteristic::PROPERTY_WRITE);
+    BLECharacteristic *pCharParamDebugOutput = pConfigurationService->createCharacteristic(
+        UUID_STRINGS[PARAM_DEBUG_OUTPUT_UUID],
+        BLECharacteristic::PROPERTY_READ |
+            BLECharacteristic::PROPERTY_WRITE);
 
-  BLECharacteristic *pCharParamPinRightTS = pConfigurationService->createCharacteristic(
-      UUID_STRINGS[PARAM_PIN_RIGHT_TS_UUID],
-      BLECharacteristic::PROPERTY_READ |
-          BLECharacteristic::PROPERTY_WRITE);
+    BLECharacteristic *pCharParamPinStrip = pConfigurationService->createCharacteristic(
+        UUID_STRINGS[PARAM_PIN_STRIP_UUID],
+        BLECharacteristic::PROPERTY_READ |
+            BLECharacteristic::PROPERTY_WRITE);
 
-  BLECharacteristic *pCharParamPinLED = pConfigurationService->createCharacteristic(
-      UUID_STRINGS[PARAM_PIN_LED_UUID],
-      BLECharacteristic::PROPERTY_READ |
-          BLECharacteristic::PROPERTY_WRITE);
+    BLECharacteristic *pCharParamPinCenterTS = pConfigurationService->createCharacteristic(
+        UUID_STRINGS[PARAM_PIN_CENTER_TS_UUID],
+        BLECharacteristic::PROPERTY_READ |
+            BLECharacteristic::PROPERTY_WRITE);
 
-  BLECharacteristic *pCharParamRotaryEncoderAPin = pConfigurationService->createCharacteristic(
-      UUID_STRINGS[PARAM_ROTARY_ENCODER_A_PIN_UUID],
-      BLECharacteristic::PROPERTY_READ |
-          BLECharacteristic::PROPERTY_WRITE);
+    BLECharacteristic *pCharParamPinLeftTS = pConfigurationService->createCharacteristic(
+        UUID_STRINGS[PARAM_PIN_LEFT_TS_UUID],
+        BLECharacteristic::PROPERTY_READ |
+            BLECharacteristic::PROPERTY_WRITE);
 
-  BLECharacteristic *pCharParamRotaryEncoderBPin = pConfigurationService->createCharacteristic(
-      UUID_STRINGS[PARAM_ROTARY_ENCODER_B_PIN_UUID],
-      BLECharacteristic::PROPERTY_READ |
-          BLECharacteristic::PROPERTY_WRITE);
+    BLECharacteristic *pCharParamPinRightTS = pConfigurationService->createCharacteristic(
+        UUID_STRINGS[PARAM_PIN_RIGHT_TS_UUID],
+        BLECharacteristic::PROPERTY_READ |
+            BLECharacteristic::PROPERTY_WRITE);
 
-  BLECharacteristic *pCharParamRotaryEncoderButtonPin = pConfigurationService->createCharacteristic(
-      UUID_STRINGS[PARAM_ROTARY_ENCODER_BUTTON_PIN_UUID],
-      BLECharacteristic::PROPERTY_READ |
-          BLECharacteristic::PROPERTY_WRITE);
+    BLECharacteristic *pCharParamPinLED = pConfigurationService->createCharacteristic(
+        UUID_STRINGS[PARAM_PIN_LED_UUID],
+        BLECharacteristic::PROPERTY_READ |
+            BLECharacteristic::PROPERTY_WRITE);
 
-  BLECharacteristic *pCharParamRotaryEncoderSteps = pConfigurationService->createCharacteristic(
-      UUID_STRINGS[PARAM_ROTARY_ENCODER_STEPS_UUID],
-      BLECharacteristic::PROPERTY_READ |
-          BLECharacteristic::PROPERTY_WRITE);
+    BLECharacteristic *pCharParamRotaryEncoderAPin = pConfigurationService->createCharacteristic(
+        UUID_STRINGS[PARAM_ROTARY_ENCODER_A_PIN_UUID],
+        BLECharacteristic::PROPERTY_READ |
+            BLECharacteristic::PROPERTY_WRITE);
 
-  BLECharacteristic *pCharParamRotaryEncoderAcceleration = pConfigurationService->createCharacteristic(
-      UUID_STRINGS[PARAM_ROTARY_ENCODER_ACCELERATION_UUID],
-      BLECharacteristic::PROPERTY_READ |
-          BLECharacteristic::PROPERTY_WRITE);
+    BLECharacteristic *pCharParamRotaryEncoderBPin = pConfigurationService->createCharacteristic(
+        UUID_STRINGS[PARAM_ROTARY_ENCODER_B_PIN_UUID],
+        BLECharacteristic::PROPERTY_READ |
+            BLECharacteristic::PROPERTY_WRITE);
 
-  BLECharacteristic *pCharParamNumberOfLEDs = pConfigurationService->createCharacteristic(
-      UUID_STRINGS[PARAM_NUMBER_OF_LEDS_UUID],
-      BLECharacteristic::PROPERTY_READ |
-          BLECharacteristic::PROPERTY_WRITE);
+    BLECharacteristic *pCharParamRotaryEncoderButtonPin = pConfigurationService->createCharacteristic(
+        UUID_STRINGS[PARAM_ROTARY_ENCODER_BUTTON_PIN_UUID],
+        BLECharacteristic::PROPERTY_READ |
+            BLECharacteristic::PROPERTY_WRITE);
 
-  BLECharacteristic *pCharParamNumberOfNLLEDs = pConfigurationService->createCharacteristic(
-      UUID_STRINGS[PARAM_NUMBER_OF_NL_LEDS_UUID],
-      BLECharacteristic::PROPERTY_READ |
-          BLECharacteristic::PROPERTY_WRITE);
+    BLECharacteristic *pCharParamRotaryEncoderSteps = pConfigurationService->createCharacteristic(
+        UUID_STRINGS[PARAM_ROTARY_ENCODER_STEPS_UUID],
+        BLECharacteristic::PROPERTY_READ |
+            BLECharacteristic::PROPERTY_WRITE);
 
-  BLECharacteristic *pCharParamMaxBrightness = pConfigurationService->createCharacteristic(
-      UUID_STRINGS[PARAM_MAX_BRIGHTNESS_UUID],
-      BLECharacteristic::PROPERTY_READ |
-          BLECharacteristic::PROPERTY_WRITE);
+    BLECharacteristic *pCharParamRotaryEncoderAcceleration = pConfigurationService->createCharacteristic(
+        UUID_STRINGS[PARAM_ROTARY_ENCODER_ACCELERATION_UUID],
+        BLECharacteristic::PROPERTY_READ |
+            BLECharacteristic::PROPERTY_WRITE);
 
-  BLECharacteristic *pCharParamCapTouchThldBoot = pConfigurationService->createCharacteristic(
-      UUID_STRINGS[PARAM_CAPTOUCH_THLD_BOOT],
-      BLECharacteristic::PROPERTY_READ |
-          BLECharacteristic::PROPERTY_WRITE);
+    BLECharacteristic *pCharParamNumberOfLEDs = pConfigurationService->createCharacteristic(
+        UUID_STRINGS[PARAM_NUMBER_OF_LEDS_UUID],
+        BLECharacteristic::PROPERTY_READ |
+            BLECharacteristic::PROPERTY_WRITE);
 
-  BLECharacteristic *pCharFWVersion = pDeviceInfoService->createCharacteristic(
-      UUID_STRINGS[FW_VERSION_UUID],
-      BLECharacteristic::PROPERTY_READ);
+    BLECharacteristic *pCharParamNumberOfNLLEDs = pConfigurationService->createCharacteristic(
+        UUID_STRINGS[PARAM_NUMBER_OF_NL_LEDS_UUID],
+        BLECharacteristic::PROPERTY_READ |
+            BLECharacteristic::PROPERTY_WRITE);
 
-  BLECharacteristic *pCharHWVersion = pDeviceInfoService->createCharacteristic(
-      UUID_STRINGS[HW_VERSION_UUID],
-      BLECharacteristic::PROPERTY_READ);
+    BLECharacteristic *pCharParamMaxBrightness = pConfigurationService->createCharacteristic(
+        UUID_STRINGS[PARAM_MAX_BRIGHTNESS_UUID],
+        BLECharacteristic::PROPERTY_READ |
+            BLECharacteristic::PROPERTY_WRITE);
 
-  pCharSwitch->setCallbacks(new CallbackSwitch());
-  pCharBrightness->setCallbacks(new CallbackBrightness());
-  pCharColor->setCallbacks(new CallbackColor());
-  pCharSwitchLeft->setCallbacks(new CallbackSwitch());
-  pCharBrightnessLeft->setCallbacks(new CallbackBrightness());
-  pCharColorLeft->setCallbacks(new CallbackColor());
-  pCharSwitchRight->setCallbacks(new CallbackSwitch());
-  pCharBrightnessRight->setCallbacks(new CallbackBrightness());
-  pCharColorRight->setCallbacks(new CallbackColor());
+    BLECharacteristic *pCharParamCapTouchThldBoot = pConfigurationService->createCharacteristic(
+        UUID_STRINGS[PARAM_CAPTOUCH_THLD_BOOT],
+        BLECharacteristic::PROPERTY_READ |
+            BLECharacteristic::PROPERTY_WRITE);
 
-  pCharParamDebugOutput->setCallbacks(new CallbackParameters());
-  pCharParamPinStrip->setCallbacks(new CallbackParameters());
-  pCharParamPinCenterTS->setCallbacks(new CallbackParameters());
-  pCharParamPinLeftTS->setCallbacks(new CallbackParameters());
-  pCharParamPinRightTS->setCallbacks(new CallbackParameters());
-  pCharParamPinLED->setCallbacks(new CallbackParameters());
-  pCharParamRotaryEncoderAPin->setCallbacks(new CallbackParameters());
-  pCharParamRotaryEncoderBPin->setCallbacks(new CallbackParameters());
-  pCharParamRotaryEncoderButtonPin->setCallbacks(new CallbackParameters());
-  pCharParamRotaryEncoderSteps->setCallbacks(new CallbackParameters());
-  pCharParamRotaryEncoderAcceleration->setCallbacks(new CallbackParameters());
-  pCharParamNumberOfLEDs->setCallbacks(new CallbackParameters());
-  pCharParamNumberOfNLLEDs->setCallbacks(new CallbackParameters());
-  pCharParamMaxBrightness->setCallbacks(new CallbackParameters());
-  pCharParamCapTouchThldBoot->setCallbacks(new CallbackParameters());
+    BLECharacteristic *pCharCurrentTime = pTimeService->createCharacteristic(
+        UUID_STRINGS[SET_TIME_UUID],
+        BLECharacteristic::PROPERTY_READ |
+            BLECharacteristic::PROPERTY_WRITE);
+    
+    BLECharacteristic *pCharAlarmState = pTimeService->createCharacteristic(
+        UUID_STRINGS[SET_ALARM_TIME_UUID],
+        BLECharacteristic::PROPERTY_READ |
+            BLECharacteristic::PROPERTY_WRITE);
 
-  pCharFWVersion->setCallbacks(new CallbackFWVersion());
-  pCharHWVersion->setCallbacks(new CallbackHWVersion());
+    BLECharacteristic *pCharAlarm = pTimeService->createCharacteristic(
+        UUID_STRINGS[SET_ALARM_STATE_UUID],
+        BLECharacteristic::PROPERTY_READ |
+            BLECharacteristic::PROPERTY_WRITE);
 
-  pSwitchService->start();
-  pDeviceInfoService->start();
+    BLECharacteristic *pCharFWVersion = pDeviceInfoService->createCharacteristic(
+        UUID_STRINGS[FW_VERSION_UUID],
+        BLECharacteristic::PROPERTY_READ);
 
-  BLEAdvertising *pAdvertising = pServer->getAdvertising();
+    BLECharacteristic *pCharHWVersion = pDeviceInfoService->createCharacteristic(
+        UUID_STRINGS[HW_VERSION_UUID],
+        BLECharacteristic::PROPERTY_READ);
 
-  pAdvertising->setScanResponse(true);
-  pAdvertising->setMinPreferred(0x06); // functions that help with iPhone connections issue
-  pAdvertising->setMinPreferred(0x12);
+    pCharSwitch->setCallbacks(new CallbackSwitch());
+    pCharBrightness->setCallbacks(new CallbackBrightness());
+    pCharColor->setCallbacks(new CallbackColor());
+    pCharSwitchLeft->setCallbacks(new CallbackSwitch());
+    pCharBrightnessLeft->setCallbacks(new CallbackBrightness());
+    pCharColorLeft->setCallbacks(new CallbackColor());
+    pCharSwitchRight->setCallbacks(new CallbackSwitch());
+    pCharBrightnessRight->setCallbacks(new CallbackBrightness());
+    pCharColorRight->setCallbacks(new CallbackColor());
 
-  pAdvertising->start();
+    pCharParamDebugOutput->setCallbacks(new CallbackParameters());
+    pCharParamPinStrip->setCallbacks(new CallbackParameters());
+    pCharParamPinCenterTS->setCallbacks(new CallbackParameters());
+    pCharParamPinLeftTS->setCallbacks(new CallbackParameters());
+    pCharParamPinRightTS->setCallbacks(new CallbackParameters());
+    pCharParamPinLED->setCallbacks(new CallbackParameters());
+    pCharParamRotaryEncoderAPin->setCallbacks(new CallbackParameters());
+    pCharParamRotaryEncoderBPin->setCallbacks(new CallbackParameters());
+    pCharParamRotaryEncoderButtonPin->setCallbacks(new CallbackParameters());
+    pCharParamRotaryEncoderSteps->setCallbacks(new CallbackParameters());
+    pCharParamRotaryEncoderAcceleration->setCallbacks(new CallbackParameters());
+    pCharParamNumberOfLEDs->setCallbacks(new CallbackParameters());
+    pCharParamNumberOfNLLEDs->setCallbacks(new CallbackParameters());
+    pCharParamMaxBrightness->setCallbacks(new CallbackParameters());
+    pCharParamCapTouchThldBoot->setCallbacks(new CallbackParameters());
+
+    pCharFWVersion->setCallbacks(new CallbackFWVersion());
+    pCharHWVersion->setCallbacks(new CallbackHWVersion());
+
+    pSwitchService->start();
+    pDeviceInfoService->start();
+
+    BLEAdvertising *pAdvertising = pServer->getAdvertising();
+
+    pAdvertising->setScanResponse(true);
+    pAdvertising->setMinPreferred(0x06); // functions that help with iPhone connections issue
+    pAdvertising->setMinPreferred(0x12);
+
+    pAdvertising->start();
+  
 }
