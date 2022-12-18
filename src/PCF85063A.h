@@ -38,7 +38,6 @@
 #define RTC_ALARM_AF 0x40  // set AF register ; alarm flag needs to be cleared for alarm
 #define RTC_CTRL_2_DEFAULT 0x00
 #define RTC_TIMER_FLAG 0x08
-}
 
 class PCF85063A
 {
@@ -59,6 +58,7 @@ public:
         return instance;
     }
 
+    void initialize();
     void setTime(uint8_t hour, uint8_t minute, uint8_t sec);
     void setDate(uint8_t weekday, uint8_t day, uint8_t month, uint8_t yr);
     void readTime();

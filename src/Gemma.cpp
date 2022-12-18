@@ -5,7 +5,8 @@
 #include "BLEHandler.h"
 #include "MW_Strip.h"
 #include "ConfigurationManager.h"
-#include "PF85063A.h"
+#include "PCF85063A.h"
+
 
 
 
@@ -21,10 +22,6 @@ void setup()
   // Initialize RTC
   PCF85063A rtc;
   rtc.initialize();
- 
-  rtc.setTime(10, 30, 0);
-  rtc.setDate(2, 13, 12, 2022);
-  rtc.setAlarm(0,31,10,99,99);  
 
 
 

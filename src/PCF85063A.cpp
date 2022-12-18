@@ -1,8 +1,6 @@
 #include "PCF85063A.h"
 
-
-// INIT
-PCF85063A::initialize(void)
+void PCF85063A::initialize(void)
 {
 	Wire.begin();
 }

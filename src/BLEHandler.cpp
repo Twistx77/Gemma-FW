@@ -42,8 +42,9 @@ enum UUID
   PARAM_CAPTOUCH_THLD_BOOT_UUID = 26,
 
   SET_TIME_UUID = 27,
+  SET_ALARM_TIME = 28,
   SET_ALARM_STATE = 28,
-  SET_ALARM_TIME = 29,
+  
 
   FW_VERSION_UUID = 30,
   HW_VERSION_UUID = 31
@@ -262,7 +263,7 @@ class CallbackParameters : public BLECharacteristicCallbacks
   {
     // Get the parameter from the UUID last 2 characters converting them to a number by subtracting 30 (ASCII 0) and multiplying by 10 the first
     // character and adding the second character + PARAM_DEBUG_OUTPUT to add the offset of the parameters in the enum.
-    ConfigParameter parameter = pCharacteristic->getUUID().getNative()->uuid.uuid128[1] - 30 * 10 + pCharacteristic->getUUID().getNative()->uuid.uuid128[0] - 30 + PARAM_DEBUG_OUTPUT;
+    ConfigParameter parameter =  PARAM_DEBUG_OUTPUT;//pCharacteristic->getUUID().getNative()->uuid.uuid128[1] - 30 * 10 + pCharacteristic->getUUID().getNative()->uuid.uuid128[0] - 30 + PARAM_DEBUG_OUTPUT;
     if (parameter < MAX_PARAMETERS && parameter >= PARAM_DEBUG_OUTPUT)
     {
       configManager.writeParameter(parameter, pCharacteristic->getData()[0]);
@@ -285,16 +286,75 @@ class CallbackParameters : public BLECharacteristicCallbacks
 class CallbackTime : public BLECharacteristicCallbacks
 {
   PCF85063A rtc = rtc.getInstance();
-  void onRead(BLECharacteristic)
+  void onRead(BLECharacteristic *pCharacteristic)
   {
+
+    switch (pCharacteristic->getUUID().toString()[35])
+    {
+    case '1':
+      rtc.readTime();
+      uint8_t time[] = {rtc.getYear(), rtc.getMonth(), rtc.getDay(), rtc.getHour(), rtc.getMinute(), rtc.getSecond()};
+      pCharacteristic->setValue(time, 6);
+      break;  
+    case '2':
+    {
+      rtc.readAlarm();
+      uint8_t alarm[] = {rtc.getAlarmWeekday(), rtc.getAlarmDay(), rtc.getAlarmHour(), rtc.getAlarmMinute(), rtc.getAlarmSecond()};
+      pCharacteristic->setValue(alarm, 5);
+    
+    break;
+    }
+
+    case '3':
+    {
+     // rtc.readAlarmState();
+      uint8_t alarmState[] = {0};
+      pCharacteristic->setValue(alarmState, 1);
+    }
+      break;
+
+    default:
+      break;
+    }   
 
   }
 
-  void onWrite(BLECharacteristic)
+  void onWrite(BLECharacteristic *pCharacteristic)
   {
+    switch (pCharacteristic->getUUID().toString()[35])
+    {
+    case '1':
+    {
+      uint8_t *currentTime = pCharacteristic->getData();
+      rtc.setTime(currentTime[0], currentTime[1], currentTime[2], currentTime[3], currentTime[4], currentTime[5]);
+      break;
+    }
+    case '2':
+    {
+      uint8_t *currentAlarm = pCharacteristic->getData();
+      rtc.setAlarm(currentAlarm[0], currentAlarm[1], currentAlarm[2], currentAlarm[3], currentAlarm[4]);
+      break;
+    }
+    case '3':
+    {
+      uint8_t *alarmStateSet = pCharacteristic->getData();
+
+      if (alarmStateSet[0] == 1)
+      {
+        rtc.enableAlarm();
+      }
+      else
+      {
+        //rtc.disableAlarm();
+      }
+      break;
+    }
+    default:
+      break;
+    }
     
   }
-}
+};
 
 class CallbackFWVersion : public BLECharacteristicCallbacks
 {
@@ -306,7 +366,7 @@ class CallbackFWVersion : public BLECharacteristicCallbacks
   }
 };
 
-class callbackHWVersion : public BLECharacteristicCallbacks
+class CallbackHWVersion : public BLECharacteristicCallbacks
 {
   void onRead(BLECharacteristic *pCharacteristic)
   {
@@ -331,20 +391,20 @@ class MyServerCallbacks : public BLEServerCallbacks
 
 void BLEHandler_Initialize()
 {
-  uint32_t chipId.ESP.getChipId()
+ // uint32_t chipId = ESP.getChipId();
 
-      BLEDevice::init("Gemma Controller " + String(chipId));
+      BLEDevice::init("Gemma Controller");// + String(chipId));
 
-  BLECharacteristic *pCharSwitch, *pCharBrightness, *pCharColor;
+  /*BLECharacteristic *pCharSwitch, *pCharBrightness, *pCharColor;
   BLECharacteristic *pCharSwitchLeft, *pCharBrightnessLeft, *pCharColorLeft;
   BLECharacteristic *pCharSwitchRight, *pCharBrightnessRight, *pCharColorRight;
   BLECharacteristic *pCharParamDebugOutput, *pCharParamPinStrip, *pCharParamPinCenterTS, *pCharParamPinLeftTS,
       *pCharParamPinRightTS, *pCharParamPinLED, *pCharParamRotaryEncoderAPin, *pCharParamRotaryEncoderBPin,
       *pCharParamRotaryEncoderButtonPin, *pCharParamRotaryEncoderSteps, *pCharParamRotaryEncoderAcceleration,
-      *pCharParamNumberOfLEDs, *pCharParamNumberOfNLLEDs, *pCharParamMaxBrightness, *pCharParamCapTouchThldBoot;
+      *pCharParamNumberOfLEDs, *pCharParamNumberOfNLLEDs, *pCharParamMaxBrightness, *pCharParamCapTouchThldBoot;*/
 
   BLECharacteristic *pCharCurrentTime, *pCharAlarmState, *pCharCurrentState;
-  BLECharacteristic *pCharFWVersion, *pCharHWVersion;
+  //BLECharacteristic *pCharFWVersion, *pCharHWVersion;
 
   BLEServer *pServer = BLEDevice::createServer();
   pServer->setCallbacks(new MyServerCallbacks());
@@ -483,34 +543,34 @@ void BLEHandler_Initialize()
       UUID_STRINGS[HW_VERSION_UUID],
       BLECharacteristic::PROPERTY_READ);
 
-  pCharSwitch->setCallbacks(new callbackSwitch());
-  pCharBrightness->setCallbacks(new callbackBrightness());
-  pCharColor->setCallbacks(new callbackColor());
-  pCharSwitchLeft->setCallbacks(new callbackSwitch());
-  pCharBrightnessLeft->setCallbacks(new callbackBrightness());
-  pCharColorLeft->setCallbacks(new callbackColor());
-  pCharSwitchRight->setCallbacks(new callbackSwitch());
-  pCharBrightnessRight->setCallbacks(new callbackBrightness());
-  pCharColorRight->setCallbacks(new callbackColor());
+  pCharSwitch->setCallbacks(new CallbackSwitch());
+  pCharBrightness->setCallbacks(new CallbackBrightness());
+  pCharColor->setCallbacks(new CallbackColor());
+  pCharSwitchLeft->setCallbacks(new CallbackSwitch());
+  pCharBrightnessLeft->setCallbacks(new CallbackBrightness());
+  pCharColorLeft->setCallbacks(new CallbackColor());
+  pCharSwitchRight->setCallbacks(new CallbackSwitch());
+  pCharBrightnessRight->setCallbacks(new CallbackBrightness());
+  pCharColorRight->setCallbacks(new CallbackColor());
 
-  pCharParamDebugOutput->setCallbacks(new callbackParameters());
-  pCharParamPinStrip->setCallbacks(new callbackParameters());
-  pCharParamPinCenterTS->setCallbacks(new callbackParameters());
-  pCharParamPinLeftTS->setCallbacks(new callbackParameters());
-  pCharParamPinRightTS->setCallbacks(new callbackParameters());
-  pCharParamPinLED->setCallbacks(new callbackParameters());
-  pCharParamRotaryEncoderAPin->setCallbacks(new callbackParameters());
-  pCharParamRotaryEncoderBPin->setCallbacks(new callbackParameters());
-  pCharParamRotaryEncoderButtonPin->setCallbacks(new callbackParameters());
-  pCharParamRotaryEncoderSteps->setCallbacks(new callbackParameters());
-  pCharParamRotaryEncoderAcceleration->setCallbacks(new callbackParameters());
-  pCharParamNumberOfLEDs->setCallbacks(new callbackParameters());
-  pCharParamNumberOfNLLEDs->setCallbacks(new callbackParameters());
-  pCharParamMaxBrightness->setCallbacks(new callbackParameters());
-  pCharParamCapTouchThldBoot->setCallbacks(new callbackParameters());
+  pCharParamDebugOutput->setCallbacks(new CallbackParameters());
+  pCharParamPinStrip->setCallbacks(new CallbackParameters());
+  pCharParamPinCenterTS->setCallbacks(new CallbackParameters());
+  pCharParamPinLeftTS->setCallbacks(new CallbackParameters());
+  pCharParamPinRightTS->setCallbacks(new CallbackParameters());
+  pCharParamPinLED->setCallbacks(new CallbackParameters());
+  pCharParamRotaryEncoderAPin->setCallbacks(new CallbackParameters());
+  pCharParamRotaryEncoderBPin->setCallbacks(new CallbackParameters());
+  pCharParamRotaryEncoderButtonPin->setCallbacks(new CallbackParameters());
+  pCharParamRotaryEncoderSteps->setCallbacks(new CallbackParameters());
+  pCharParamRotaryEncoderAcceleration->setCallbacks(new CallbackParameters());
+  pCharParamNumberOfLEDs->setCallbacks(new CallbackParameters());
+  pCharParamNumberOfNLLEDs->setCallbacks(new CallbackParameters());
+  pCharParamMaxBrightness->setCallbacks(new CallbackParameters());
+  pCharParamCapTouchThldBoot->setCallbacks(new CallbackParameters());
 
-  pCharFWVersion->setCallbacks(new callbackFWVersion());
-  pCharHWVersion->setCallbacks(new callbackHWVersion());
+  pCharFWVersion->setCallbacks(new CallbackFWVersion());
+  pCharHWVersion->setCallbacks(new CallbackHWVersion());
 
   pSwitchService->start();
   pDeviceInfoService->start();
