@@ -12,21 +12,21 @@ const char *const PARAMETERS_KEYS[]{
     "PIN_LEFT_TS",
     "PIN_RIGHT_TS",
     "PIN_LED",
-    "ROTARY_ENCODER_A_PIN",
-    "ROTARY_ENCODER_B_PIN",
-    "ROTARY_ENCODER_BUTTON_PIN",
-    "ROTARY_ENCODER_STEPS",
-    "ROTARY_ENCODER_ACCELERATION",
-    "NUMBER_OF_LEDS",
-    "NUMBER_OF_NL_LEDS",
+    "ROT_ENC_A_PIN",
+    "ROT_ENC_B_PIN",
+    "ROT_ENC_BTN_PIN",
+    "ROT_ENC_STEPS",
+    "ROT_ENC_ACCEL",
+    "STRIP_LEDS",
+    "NL_LEDS",
     "MAX_BRIGHTNESS",
-    "CAPTOUCH_THLD_BOOT"
+    "TOUCH_THLD"
     };
 
 const uint32_t DEFAULT_PARAMETERS_VALUES[]{
     0,   // FW_MAJOR
     5,   // FW_MINOR
-    6,   // FW_PATCH
+    7,   // FW_PATCH
     1,   // DEBUG_OUTPUT
     16,  // PIN_STRIP
     27,  // PIN_CENTER_TS
@@ -53,6 +53,7 @@ void ConfigurationManager::initialize()
     {
         if (!preferences.isKey(PARAMETERS_KEYS[i]))
         {
+            Serial.println("Key not found: " + String(PARAMETERS_KEYS[i]));
             preferences.putULong(PARAMETERS_KEYS[i], DEFAULT_PARAMETERS_VALUES[i]);
         }
     }
@@ -76,5 +77,9 @@ uint32_t ConfigurationManager::readParameter(ConfigParameter parameter)
 // Write a configuration parameter
 void ConfigurationManager::writeParameter(ConfigParameter parameter, uint32_t value)
 {
+    Serial.println("Parameter " + String(PARAMETERS_KEYS[parameter]) + " set to " + String(value));
     preferences.putULong(PARAMETERS_KEYS[parameter], value);
+    
+    Serial.println("Read Value: " + String(preferences.getULong(PARAMETERS_KEYS[parameter], 23)));
+    
 }

@@ -1,7 +1,7 @@
 #ifndef DEFAULT_CONFIG_H
 #define DEFAULT_CONFIG_H
 
-#define BT_DEBUG 
+//#define BT_DEBUG 
 
 #ifdef BT_DEBUG
 #include "BluetoothSerial.h"

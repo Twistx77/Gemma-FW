@@ -46,7 +46,7 @@ void setup()
 
 #ifndef BT_DEBUG
   // Initialize BLE
-  BLEHandler_Initialize();
+ BLEHandler_Initialize();
 #else
   SerialBT.enableSSP();
   SerialBT.begin("GEMMA_DBG");
