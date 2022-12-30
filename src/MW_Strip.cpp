@@ -132,10 +132,15 @@ void MWST_Initialize()
 {
 
   ConfigurationManager configManager = ConfigurationManager::getInstance();
+  configManager.initialize();
   uint8_t ledsInStrip = (uint8_t)configManager.readParameter(PARAM_NUMBER_OF_LEDS);
   uint8_t ledsNightLight = (uint8_t)configManager.readParameter(PARAM_NUMBER_OF_NL_LEDS);
   uint8_t pinStrip = (uint8_t)configManager.readParameter(PARAM_PIN_STRIP);
   maxBrightness = (uint8_t)configManager.readParameter(PARAM_MAX_BRIGHTNESS);
+
+  Serial.println("ledsInStrip: " + String(ledsInStrip));
+  Serial.println("ledsNightLight: " + String(ledsNightLight));
+
 
   strips[STRIP_CENTER].stripType = STRIP_CENTER;
   strips[STRIP_CENTER].currentState = MWST_DISABLED;

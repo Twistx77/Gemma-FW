@@ -77,9 +77,6 @@ uint32_t ConfigurationManager::readParameter(ConfigParameter parameter)
 // Write a configuration parameter
 void ConfigurationManager::writeParameter(ConfigParameter parameter, uint32_t value)
 {
-    Serial.println("Parameter " + String(PARAMETERS_KEYS[parameter]) + " set to " + String(value));
-    preferences.putULong(PARAMETERS_KEYS[parameter], value);
-    
-    Serial.println("Read Value: " + String(preferences.getULong(PARAMETERS_KEYS[parameter], 23)));
+    String(preferences.putULong(PARAMETERS_KEYS[parameter], value));
     
 }

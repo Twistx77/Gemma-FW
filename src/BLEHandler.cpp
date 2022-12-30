@@ -141,7 +141,6 @@ class CallbackSwitch : public BLECharacteristicCallbacks
       stripType = STRIP_RIGHT;
       break;
     }
-    Serial.println("onRead switch");
     uint32_t state = 0;
     if (MWST_GetState(stripType))
       state = 1;
@@ -241,10 +240,8 @@ class CallbackParameters : public BLECharacteristicCallbacks
   void onWrite(BLECharacteristic *pCharacteristic)
   {
     ConfigParameter parameter = (ConfigParameter)(pCharacteristic->getUUID().getNative()->uuid.uuid128[0] + PARAM_DEBUG_OUTPUT);
-
     if (parameter < MAX_PARAMETERS && parameter >= PARAM_DEBUG_OUTPUT)
     {
-      Serial.println("Parameter "+ String(parameter) + "Value written "+ String(pCharacteristic->getData()[0]));
       configManager.writeParameter(parameter, pCharacteristic->getData()[0]);
     }
   }
@@ -340,7 +337,6 @@ class CallbackFWVersion : public BLECharacteristicCallbacks
 {
   void onRead(BLECharacteristic *pCharacteristic)
   {
-    Serial.println("onRead FWVersion");
    uint8_t fwVersion[] = {configManager.readParameter(PARAM_FW_MAJOR), configManager.readParameter(PARAM_FW_MINOR), configManager.readParameter(PARAM_FW_PATCH)};
    pCharacteristic->setValue(fwVersion,3);
   }
@@ -386,6 +382,7 @@ void BLEHandler_Initialize()
   pServer->setCallbacks(new BLEConnectionsCallback());
 
   configManager = ConfigurationManager::getInstance();
+  configManager.initialize();
 
   BLEService *pSwitchService = pServer->createService(UUID_STRINGS[SWITCH_SERVICE_UUID]);
   BLEService *pConfigurationService = pServer->createService(BLEUUID(UUID_STRINGS[PARAMETERS_SERVICE_UUID]), 40, 0); // 40 is the maximum number of handles  numHandles = (# of Characteristics)*2  +  (# of Services) + (# of Characteristics with BLE2902)

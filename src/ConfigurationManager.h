@@ -36,6 +36,7 @@ public:
     {
         //Constructed on first access
         static ConfigurationManager instance;
+        //instance.initialize();
         return instance;
     }
 
