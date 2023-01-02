@@ -59,6 +59,7 @@ static BluetoothSerial SerialBT;
 #define PIN_RIGHT_TS 4   // TODO: REPLACE CONFIG MANAGER
 
 #define PIN_LED 19
+#define PIN_RTC_INT 32
 
 #define CAPACITIVE_INPUT true
 

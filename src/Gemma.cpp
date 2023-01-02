@@ -8,6 +8,13 @@
 #include "PCF85063A.h"
 
 
+bool previousState = false;
+// Initialize RTC
+PCF85063A rtc;
+void IRAM_ATTR rtc_int_isr() {
+  previousState = !previousState;
+}
+
 
 void setup()
 {
@@ -17,17 +24,16 @@ void setup()
   ConfigurationManager configManager;
   configManager.initialize();
 
+  // Signage LED pin as output
+  pinMode(PIN_LED, OUTPUT);
+  digitalWrite(PIN_LED, LOW);
 
-  // Initialize RTC
-  PCF85063A rtc;
   rtc.initialize();
-
-
+  rtc.timerSet(rtc.TIMER_CLOCK_1PER60HZ, 1, true, true); // Enable RTC timer with interrupt pulse every minute
+  pinMode(PIN_RTC_INT, INPUT);
+  attachInterrupt(PIN_RTC_INT, rtc_int_isr, RISING);
 
   pinMode(ROTARY_ENCODER_BUTTON_PIN, INPUT_PULLUP);
-  pinMode(PIN_LED, OUTPUT);
-
-  digitalWrite(PIN_LED, LOW);
 
   // Strip initialization
   MWST_Initialize();
@@ -45,7 +51,7 @@ void setup()
 
 #ifndef BT_DEBUG
   // Initialize BLE
- BLEHandler_Initialize();
+  BLEHandler_Initialize();
 #else
   SerialBT.enableSSP();
   SerialBT.begin("GEMMA_DBG");
