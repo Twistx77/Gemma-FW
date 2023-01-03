@@ -16,6 +16,7 @@ enum Weekdays{
 
 typedef struct AlarmParameters
 {
+    uint8_t enabled;
     uint8_t hour;
     uint8_t minutes;
     uint8_t weekdays;
@@ -41,18 +42,20 @@ enum Alarm {
     ALARM_2 = 1,
     ALARM_3 = 3,
     ALARM_4 = 4,
-    ALARM_5 = 5
+    ALARM_5 = 5,
+    ALARM_MAX = 6
 };
 
 
     void initialize();
     void setTimeAndDate(TimeAndDate timeAndDate);
     void setAlarm(Alarm alarm, AlarmParameters parameters );
+    void checkAlarms();
 
-private:
-
-    AlarmParameters Alarms;
+private:    
+    volatile static bool minuteIntFlag = false;
     PCF85063A rtc;
+    AlarmParameters alarms[MAX_ALARMS-1];
 };
 
 #endif // ALARMS_MANAGER_H
