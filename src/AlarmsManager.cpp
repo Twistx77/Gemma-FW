@@ -13,6 +13,10 @@ static void IRAM_ATTR rtc_int_isr()
 // Initialize the AlarmsManager
 void AlarmsManager::initialize()
 {
+
+    // Initialize the flag to false
+    minuteIntFlag = false;
+    
     // Intitialize alarms to 0
     for (int i = 0; i < MAX_ALARMS; i++)
     {
@@ -39,7 +43,7 @@ void AlarmsManager::setTimeAndDate(TimeAndDate timeAndDate)
     // Check if time and dates are valid:
     // - Time: 0 <= hour <= 23, 0 <= minutes <= 59, 0 <= seconds <= 59
     // - Date: 0 <= year <= 99, 1 <= month <= 12, 1 <= day <= 31, 1 <= weekday <= 7
-    if (timeAndDate.hour < 0 || timeAndDate.hour > 23 ||
+    if (timeAndDate.hours < 0 || timeAndDate.hours > 23 ||
         timeAndDate.minutes < 0 || timeAndDate.minutes > 59 ||
         timeAndDate.seconds < 0 || timeAndDate.seconds > 59 ||
         timeAndDate.year < 0 || timeAndDate.year > 99 ||
@@ -52,6 +56,21 @@ void AlarmsManager::setTimeAndDate(TimeAndDate timeAndDate)
     rtc.setDate(timeAndDate.year, timeAndDate.month, timeAndDate.day, timeAndDate.weekday);
 }
 
+// Get the time and date
+TimeAndDate AlarmsManager::getTimeAndDate()
+{
+    TimeAndDate timeAndDate;
+    timeAndDate.hours = rtc.getHour();
+    timeAndDate.minutes = rtc.getMinute();
+    timeAndDate.seconds = rtc.getSecond();
+    timeAndDate.year = rtc.getYear();
+    timeAndDate.month = rtc.getMonth();
+    timeAndDate.day = rtc.getDay();
+    timeAndDate.weekday = rtc.getWeekday();
+
+    return timeAndDate;
+}
+
 // Set the alarm
 void AlarmsManager::setAlarm(Alarm alarm, AlarmParameters parameters)
 {
@@ -60,23 +79,31 @@ void AlarmsManager::setAlarm(Alarm alarm, AlarmParameters parameters)
         return;
 
     // Check if parameters are valid:
-    // - Time: 0 <= hour <= 23, 0 <= minutes <= 59, 0 <= seconds <= 59
-    // - Date: 0 <= year <= 99, 1 <= month <= 12, 1 <= day <= 31, 1 <= weekday <= 7
-    if (parameters.hour < 0 || parameters.hour > 23 ||
+    // - Enabled: 0 or 1
+    // - Time: 0 <= hour <= 23, 0 <= minutes <= 59
+    // - Weekdays: 0 <= weekdays <= 127
+    if (parameters.enabled < 0 || parameters.enabled > 1 ||
+        parameters.hours < 0 || parameters.hours > 23 ||
         parameters.minutes < 0 || parameters.minutes > 59 ||
-        parameters.seconds < 0 || parameters.seconds > 59 ||
-        parameters.year < 0 || parameters.year > 99 ||
-        parameters.month < 1 || parameters.month > 12 ||
-        parameters.day < 1 || parameters.day > 31 ||
-        parameters.weekday < 1 || parameters.weekday > 7)
+        parameters.weekdays < 0 || parameters.weekdays > 127)
         return;
 
     // Add alarm to the list
     alarms[alarm] = parameters;
 }
 
+// Get the alarm
+AlarmParameters AlarmsManager::getAlarm(Alarm alarm)
+{
+    // Check if alarm is valid
+    if (alarm < 0 || alarm > this.MAX_ALARM)
+        return;
+
+    return alarms[alarm];
+}
+
 // Check if the alarm is triggered
-void AlarmsManager::checkAlarms()
+bool AlarmsManager::checkAlarms()
 {
     if (!minuteIntFlag)
         return;
@@ -97,7 +124,9 @@ void AlarmsManager::checkAlarms()
             alarms[i].minutes == minutes &&
             alarms[i].weekdays & (1 << (weekday - 1)))
         {
-            // Alarm triggered
+            return true; // Alarm triggered
         }
     }
+
+    return false; // Alarm not triggered
 }

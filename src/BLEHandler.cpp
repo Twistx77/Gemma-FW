@@ -7,7 +7,7 @@
 #include <stdint.h>
 #include "DefaultConfig.h"
 #include "ConfigurationManager.h"
-#include "PCF85063A.h"
+#include "AlarmsManager.h"
 
 enum UUID
 {
@@ -91,6 +91,7 @@ const char *UUID_STRINGS[] = {
 };
 
 ConfigurationManager configManager;
+AlarmsManager alarmsManager;
 
 bool deviceConnected = false;
 float hue = 0;
@@ -260,7 +261,6 @@ class CallbackParameters : public BLECharacteristicCallbacks
 
 class CallbackTime : public BLECharacteristicCallbacks
 {
-  PCF85063A rtc = rtc.getInstance();
   void onRead(BLECharacteristic *pCharacteristic)
   {
 
@@ -268,26 +268,26 @@ class CallbackTime : public BLECharacteristicCallbacks
     {
     case '1':
     {
-      rtc.readTime();
-      uint8_t time[] = {uint8_t(rtc.getYear() - 2000), rtc.getMonth(), rtc.getDay(), rtc.getHour(), rtc.getMinute(), rtc.getSecond()};
-      pCharacteristic->setValue(time, 6);
+
+      //Get the curernt time from the AlarmsManager
+      TimeAndDate timeAndDate= alarmsManager.getTimeAndDate();
+      uint8_t timeAndDateArray = {timeAndDate.year, timeAndDate.month, timeAndDate.day, timeAndDate.hours, timeAndDate.minutes, timeAndDate.seconds};
+      pCharacteristic->setValue(timeAndDateArray, 6);
     }
     break;
 
     case '2':
-    {
-      rtc.readAlarm();
-      uint8_t alarm[] = {rtc.getAlarmWeekday(), rtc.getAlarmDay(), rtc.getAlarmHour(), rtc.getAlarmMinute(), rtc.getAlarmSecond()};
-      pCharacteristic->setValue(alarm, 5);
-    }
-    break;
-
     case '3':
+    case '4':
+    case '5':
+    case '6':
     {
-      // rtc.readAlarmState();
-      uint8_t alarmState[] = {0};
-      pCharacteristic->setValue(alarmState, 1);
-    }
+      //Get the alarm time from the AlarmsManager
+      AlarmParameters alarmParameters = alarmsManager.getAlarm(Alarm(pCharacteristic->getUUID().toString()[35] - '2'));
+      
+      uint8_t alarm[] = {alarmParameters.weekdays, alarmParameters.hours, alarmParameters.minutes, alarmParameters.enabled};
+      pCharacteristic->setValue(alarm, 4);
+    } 
     break;
 
     default:
@@ -302,31 +302,37 @@ class CallbackTime : public BLECharacteristicCallbacks
     case '1':
     {
       uint8_t *currentTime = pCharacteristic->getData();
-      rtc.setTime(currentTime[0], currentTime[1], currentTime[2]);
-      rtc.setDate(currentTime[6] + 2000, currentTime[5], currentTime[4], currentTime[3]);
+
+      TimeAndDate timeAndDate;
+      timeAndDate.seconds = currentTime[0];
+      timeAndDate.minutes = currentTime[1];
+      timeAndDate.hours = currentTime[2];
+      timeAndDate.day = currentTime[3];
+      timeAndDate.month = currentTime[4];
+      timeAndDate.year = currentTime[5];
+      timeAndDate.weekday = currentTime[6];
+      alarmsManager.setTimeAndDate(timeAndDate);
     }
     break;
 
     case '2':
+    case '3':
+    case '4':
+    case '5':
+    case '6':
     {
       uint8_t *currentAlarm = pCharacteristic->getData();
-      rtc.setAlarm(currentAlarm[0], currentAlarm[1], currentAlarm[2], currentAlarm[3], currentAlarm[4]);
+      AlarmParameters alarmParameters;
+      alarmParameters.weekdays = currentAlarm[4];
+      alarmParameters.hours = currentAlarm[3];
+     
+      alarmParameters.minutes = currentAlarm[2];
+      alarmParameters.seconds = currentAlarm[1];
+      alarmParameters.enabled = currentAlarm[0];
+      alarmsManager.setAlarm(AlarmsManager.Alarm(pCharacteristic->getUUID().toString()[35] - '2'), alarmParameters);
     }
     break;
-    case '3':
-    {
-      uint8_t *alarmStateSet = pCharacteristic->getData();
 
-      if (alarmStateSet[0] == 1)
-      {
-        rtc.enableAlarm();
-      }
-      else
-      {
-        // rtc.disableAlarm();
-      }
-      break;
-    }
     default:
       break;
     }
@@ -383,6 +389,8 @@ void BLEHandler_Initialize()
 
   configManager = ConfigurationManager::getInstance();
   configManager.initialize();
+
+  alarmsManager.initialize();
 
   BLEService *pSwitchService = pServer->createService(UUID_STRINGS[SWITCH_SERVICE_UUID]);
   BLEService *pConfigurationService = pServer->createService(BLEUUID(UUID_STRINGS[PARAMETERS_SERVICE_UUID]), 40, 0); // 40 is the maximum number of handles  numHandles = (# of Characteristics)*2  +  (# of Services) + (# of Characteristics with BLE2902)
