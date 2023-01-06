@@ -40,15 +40,12 @@ enum Alarm {
     ALARM_3 = 3,
     ALARM_4 = 4,
     ALARM_5 = 5,
-    ALARM_MAX = 6
+    ALARMS_MAX = 6
 };
 
 class AlarmsManager
 {
 public:
-
-
-
 
     void initialize();
     void setTimeAndDate(TimeAndDate timeAndDate);
@@ -57,10 +54,10 @@ public:
     AlarmParameters getAlarm(Alarm alarm);
     bool checkAlarms();
 
-private:    
-    volatile static bool minuteIntFlag;
+private:   
+   
     PCF85063A rtc;
-    AlarmParameters alarms[MAX_ALARMS-1];
+    AlarmParameters alarms[ALARMS_MAX-1];
 };
 
 #endif // ALARMS_MANAGER_H

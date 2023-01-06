@@ -3,6 +3,8 @@
 #include "DefaultConfig.h"
 #include <Arduino.h>
 
+ volatile static bool minuteIntFlag;
+
 // RTC interrupt service routine. This is called every minute
 // and allow us to check if the alarm is triggered
 static void IRAM_ATTR rtc_int_isr()
@@ -18,12 +20,12 @@ void AlarmsManager::initialize()
     minuteIntFlag = false;
     
     // Intitialize alarms to 0
-    for (int i = 0; i < MAX_ALARMS; i++)
+    for (int i = 0; i < ALARMS_MAX; i++)
     {
-        alarms[i].enabled = 0;
-        alarms[i].hour = 0;
-        alarms[i].minutes = 0;
-        alarms[i].weekdays = 0;
+        this->alarms[i].enabled = 0;
+        this->alarms[i].hours = 0;
+        this->alarms[i].minutes = 0;
+        this->alarms[i].weekdays = 0;
     }
     // Initialize the RTC
     rtc.initialize();
@@ -52,7 +54,7 @@ void AlarmsManager::setTimeAndDate(TimeAndDate timeAndDate)
         timeAndDate.weekday < 1 || timeAndDate.weekday > 7)
         return;
 
-    rtc.setTime(timeAndDate.hour, timeAndDate.minutes, timeAndDate.seconds);
+    rtc.setTime(timeAndDate.hours, timeAndDate.minutes, timeAndDate.seconds);
     rtc.setDate(timeAndDate.year, timeAndDate.month, timeAndDate.day, timeAndDate.weekday);
 }
 
@@ -75,7 +77,7 @@ TimeAndDate AlarmsManager::getTimeAndDate()
 void AlarmsManager::setAlarm(Alarm alarm, AlarmParameters parameters)
 {
     // Check if alarm is valid
-    if (alarm < 0 || alarm > this.MAX_ALARM)
+    if (alarm < 0 || alarm > ALARMS_MAX)
         return;
 
     // Check if parameters are valid:
@@ -89,15 +91,22 @@ void AlarmsManager::setAlarm(Alarm alarm, AlarmParameters parameters)
         return;
 
     // Add alarm to the list
-    alarms[alarm] = parameters;
+    this->alarms[alarm] = parameters;
 }
 
 // Get the alarm
 AlarmParameters AlarmsManager::getAlarm(Alarm alarm)
 {
     // Check if alarm is valid
-    if (alarm < 0 || alarm > this.MAX_ALARM)
-        return;
+    if (alarm < 0 || alarm > ALARMS_MAX)
+    {
+        AlarmParameters parameters;
+        parameters.enabled = 0xFF;
+        parameters.hours = 0xFF;
+        parameters.minutes = 0xFF;
+        parameters.weekdays = 0xFF;
+        return parameters;
+    }
 
     return alarms[alarm];
 }
@@ -106,7 +115,7 @@ AlarmParameters AlarmsManager::getAlarm(Alarm alarm)
 bool AlarmsManager::checkAlarms()
 {
     if (!minuteIntFlag)
-        return;
+        return false;
     
     // Reset the flag
     minuteIntFlag = false;
@@ -117,10 +126,10 @@ bool AlarmsManager::checkAlarms()
     uint8_t weekday = rtc.getWeekday();
 
     // Check if the alarm is triggered
-    for (int i = 0; i < MAX_ALARMS; i++)
+    for (int i = 0; i < ALARMS_MAX; i++)
     {
-        if (alarms[i].enabled == 1 &&
-            alarms[i].hour == hours &&
+        if (this->alarms[i].enabled == 1 &&
+            alarms[i].hours == hours &&
             alarms[i].minutes == minutes &&
             alarms[i].weekdays & (1 << (weekday - 1)))
         {

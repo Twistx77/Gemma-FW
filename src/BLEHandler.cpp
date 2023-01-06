@@ -271,7 +271,7 @@ class CallbackTime : public BLECharacteristicCallbacks
 
       //Get the curernt time from the AlarmsManager
       TimeAndDate timeAndDate= alarmsManager.getTimeAndDate();
-      uint8_t timeAndDateArray = {timeAndDate.year, timeAndDate.month, timeAndDate.day, timeAndDate.hours, timeAndDate.minutes, timeAndDate.seconds};
+      uint8_t timeAndDateArray[] = {timeAndDate.year, timeAndDate.month, timeAndDate.day, timeAndDate.hours, timeAndDate.minutes, timeAndDate.seconds};
       pCharacteristic->setValue(timeAndDateArray, 6);
     }
     break;
@@ -323,13 +323,11 @@ class CallbackTime : public BLECharacteristicCallbacks
     {
       uint8_t *currentAlarm = pCharacteristic->getData();
       AlarmParameters alarmParameters;
-      alarmParameters.weekdays = currentAlarm[4];
-      alarmParameters.hours = currentAlarm[3];
-     
-      alarmParameters.minutes = currentAlarm[2];
-      alarmParameters.seconds = currentAlarm[1];
+      alarmParameters.weekdays = currentAlarm[3];
+      alarmParameters.hours = currentAlarm[2];     
+      alarmParameters.minutes = currentAlarm[1];
       alarmParameters.enabled = currentAlarm[0];
-      alarmsManager.setAlarm(AlarmsManager.Alarm(pCharacteristic->getUUID().toString()[35] - '2'), alarmParameters);
+      alarmsManager.setAlarm(Alarm(pCharacteristic->getUUID().toString()[35] - '2'), alarmParameters);
     }
     break;
 
