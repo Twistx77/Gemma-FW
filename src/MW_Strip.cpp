@@ -43,12 +43,13 @@ void effectFade(MWST_TypeStripConfig *strip, uint8_t firstLED, uint8_t lastLED)
 
     while (i < strip->setBrightness)
     {
-      if (i < strip->setBrightness + step)
+      if (i <  step)
       {
         i += step;
       }
       else
       {
+        Serial.println("Strip brightness: " + String(i) + " - " + String(strip->setBrightness));
         i = strip->setBrightness;
       }
       stripHW.ClearTo(strip->currentColor, firstLED, lastLED);
@@ -59,6 +60,7 @@ void effectFade(MWST_TypeStripConfig *strip, uint8_t firstLED, uint8_t lastLED)
   else
   {
     uint16_t i = strip->setBrightness;
+
 
     while (i > 0)
     {

@@ -37,6 +37,7 @@ void AlarmsManager::initialize()
     // which allow us to check if the alarm is triggered
     pinMode(PIN_RTC_INT, INPUT);
     attachInterrupt(PIN_RTC_INT, rtc_int_isr, RISING);
+
 }
 
 // Set the time and date
@@ -125,6 +126,7 @@ bool AlarmsManager::checkAlarms()
     uint8_t minutes = rtc.getMinute();
     uint8_t weekday = rtc.getWeekday();
 
+
     // Check if the alarm is triggered
     for (int i = 0; i < ALARMS_MAX; i++)
     {
@@ -133,6 +135,7 @@ bool AlarmsManager::checkAlarms()
             alarms[i].minutes == minutes &&
             alarms[i].weekdays & (1 << (weekday - 1)))
         {
+            Serial.println("Alarm "+ String(i) +" triggered");
             return true; // Alarm triggered
         }
     }

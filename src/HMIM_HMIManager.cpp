@@ -114,6 +114,7 @@ void processTouchInputs()
         {
             if (lastState[sensor] == TOUCHED)
             {
+                Serial.println("Touched and held ");
                 if ((millis() - lastTimePressed[sensor]) > LONG_TOUCH_DURATION_MS)
                 {
                     if (touchSensorsEvents[sensor] == NO_EVENT)
@@ -124,20 +125,23 @@ void processTouchInputs()
                     else if (touchSensorsEvents[sensor] == LONG_TOUCH_EVENT)
                     {
                         MWST_IncreaseStripIlumination(sensor, 1);
+                        Serial.println("Increasing Brightness " + String(sensor));
                     }
                 }
             }
             else
             {
+
                 lastState[sensor] = TOUCHED;
                 lastTimePressed[sensor] = millis();
+                Serial.println("Touched First Time " + String(sensor));
             }
         }
         else
         {
             if (lastState[sensor] == TOUCHED)
             {
-                Serial.println("Touched " + String(sensor));
+                Serial.println("Finish Touch " + String(sensor));
                 if (touchSensorsEvents[sensor] != LONG_TOUCH_EVENT)
                 {
                     clickHandler(touchSensorTypes[sensor]);

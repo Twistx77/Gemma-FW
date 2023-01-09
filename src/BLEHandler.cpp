@@ -585,3 +585,12 @@ void BLEHandler_Initialize()
   // BLEDevice::startAdvertising();
   pAdvertising->start();
 }
+
+void checkBLE()
+{
+  if (alarmsManager.checkAlarms())
+  {
+    Serial.println("Alarm triggered");
+  
+  }
+}

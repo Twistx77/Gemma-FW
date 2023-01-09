@@ -6,5 +6,5 @@
 
 
 void BLEHandler_Initialize();
-
+void checkBLE();
 #endif

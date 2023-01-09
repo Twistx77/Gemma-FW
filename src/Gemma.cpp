@@ -28,10 +28,7 @@ void setup()
   pinMode(PIN_LED, OUTPUT);
   digitalWrite(PIN_LED, LOW);
 
-  rtc.initialize();
-  rtc.timerSet(rtc.TIMER_CLOCK_1PER60HZ, 1, true, true); // Enable RTC timer with interrupt pulse every minute
-  pinMode(PIN_RTC_INT, INPUT);
-  attachInterrupt(PIN_RTC_INT, rtc_int_isr, RISING);
+
 
   pinMode(ROTARY_ENCODER_BUTTON_PIN, INPUT_PULLUP);
 
@@ -64,4 +61,5 @@ void setup()
 void loop()
 {
   HMIN_ProcessHMI();
+  checkBLE();
 }
