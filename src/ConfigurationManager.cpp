@@ -26,7 +26,7 @@ const char *const PARAMETERS_KEYS[]{
 const uint32_t DEFAULT_PARAMETERS_VALUES[]{
     0,   // FW_MAJOR
     5,   // FW_MINOR
-    7,   // FW_PATCH
+    8,   // FW_PATCH
     1,   // DEBUG_OUTPUT
     16,  // PIN_STRIP
     27,  // PIN_CENTER_TS

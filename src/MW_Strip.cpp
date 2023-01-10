@@ -26,7 +26,7 @@ typedef struct
   uint8_t brightnessDir;
 } MWST_TypeStripConfig;
 
-NeoPixelBrightnessBus<NeoRgbwFeature, Neo800KbpsMethod> stripHW(LEDS_STRIP,PIN_STRIP);
+NeoPixelBrightnessBus<NeoRgbwFeature, Neo800KbpsMethod> stripHW(LEDS_STRIP, PIN_STRIP);
 
 MWST_TypeStripConfig stripLeftCfg, stripRightCfg, stripCenterCfg;
 MWST_TypeStripConfig strips[] = {stripCenterCfg, stripLeftCfg, stripRightCfg};
@@ -43,14 +43,15 @@ void effectFade(MWST_TypeStripConfig *strip, uint8_t firstLED, uint8_t lastLED)
 
     while (i < strip->setBrightness)
     {
-      if (i <  step)
+      if (i <= (strip->setBrightness - step))
       {
         i += step;
       }
       else
       {
-        Serial.println("Strip brightness: " + String(i) + " - " + String(strip->setBrightness));
         i = strip->setBrightness;
+        stripHW.SetBrightness(strip->setBrightness, firstLED, lastLED);
+        
       }
       stripHW.ClearTo(strip->currentColor, firstLED, lastLED);
       stripHW.SetBrightness(i, firstLED, lastLED);
@@ -60,7 +61,6 @@ void effectFade(MWST_TypeStripConfig *strip, uint8_t firstLED, uint8_t lastLED)
   else
   {
     uint16_t i = strip->setBrightness;
-
 
     while (i > 0)
     {
@@ -142,7 +142,6 @@ void MWST_Initialize()
 
   Serial.println("ledsInStrip: " + String(ledsInStrip));
   Serial.println("ledsNightLight: " + String(ledsNightLight));
-
 
   strips[STRIP_CENTER].stripType = STRIP_CENTER;
   strips[STRIP_CENTER].currentState = MWST_DISABLED;
