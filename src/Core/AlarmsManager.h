@@ -2,16 +2,17 @@
 #define ALARMS_MANAGER_H
 
 #include <stdint.h>
-#include "PCF85063A.h"
+#include "../Drivers/PCF85063A.h"
 
-enum Weekdays{
+enum Weekdays
+{
     MONDAY = 0x01,
     TUESDAY = 0x02,
     WEDNESDAY = 0x04,
     THURSDAY = 0x08,
     FRIDAY = 0x10,
     SATURDAY = 0x20,
-    SUNDAY = 0x40    
+    SUNDAY = 0x40
 };
 
 typedef struct AlarmParameters
@@ -20,7 +21,7 @@ typedef struct AlarmParameters
     uint8_t hours;
     uint8_t minutes;
     uint8_t weekdays;
-}AlarmParameters;
+} AlarmParameters;
 
 typedef struct TimeAndDate
 {
@@ -31,10 +32,10 @@ typedef struct TimeAndDate
     uint8_t month;
     uint8_t day;
     uint8_t weekday;
-}TimeAndDate;
+} TimeAndDate;
 
-
-enum Alarm {
+enum Alarm
+{
     ALARM_1 = 0,
     ALARM_2 = 1,
     ALARM_3 = 3,
@@ -46,18 +47,16 @@ enum Alarm {
 class AlarmsManager
 {
 public:
-
     void initialize();
     void setTimeAndDate(TimeAndDate timeAndDate);
     TimeAndDate getTimeAndDate();
-    void setAlarm(Alarm alarm, AlarmParameters parameters );
+    void setAlarm(Alarm alarm, AlarmParameters parameters);
     AlarmParameters getAlarm(Alarm alarm);
     bool checkAlarms();
 
-private:   
-   
+private:
     PCF85063A rtc;
-    AlarmParameters alarms[ALARMS_MAX-1];
+    AlarmParameters alarms[ALARMS_MAX - 1];
 };
 
 #endif // ALARMS_MANAGER_H

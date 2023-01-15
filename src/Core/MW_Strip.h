@@ -1,5 +1,5 @@
 #include <stdint.h>
-#include "NeoPixelBus/src/NeoPixelBrightnessBus.h"
+#include "../NeoPixelBus/src/NeoPixelBrightnessBus.h"
 
 #ifndef _H_MW_STRIP
 #define _H_MW_STRIP

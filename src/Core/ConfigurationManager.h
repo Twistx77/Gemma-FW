@@ -25,7 +25,7 @@ enum ConfigParameter
     PARAM_NUMBER_OF_NL_LEDS = 15,
     PARAM_MAX_BRIGHTNESS = 16,
     PARAM_CAPTOUCH_THLD_BOOT = 17,
-    MAX_PARAMETERS = 18    
+    MAX_PARAMETERS = 18
 };
 
 class ConfigurationManager
@@ -34,9 +34,9 @@ public:
     // Get the instance of the Configuration Manager
     static ConfigurationManager &getInstance()
     {
-        //Constructed on first access
+        // Constructed on first access
         static ConfigurationManager instance;
-        //instance.initialize();
+        // instance.initialize();
         return instance;
     }
 
@@ -46,7 +46,6 @@ public:
     void writeParameter(ConfigParameter parameter, uint32_t value);
 
 private:
-
     // Private data members
     Preferences preferences;
 };

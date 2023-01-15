@@ -1,10 +1,14 @@
-#include "HMIM_HMIManager.h"
 #include "MW_Strip.h"
-#include "AiEsp32RotaryEncoder.h"
-#include "DefaultConfig.h"
+#include "HMIM_HMIManager.h"
+#include "ConfigurationManager.h"
+
 #include "driver/touch_pad.h"
 #include "soc/sens_periph.h"
-#include "ConfigurationManager.h"
+
+#include "../DefaultConfig.h"
+#include "../Drivers/AiEsp32RotaryEncoder.h"
+ 
+
 
 #define DEBOUNCE_TIME 50 // TODO: REPLACE CONFIG MANAGER
 

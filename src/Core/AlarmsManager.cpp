@@ -1,15 +1,15 @@
-// AlarmsManager.cpp
-#include "AlarmsManager.h"
-#include "DefaultConfig.h"
 #include <Arduino.h>
 
- volatile static bool minuteIntFlag;
+#include "AlarmsManager.h"
+#include "../DefaultConfig.h"
+
+volatile static bool minuteIntFlag;
 
 // RTC interrupt service routine. This is called every minute
 // and allow us to check if the alarm is triggered
 static void IRAM_ATTR rtc_int_isr()
 {
-   minuteIntFlag = true;
+    minuteIntFlag = true;
 }
 
 // Initialize the AlarmsManager
@@ -18,7 +18,7 @@ void AlarmsManager::initialize()
 
     // Initialize the flag to false
     minuteIntFlag = false;
-    
+
     // Intitialize alarms to 0
     for (int i = 0; i < ALARMS_MAX; i++)
     {
@@ -37,7 +37,6 @@ void AlarmsManager::initialize()
     // which allow us to check if the alarm is triggered
     pinMode(PIN_RTC_INT, INPUT);
     attachInterrupt(PIN_RTC_INT, rtc_int_isr, RISING);
-
 }
 
 // Set the time and date
@@ -117,7 +116,7 @@ bool AlarmsManager::checkAlarms()
 {
     if (!minuteIntFlag)
         return false;
-    
+
     // Reset the flag
     minuteIntFlag = false;
 
@@ -125,7 +124,6 @@ bool AlarmsManager::checkAlarms()
     uint8_t hours = rtc.getHour();
     uint8_t minutes = rtc.getMinute();
     uint8_t weekday = rtc.getWeekday();
-
 
     // Check if the alarm is triggered
     for (int i = 0; i < ALARMS_MAX; i++)
@@ -135,7 +133,7 @@ bool AlarmsManager::checkAlarms()
             alarms[i].minutes == minutes &&
             alarms[i].weekdays & (1 << (weekday - 1)))
         {
-            Serial.println("Alarm "+ String(i) +" triggered");
+            Serial.println("Alarm " + String(i) + " triggered");
             return true; // Alarm triggered
         }
     }

@@ -1,11 +1,15 @@
 #include <Arduino.h>
-#include "HMIM_HMIManager.h"
-#include "MW_Uploader.h"
+
 #include "DefaultConfig.h"
-#include "BLEHandler.h"
-#include "MW_Strip.h"
-#include "ConfigurationManager.h"
-#include "PCF85063A.h"
+
+#include "./Core/HMIM_HMIManager.h"
+#include "./Core/MW_Uploader.h"
+#include "./Core/MW_Strip.h"
+#include "./Core/ConfigurationManager.h"
+
+#include "./BLE/BLEHandler.h"
+
+#include "./Drivers/PCF85063A.h"
 
 
 bool previousState = false;

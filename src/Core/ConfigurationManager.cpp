@@ -20,8 +20,7 @@ const char *const PARAMETERS_KEYS[]{
     "STRIP_LEDS",
     "NL_LEDS",
     "MAX_BRIGHTNESS",
-    "TOUCH_THLD"
-    };
+    "TOUCH_THLD"};
 
 const uint32_t DEFAULT_PARAMETERS_VALUES[]{
     0,   // FW_MAJOR
@@ -42,7 +41,7 @@ const uint32_t DEFAULT_PARAMETERS_VALUES[]{
     4,   // NUMBER_OF_NL_LEDS
     255, // MAX_BRIGHTNESS
     6,   // CAPTOUCH_THLD_BOOT
-    
+
 };
 
 // Initialize the ConfigurationManager
@@ -78,5 +77,4 @@ uint32_t ConfigurationManager::readParameter(ConfigParameter parameter)
 void ConfigurationManager::writeParameter(ConfigParameter parameter, uint32_t value)
 {
     String(preferences.putULong(PARAMETERS_KEYS[parameter], value));
-    
 }

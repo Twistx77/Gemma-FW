@@ -1,6 +1,7 @@
 #include "MW_Strip.h"
-#include "DefaultConfig.h"
 #include "ConfigurationManager.h"
+#include "../DefaultConfig.h"
+
 
 #define DELAY_EFFECT_PROGRESSIVE_MS 0
 #define DELAY_EFFECT_RANDOM_MS 10

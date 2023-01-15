@@ -1,10 +1,12 @@
-#include "MW_Uploader.h"
-#include "DefaultConfig.h"
 #include <WiFi.h>
 #include <WiFiClient.h>
 #include <WebServer.h>
 #include <ESPmDNS.h>
 #include <Update.h>
+
+#include "MW_Uploader.h"
+#include "../DefaultConfig.h"
+
 
 /*	jquery.min.js version 3.2.1
 

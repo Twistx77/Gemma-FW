@@ -1,13 +1,16 @@
-#include "BLEHandler.h"
+
+#include <Arduino.h>
 #include <BLEDevice.h>
 #include <BLEUtils.h>
 #include <BLEServer.h>
-#include <Arduino.h>
-#include "MW_Strip.h"
 #include <stdint.h>
-#include "DefaultConfig.h"
-#include "ConfigurationManager.h"
-#include "AlarmsManager.h"
+
+#include "BLEHandler.h"
+#include "../DefaultConfig.h"
+#include "../Core/MW_Strip.h"
+#include "../Core/MW_Uploader.h"
+#include "../Core/AlarmsManager.h"
+#include "../Core/ConfigurationManager.h"
 
 enum UUID
 {
@@ -253,7 +256,6 @@ class CallbackParameters : public BLECharacteristicCallbacks
     {
       uint32_t value = configManager.readParameter(parameter);
 
-      
       pCharacteristic->setValue(value);
     }
   }
@@ -269,8 +271,8 @@ class CallbackTime : public BLECharacteristicCallbacks
     case '1':
     {
 
-      //Get the curernt time from the AlarmsManager
-      TimeAndDate timeAndDate= alarmsManager.getTimeAndDate();
+      // Get the curernt time from the AlarmsManager
+      TimeAndDate timeAndDate = alarmsManager.getTimeAndDate();
       uint8_t timeAndDateArray[] = {timeAndDate.year, timeAndDate.month, timeAndDate.day, timeAndDate.hours, timeAndDate.minutes, timeAndDate.seconds};
       pCharacteristic->setValue(timeAndDateArray, 6);
     }
@@ -282,12 +284,12 @@ class CallbackTime : public BLECharacteristicCallbacks
     case '5':
     case '6':
     {
-      //Get the alarm time from the AlarmsManager
+      // Get the alarm time from the AlarmsManager
       AlarmParameters alarmParameters = alarmsManager.getAlarm(Alarm(pCharacteristic->getUUID().toString()[35] - '2'));
-      
+
       uint8_t alarm[] = {alarmParameters.weekdays, alarmParameters.hours, alarmParameters.minutes, alarmParameters.enabled};
       pCharacteristic->setValue(alarm, 4);
-    } 
+    }
     break;
 
     default:
@@ -324,7 +326,7 @@ class CallbackTime : public BLECharacteristicCallbacks
       uint8_t *currentAlarm = pCharacteristic->getData();
       AlarmParameters alarmParameters;
       alarmParameters.weekdays = currentAlarm[3];
-      alarmParameters.hours = currentAlarm[2];     
+      alarmParameters.hours = currentAlarm[2];
       alarmParameters.minutes = currentAlarm[1];
       alarmParameters.enabled = currentAlarm[0];
       alarmsManager.setAlarm(Alarm(pCharacteristic->getUUID().toString()[35] - '2'), alarmParameters);
@@ -341,8 +343,8 @@ class CallbackFWVersion : public BLECharacteristicCallbacks
 {
   void onRead(BLECharacteristic *pCharacteristic)
   {
-   uint8_t fwVersion[] = {configManager.readParameter(PARAM_FW_MAJOR), configManager.readParameter(PARAM_FW_MINOR), configManager.readParameter(PARAM_FW_PATCH)};
-   pCharacteristic->setValue(fwVersion,3);
+    uint8_t fwVersion[] = {configManager.readParameter(PARAM_FW_MAJOR), configManager.readParameter(PARAM_FW_MINOR), configManager.readParameter(PARAM_FW_PATCH)};
+    pCharacteristic->setValue(fwVersion, 3);
   }
 };
 
@@ -591,6 +593,5 @@ void checkBLE()
   if (alarmsManager.checkAlarms())
   {
     Serial.println("Alarm triggered");
-  
   }
 }
