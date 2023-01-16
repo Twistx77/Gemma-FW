@@ -11,6 +11,8 @@
 
 #include "./Drivers/PCF85063A.h"
 
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
 
 bool previousState = false;
 // Initialize RTC
@@ -19,7 +21,15 @@ void IRAM_ATTR rtc_int_isr() {
   previousState = !previousState;
 }
 
+void HMI_Task(void *arg)
+{
+    while(1){
+        HMIM_ProcessHMI();
+        vTaskDelay(10/ portTICK_RATE_MS);
+    }
+}
 
+TaskHandle_t HMITaskHandle = NULL;
 void setup()
 {
   Serial.begin(115200);
@@ -60,10 +70,11 @@ void setup()
 
   // HMI Interface
   HMIM_Initialize();
+
+  xTaskCreate(HMI_Task, "HMI_Task", 10000, NULL, 1, &HMITaskHandle);
 }
 
 void loop()
 {
-  HMIN_ProcessHMI();
-  checkBLE();
+  
 }

@@ -343,7 +343,7 @@ class CallbackFWVersion : public BLECharacteristicCallbacks
 {
   void onRead(BLECharacteristic *pCharacteristic)
   {
-    uint8_t fwVersion[] = {configManager.readParameter(PARAM_FW_MAJOR), configManager.readParameter(PARAM_FW_MINOR), configManager.readParameter(PARAM_FW_PATCH)};
+    uint8_t fwVersion[] = {(uint8_t) configManager.readParameter(PARAM_FW_MAJOR), (uint8_t)configManager.readParameter(PARAM_FW_MINOR), (uint8_t)configManager.readParameter(PARAM_FW_PATCH)};
     pCharacteristic->setValue(fwVersion, 3);
   }
 };
@@ -586,12 +586,4 @@ void BLEHandler_Initialize()
   pAdvertising->setMinPreferred(0x12);
   // BLEDevice::startAdvertising();
   pAdvertising->start();
-}
-
-void checkBLE()
-{
-  if (alarmsManager.checkAlarms())
-  {
-    Serial.println("Alarm triggered");
-  }
 }

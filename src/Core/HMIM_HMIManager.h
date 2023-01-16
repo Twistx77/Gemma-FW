@@ -12,6 +12,6 @@ typedef enum
 } TouchSensor_t;
 
 void HMIM_Initialize();
-void HMIN_ProcessHMI();
+void HMIM_ProcessHMI();
 
 #endif

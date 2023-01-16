@@ -7,6 +7,9 @@
 
 #include "../DefaultConfig.h"
 #include "../Drivers/AiEsp32RotaryEncoder.h"
+
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
  
 
 
@@ -261,7 +264,7 @@ void MWIH_ReadRotaryEncoder()
     }
 }
 
-void HMIN_ProcessHMI()
+void HMIM_ProcessHMI()
 {
     for (uint8_t sensorType = 0; sensorType < (sizeof(touchSensorTypes) / sizeof(touchSensorTypes[0])); sensorType++)
     {
