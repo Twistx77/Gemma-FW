@@ -132,6 +132,7 @@ class CallbackSwitch : public BLECharacteristicCallbacks
 
   void onRead(BLECharacteristic *pCharacteristic)
   {
+ //   Serial.println("Switch characteristic read");
     uint8_t stripType;
     switch (pCharacteristic->getUUID().toString()[35])
     {
@@ -243,17 +244,23 @@ class CallbackParameters : public BLECharacteristicCallbacks
 
   void onWrite(BLECharacteristic *pCharacteristic)
   {
+   // Serial.println("Write parameter");
     ConfigParameter parameter = (ConfigParameter)(pCharacteristic->getUUID().getNative()->uuid.uuid128[0] + PARAM_DEBUG_OUTPUT);
+    Serial.println("Parameter: " + String(parameter) + " Value: " + String(pCharacteristic->getData()[0]));
     if (parameter < MAX_PARAMETERS && parameter >= PARAM_DEBUG_OUTPUT)
     {
+     Serial.println("Writing parameter");
       configManager.writeParameter(parameter, pCharacteristic->getData()[0]);
     }
   }
   void onRead(BLECharacteristic *pCharacteristic)
   {
+   // Serial.println("Read parameter");
     ConfigParameter parameter = (ConfigParameter)(pCharacteristic->getUUID().getNative()->uuid.uuid128[0] + PARAM_DEBUG_OUTPUT);
+   // Serial.println("Parameter: " + String(parameter) + " Value: " + String(pCharacteristic->getData()[0]));
     if (parameter < MAX_PARAMETERS && parameter >= PARAM_DEBUG_OUTPUT)
     {
+    //  Serial.println("Reading parameter");
       uint32_t value = configManager.readParameter(parameter);
 
       pCharacteristic->setValue(value);

@@ -10,15 +10,13 @@
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
- 
-
 
 #define DEBOUNCE_TIME 50 // TODO: REPLACE CONFIG MANAGER
 
 #define LONG_TOUCH_DURATION_MS 1200       // TODO: REPLACE CONFIG MANAGER
 #define TOUCHPAD_FILTER_TOUCH_PERIOD (10) // TODO: REPLACE CONFIG MANAGER
 #define TOUCH_THRESH_NO_USE (0)
-#define TOUCH_THRESHOLD_PROPORTION (0.8)
+#define TOUCH_THRESHOLD_PROPORTION (0.85)
 #define NEW_THRESHOLD_PROPORTION (0.001)
 #define CURRENT_THRESHOLD_PROPORTION (1 - NEW_THRESHOLD_PROPORTION)
 
@@ -91,16 +89,21 @@ TouchState_T readTouchSensorState(uint8_t sensor)
     if (touchValue < touchThresholds[sensor])
     {
 
-        /*     if (sensor == 0)
-             SerialBT.println("1," + String(sensorsInput[sensor]) + "," + String(touchValue) + "," + String(touchThresholds[sensor]));*/
+      /* if(sensor == 0)
+        {
+            digitalWrite(PIN_LED, HIGH);
+        }*/
+        
 
         return (TOUCHED);
     }
     else
     {
         /*
-       if (sensor == 0)
-        SerialBT.println ("0," + String(sensorsInput[sensor]) + "," + String(touchValue) + "," + String(touchThresholds[sensor]));*/
+        if(sensor == 0)
+        {
+            digitalWrite(PIN_LED, LOW);
+        }*/
         return (NOT_TOUCHED);
     }
 }
@@ -121,18 +124,18 @@ void processTouchInputs()
         {
             if (lastState[sensor] == TOUCHED)
             {
-                Serial.println("Touched and held ");
+               // Serial.println("Touched and held ");
                 if ((millis() - lastTimePressed[sensor]) > LONG_TOUCH_DURATION_MS)
                 {
                     if (touchSensorsEvents[sensor] == NO_EVENT)
                     {
                         touchSensorsEvents[sensor] = LONG_TOUCH_EVENT;
-                        Serial.println("Long " + String(sensor));
+                   //     Serial.println("Long " + String(sensor));
                     }
                     else if (touchSensorsEvents[sensor] == LONG_TOUCH_EVENT)
                     {
                         MWST_IncreaseStripIlumination(sensor, 1);
-                        Serial.println("Increasing Brightness " + String(sensor));
+                    //    Serial.println("Increasing Brightness " + String(sensor));
                     }
                 }
             }
@@ -141,14 +144,14 @@ void processTouchInputs()
 
                 lastState[sensor] = TOUCHED;
                 lastTimePressed[sensor] = millis();
-                Serial.println("Touched First Time " + String(sensor));
+              //  Serial.println("Touched First Time " + String(sensor));
             }
         }
         else
         {
             if (lastState[sensor] == TOUCHED)
             {
-                Serial.println("Finish Touch " + String(sensor));
+                //Serial.println("Finish Touch " + String(sensor));
                 if (touchSensorsEvents[sensor] != LONG_TOUCH_EVENT)
                 {
                     clickHandler(touchSensorTypes[sensor]);
@@ -156,7 +159,7 @@ void processTouchInputs()
                 else
                 {
                     MWST_ToggleIncreaseBrightness(sensor);
-                    Serial.println("Toggling Brightness " + String(sensor));
+                   // Serial.println("Toggling Brightness " + String(sensor));
                 }
                 lastState[sensor] = NOT_TOUCHED;
                 touchSensorsEvents[sensor] = NO_EVENT;
@@ -172,7 +175,7 @@ void processTouchInputs()
 
 void HMIM_Initialize()
 {
-   // ConfigurationManager configManager = ConfigurationManager::getInstance();
+    // ConfigurationManager configManager = ConfigurationManager::getInstance();
 
     /*sensorsInput[TS_CENTER] =TOUCH_PAD_NUM7; // (touch_pad_t) configManager.readParameter(PARAM_PIN_CENTER_TS);
     sensorsInput[TS_LEFT] = TOUCH_PAD_NUM2;//(touch_pad_t) configManager.readParameter(PARAM_PIN_LEFT_TS);

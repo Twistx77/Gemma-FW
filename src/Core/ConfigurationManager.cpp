@@ -1,6 +1,7 @@
 
 // ConfigurationManager.cpp
 #include "ConfigurationManager.h"
+#include <Arduino.h>
 
 const char *const PARAMETERS_KEYS[]{
     "FW_MAJOR",
@@ -25,7 +26,7 @@ const char *const PARAMETERS_KEYS[]{
 const uint32_t DEFAULT_PARAMETERS_VALUES[]{
     0,   // FW_MAJOR
     5,   // FW_MINOR
-    8,   // FW_PATCH
+    9,   // FW_PATCH
     1,   // DEBUG_OUTPUT
     16,  // PIN_STRIP
     27,  // PIN_CENTER_TS
@@ -76,5 +77,6 @@ uint32_t ConfigurationManager::readParameter(ConfigParameter parameter)
 // Write a configuration parameter
 void ConfigurationManager::writeParameter(ConfigParameter parameter, uint32_t value)
 {
-    String(preferences.putULong(PARAMETERS_KEYS[parameter], value));
+         Serial.println("Write " + String(PARAMETERS_KEYS[parameter]) + " = " + String(value));
+        Serial.println("Return " + String(preferences.putULong(PARAMETERS_KEYS[parameter], value)));
 }
