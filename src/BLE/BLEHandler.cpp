@@ -244,12 +244,13 @@ class CallbackParameters : public BLECharacteristicCallbacks
 
   void onWrite(BLECharacteristic *pCharacteristic)
   {
-   // Serial.println("Write parameter");
+    Serial.println("Write parameter");
     ConfigParameter parameter = (ConfigParameter)(pCharacteristic->getUUID().getNative()->uuid.uuid128[0] + PARAM_DEBUG_OUTPUT);
+    Serial.println("UUID128[0]: " + String(pCharacteristic->getUUID().getNative()->uuid.uuid128[0]));
     Serial.println("Parameter: " + String(parameter) + " Value: " + String(pCharacteristic->getData()[0]));
     if (parameter < MAX_PARAMETERS && parameter >= PARAM_DEBUG_OUTPUT)
     {
-     Serial.println("Writing parameter");
+      Serial.println("Writing parameter");
       configManager.writeParameter(parameter, pCharacteristic->getData()[0]);
     }
   }
@@ -257,7 +258,7 @@ class CallbackParameters : public BLECharacteristicCallbacks
   {
    // Serial.println("Read parameter");
     ConfigParameter parameter = (ConfigParameter)(pCharacteristic->getUUID().getNative()->uuid.uuid128[0] + PARAM_DEBUG_OUTPUT);
-   // Serial.println("Parameter: " + String(parameter) + " Value: " + String(pCharacteristic->getData()[0]));
+    Serial.println("Parameter: " + String(parameter) + " Value: " + String(pCharacteristic->getData()[0]));
     if (parameter < MAX_PARAMETERS && parameter >= PARAM_DEBUG_OUTPUT)
     {
     //  Serial.println("Reading parameter");
@@ -395,7 +396,16 @@ void BLEHandler_Initialize()
   pServer->setCallbacks(new BLEConnectionsCallback());
 
   configManager = ConfigurationManager::getInstance();
+  //configManager.initialize();
+  
   configManager.initialize();
+  ConfigParameter parameter = (ConfigParameter)(15 + PARAM_DEBUG_OUTPUT);
+  //ConfigParameter parameter = PARAM_FW_MAJOR;
+  // Write value and read it back
+  configManager.writeParameter(parameter, 1);
+  Serial.println(configManager.readParameter(parameter));
+  configManager.writeParameter(parameter, 2);
+  Serial.println(configManager.readParameter(parameter));
 
   alarmsManager.initialize();
 

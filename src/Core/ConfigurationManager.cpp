@@ -4,7 +4,7 @@
 #include <Arduino.h>
 
 const char *const PARAMETERS_KEYS[]{
-    "FW_MAJOR",
+    "FW_MAJORs",
     "FW_MINOR",
     "FW_PATCH",
     "DEBUG_OUTPUT",
@@ -71,12 +71,17 @@ void ConfigurationManager::loadDefaultParameters()
 // Read a configuration parameter
 uint32_t ConfigurationManager::readParameter(ConfigParameter parameter)
 {
-    return preferences.getULong(PARAMETERS_KEYS[parameter], DEFAULT_PARAMETERS_VALUES[parameter]);
+    return preferences.getULong(PARAMETERS_KEYS[parameter], 0x24); //DEFAULT_PARAMETERS_VALUES[parameter]);
 }
 
 // Write a configuration parameter
 void ConfigurationManager::writeParameter(ConfigParameter parameter, uint32_t value)
 {
-         Serial.println("Write " + String(PARAMETERS_KEYS[parameter]) + " = " + String(value));
-        Serial.println("Return " + String(preferences.putULong(PARAMETERS_KEYS[parameter], value)));
+        uint8_t result;
+        Serial.println("Write " + String(PARAMETERS_KEYS[parameter]) + " = " + String(value));
+       // result =preferences.putULong("NL_LEDS", value);
+        result =preferences.putULong(PARAMETERS_KEYS[parameter], value);
+        Serial.println("Result " + String(result));
+        
+       // Serial.println("Return " + String(preferences.putULong(PARAMETERS_KEYS[parameter], value)));
 }
