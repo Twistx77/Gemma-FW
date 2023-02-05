@@ -10,7 +10,8 @@
 #include "../Core/MW_Strip.h"
 #include "../Core/MW_Uploader.h"
 #include "../Core/AlarmsManager.h"
-#include "../Core/ConfigurationManager.h"
+#include "../Configuration/ConfigManager.h"
+#include "../Configuration/ConfigParameters.h"
 
 enum UUID
 {
@@ -93,7 +94,7 @@ const char *UUID_STRINGS[] = {
     "4b88d539-a706-426e-885c-69bb0c04fa84"  // HW_VERSION_UUID
 };
 
-ConfigurationManager configManager;
+ConfigManager configManager = ConfigManager::getInstance();
 AlarmsManager alarmsManager;
 
 bool deviceConnected = false;
@@ -132,7 +133,6 @@ class CallbackSwitch : public BLECharacteristicCallbacks
 
   void onRead(BLECharacteristic *pCharacteristic)
   {
- //   Serial.println("Switch characteristic read");
     uint8_t stripType;
     switch (pCharacteristic->getUUID().toString()[35])
     {
@@ -241,29 +241,21 @@ class CallbackColor : public BLECharacteristicCallbacks
 
 class CallbackParameters : public BLECharacteristicCallbacks
 {
-
+  
   void onWrite(BLECharacteristic *pCharacteristic)
   {
-    Serial.println("Write parameter");
-    ConfigParameter parameter = (ConfigParameter)(pCharacteristic->getUUID().getNative()->uuid.uuid128[0] + PARAM_DEBUG_OUTPUT);
-    Serial.println("UUID128[0]: " + String(pCharacteristic->getUUID().getNative()->uuid.uuid128[0]));
-    Serial.println("Parameter: " + String(parameter) + " Value: " + String(pCharacteristic->getData()[0]));
-    if (parameter < MAX_PARAMETERS && parameter >= PARAM_DEBUG_OUTPUT)
+    ParameterID parameter = (ParameterID)(pCharacteristic->getUUID().getNative()->uuid.uuid128[0] + ID_DEBUG_OUT);
+    if (parameter < MAX_CONFIG_PARAMETERS && parameter >= ID_DEBUG_OUT)
     {
-      Serial.println("Writing parameter");
-      configManager.writeParameter(parameter, pCharacteristic->getData()[0]);
+      configManager.setParameter(DefaultConfigParameters[parameter], pCharacteristic->getData()[0]);
     }
   }
   void onRead(BLECharacteristic *pCharacteristic)
-  {
-   // Serial.println("Read parameter");
-    ConfigParameter parameter = (ConfigParameter)(pCharacteristic->getUUID().getNative()->uuid.uuid128[0] + PARAM_DEBUG_OUTPUT);
-    Serial.println("Parameter: " + String(parameter) + " Value: " + String(pCharacteristic->getData()[0]));
-    if (parameter < MAX_PARAMETERS && parameter >= PARAM_DEBUG_OUTPUT)
+  { 
+    ParameterID parameter = (ParameterID)(pCharacteristic->getUUID().getNative()->uuid.uuid128[0] + ID_DEBUG_OUT);
+    if (parameter < MAX_CONFIG_PARAMETERS && parameter >= ID_DEBUG_OUT)
     {
-    //  Serial.println("Reading parameter");
-      uint32_t value = configManager.readParameter(parameter);
-
+      uint32_t value = configManager.getParameter(DefaultConfigParameters[parameter]);
       pCharacteristic->setValue(value);
     }
   }
@@ -351,7 +343,7 @@ class CallbackFWVersion : public BLECharacteristicCallbacks
 {
   void onRead(BLECharacteristic *pCharacteristic)
   {
-    uint8_t fwVersion[] = {(uint8_t) configManager.readParameter(PARAM_FW_MAJOR), (uint8_t)configManager.readParameter(PARAM_FW_MINOR), (uint8_t)configManager.readParameter(PARAM_FW_PATCH)};
+    uint8_t fwVersion[] = {(uint8_t) configManager.getParameter(DefaultConfigParameters[ID_FW_MAJOR]), (uint8_t)configManager.getParameter(DefaultConfigParameters[ID_FW_MINOR]), (uint8_t)configManager.getParameter(DefaultConfigParameters[ID_FW_PATCH])};
     pCharacteristic->setValue(fwVersion, 3);
   }
 };
@@ -395,19 +387,7 @@ void BLEHandler_Initialize()
   BLEServer *pServer = BLEDevice::createServer();
   pServer->setCallbacks(new BLEConnectionsCallback());
 
-  configManager = ConfigurationManager::getInstance();
-  //configManager.initialize();
-  
-  configManager.initialize();
-  ConfigParameter parameter = (ConfigParameter)(15 + PARAM_DEBUG_OUTPUT);
-  //ConfigParameter parameter = PARAM_FW_MAJOR;
-  // Write value and read it back
-  configManager.writeParameter(parameter, 1);
-  Serial.println(configManager.readParameter(parameter));
-  configManager.writeParameter(parameter, 2);
-  Serial.println(configManager.readParameter(parameter));
-
-  alarmsManager.initialize();
+  ConfigManager configManager = ConfigManager::getInstance();  s
 
   BLEService *pSwitchService = pServer->createService(UUID_STRINGS[SWITCH_SERVICE_UUID]);
   BLEService *pConfigurationService = pServer->createService(BLEUUID(UUID_STRINGS[PARAMETERS_SERVICE_UUID]), 40, 0); // 40 is the maximum number of handles  numHandles = (# of Characteristics)*2  +  (# of Services) + (# of Characteristics with BLE2902)
@@ -530,7 +510,7 @@ void BLEHandler_Initialize()
           BLECharacteristic::PROPERTY_WRITE);
 
   BLECharacteristic *pCharParamCapTouchThldBoot = pConfigurationService->createCharacteristic(
-      UUID_STRINGS[PARAM_CAPTOUCH_THLD_BOOT],
+      UUID_STRINGS[PARAM_CAPTOUCH_THLD_BOOT_UUID],
       BLECharacteristic::PROPERTY_READ |
           BLECharacteristic::PROPERTY_WRITE);
   /*
