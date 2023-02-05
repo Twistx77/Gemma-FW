@@ -5,7 +5,8 @@
 #include "./Core/HMIM_HMIManager.h"
 #include "./Core/MW_Uploader.h"
 #include "./Core/MW_Strip.h"
-#include "./Core/ConfigurationManager.h"
+
+#include "./Configuration/ConfigManager.h"
 
 #include "./BLE/BLEHandler.h"
 
@@ -32,15 +33,17 @@ void HMI_Task(void *arg)
 TaskHandle_t HMITaskHandle = NULL;
 void setup()
 {
+    // Signage LED pin as output
+  pinMode(PIN_LED_DEFAULT, OUTPUT);
+  digitalWrite(PIN_LED_DEFAULT, HIGH);
+
   Serial.begin(115200);
 
   // Initialize Configuration Manager
-  ConfigurationManager configManager;
+  ConfigManager configManager = ConfigManager::getInstance();
   configManager.initialize();
+ 
 
-  // Signage LED pin as output
-  pinMode(PIN_LED, OUTPUT);
-  digitalWrite(PIN_LED, LOW);
 
 
 
@@ -50,7 +53,7 @@ void setup()
   MWST_Initialize();
 
   // Check if wifi update has to be started
-  if (touchRead(PIN_CENTER_TS) < CAPTOUCH_THLD_BOOT || (digitalRead(ROTARY_ENCODER_BUTTON_PIN) == LOW))
+  if (touchRead(PIN_CENTER_TS_DEFAULT) < CAPTOUCH_THLD_BOOT || (digitalRead(ROTARY_ENCODER_BUTTON_PIN) == LOW))
   {
     MWST_ToggleStripState(STRIP_CENTER);
     MWST_SetBrightness(STRIP_CENTER, 100);
@@ -72,6 +75,9 @@ void setup()
   HMIM_Initialize();
 
   xTaskCreate(HMI_Task, "HMI_Task", 10000, NULL, 1, &HMITaskHandle);
+  
+  // Turn off Signage LED to indicate that the device is ready
+  digitalWrite(PIN_LED_DEFAULT, LOW);
 }
 
 void loop()

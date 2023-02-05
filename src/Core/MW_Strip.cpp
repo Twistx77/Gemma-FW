@@ -1,7 +1,6 @@
 #include "MW_Strip.h"
-#include "ConfigurationManager.h"
+#include "../Configuration/ConfigManager.h"
 #include "../DefaultConfig.h"
-
 
 #define DELAY_EFFECT_PROGRESSIVE_MS 0
 #define DELAY_EFFECT_RANDOM_MS 10
@@ -27,7 +26,7 @@ typedef struct
   uint8_t brightnessDir;
 } MWST_TypeStripConfig;
 
-NeoPixelBrightnessBus<NeoRgbwFeature, Neo800KbpsMethod> stripHW(LEDS_STRIP, PIN_STRIP);
+NeoPixelBrightnessBus<NeoRgbwFeature, Neo800KbpsMethod> stripHW(LEDS_STRIP, PIN_STRIP_DEFAULT);
 
 MWST_TypeStripConfig stripLeftCfg, stripRightCfg, stripCenterCfg;
 MWST_TypeStripConfig strips[] = {stripCenterCfg, stripLeftCfg, stripRightCfg};
@@ -52,7 +51,6 @@ void effectFade(MWST_TypeStripConfig *strip, uint8_t firstLED, uint8_t lastLED)
       {
         i = strip->setBrightness;
         stripHW.SetBrightness(strip->setBrightness, firstLED, lastLED);
-        
       }
       stripHW.ClearTo(strip->currentColor, firstLED, lastLED);
       stripHW.SetBrightness(i, firstLED, lastLED);
@@ -133,13 +131,12 @@ void effectRandomLED(MWST_TypeStripConfig *strip, uint8_t firstLED, uint8_t last
 
 void MWST_Initialize()
 {
+  ConfigManager configManager = ConfigManager::getInstance();
 
-  ConfigurationManager configManager = ConfigurationManager::getInstance();
-  configManager.initialize();
-  uint8_t ledsInStrip = (uint8_t)configManager.readParameter(PARAM_NUMBER_OF_LEDS);
-  uint8_t ledsNightLight = (uint8_t)configManager.readParameter(PARAM_NUMBER_OF_NL_LEDS);
-  uint8_t pinStrip = (uint8_t)configManager.readParameter(PARAM_PIN_STRIP);
-  maxBrightness = (uint8_t)configManager.readParameter(PARAM_MAX_BRIGHTNESS);
+  uint8_t ledsInStrip = (uint8_t)configManager.getParameter(DefaultConfigParameters[ID_STRIP_LEDS]);
+  uint8_t ledsNightLight = (uint8_t)configManager.getParameter(DefaultConfigParameters[ID_NL_LEDS]);
+  uint8_t pinStrip = (uint8_t)configManager.getParameter(DefaultConfigParameters[ID_PIN_STRIP]);
+  maxBrightness = (uint8_t)configManager.getParameter(DefaultConfigParameters[ID_MAX_BRIGHT]);
 
   Serial.println("ledsInStrip: " + String(ledsInStrip));
   Serial.println("ledsNightLight: " + String(ledsNightLight));
