@@ -13,86 +13,87 @@
 #include "../Configuration/ConfigManager.h"
 #include "../Configuration/ConfigParameters.h"
 
-enum UUID
+const enum ServiceUUID
 {
-  SWITCH_SERVICE_UUID = 0,
-  PARAMETERS_SERVICE_UUID = 1,
-  TIME_SERVICE_UUID = 2,
-  DEVICE_INFO_SERVICE_UUID = 3,
-
-  SWITCH_UUID = 4,
-  BRIGHTNESS_UUID = 5,
-  COLOR_UUID = 6,
-  SWITCH_LEFT_UUID = 7,
-  BRIGHTNESS_LEFT_UUID = 8,
-  COLOR_LEFT_UUID = 9,
-  SWITCH_RIGHT_UUID = 10,
-  BRIGHTNESS_RIGHT_UUID = 11,
-  COLOR_RIGHT_UUID = 12,
-
-  PARAM_DEBUG_OUTPUT_UUID = 13,
-  PARAM_PIN_STRIP_UUID = 14,
-  PARAM_PIN_CENTER_TS_UUID = 15,
-  PARAM_PIN_LEFT_TS_UUID = 16,
-  PARAM_PIN_RIGHT_TS_UUID = 17,
-  PARAM_PIN_LED_UUID = 18,
-  PARAM_ROTARY_ENCODER_A_PIN_UUID = 19,
-  PARAM_ROTARY_ENCODER_B_PIN_UUID = 20,
-  PARAM_ROTARY_ENCODER_BUTTON_PIN_UUID = 21,
-  PARAM_ROTARY_ENCODER_STEPS_UUID = 22,
-  PARAM_ROTARY_ENCODER_ACCELERATION_UUID = 23,
-  PARAM_NUMBER_OF_LEDS_UUID = 24,
-  PARAM_NUMBER_OF_NL_LEDS_UUID = 25,
-  PARAM_MAX_BRIGHTNESS_UUID = 26,
-  PARAM_CAPTOUCH_THLD_BOOT_UUID = 27,
-
-  SET_TIME_UUID = 28,
-  SET_ALARM_TIME_UUID = 29,
-  SET_ALARM_STATE_UUID = 30,
-
-  FW_VERSION_UUID = 31,
-  HW_VERSION_UUID = 32
+  DEVICE_INFO_SERVICE_UUID = "21ec2541-a87d-45f6-a5d8-27aa9f742502",
+  CONTROL_SERVICE_UUID = "667d724e-4540-4123-984f-9ad6082212ba",
+  ALARM_SERVICE_UUID = "052699e8-1a9b-40fb-a14b-00b0772187d9",
+  PARAMETERS_SERVICE_UUID = "4b698caa-abfa-4f8b-b136-42590f64652e",
+  SERVICE_COMMANDS_UUID = "12095a43-bcc4-4988-8d45-d2afcad7cd28"  
 };
 
-const char *UUID_STRINGS[] = {
-    "667d724e-4540-4123-984f-9ad6082212ba", // SWITCH_SERVICE_UUID
-    "4b698caa-abfa-4f8b-b136-42590f64652e", // PARAMETERS_SERVICE_UUID
-    "052699e8-1a9b-40fb-a14b-00b0772187d9", // TIME_SERVICE_UUID
-    "21ec2541-a87d-45f6-a5d8-27aa9f742502", // DEVICE_INFO_SERVICE_UUID
+// Structure to store the configuration parameter information
+typedef struct Characteristic
+{
+    // UUID of the characteristic
+    const char *const UUID;
+    // Service UUID
+    ServiceUUID service;  
+    // Properties of the characteristic	
+    const uint32_t properties;
 
-    "14cdad1f-1b15-41ee-9f51-d5caaf940d01", // SWITCH_UUID
-    "14cdad1f-1b15-41ee-9f51-d5caaf940d02", // BRIGHTNESS_UUID
-    "14cdad1f-1b15-41ee-9f51-d5caaf940d03", // COLOR_UUID
-    "14cdad1f-1b15-41ee-9f51-d5caaf940d04", // SWITCH_LEFT_UUID
-    "14cdad1f-1b15-41ee-9f51-d5caaf940d05", // BRIGHTNESS_LEFT_UUID
-    "14cdad1f-1b15-41ee-9f51-d5caaf940d06", // COLOR_LEFT_UUID
-    "14cdad1f-1b15-41ee-9f51-d5caaf940d07", // SWITCH_RIGHT_UUID
-    "14cdad1f-1b15-41ee-9f51-d5caaf940d08", // BRIGHTNESS_RIGHT_UUID
-    "14cdad1f-1b15-41ee-9f51-d5caaf940d09", // COLOR_RIGHT_UUID
+} Characteristic;
 
-    "f0e9cb41-1b2b-4799-ab36-0ddb25e70900", // PARAM_DEBUG_OUTPUT_UUID
-    "f0e9cb41-1b2b-4799-ab36-0ddb25e70901", // PARAM_PIN_STRIP_UUID
-    "f0e9cb41-1b2b-4799-ab36-0ddb25e70902", // PARAM_PIN_CENTER_TS_UUID
-    "f0e9cb41-1b2b-4799-ab36-0ddb25e70903", // PARAM_PIN_LEFT_TS_UUID
-    "f0e9cb41-1b2b-4799-ab36-0ddb25e70904", // PARAM_PIN_RIGHT_TS_UUID
-    "f0e9cb41-1b2b-4799-ab36-0ddb25e70905", // PARAM_PIN_LED_UUID
-    "f0e9cb41-1b2b-4799-ab36-0ddb25e70906", // PARAM_ROTARY_ENCODER_A_PIN_UUID
-    "f0e9cb41-1b2b-4799-ab36-0ddb25e70907", // PARAM_ROTARY_ENCODER_B_PIN_UUID
-    "f0e9cb41-1b2b-4799-ab36-0ddb25e70908", // PARAM_ROTARY_ENCODER_BUTTON_PIN_UUID
-    "f0e9cb41-1b2b-4799-ab36-0ddb25e70909", // PARAM_ROTARY_ENCODER_STEPS_UUID
-    "f0e9cb41-1b2b-4799-ab36-0ddb25e7090a", // PARAM_ROTARY_ENCODER_ACCELERATION_UUID
-    "f0e9cb41-1b2b-4799-ab36-0ddb25e7090b", // PARAM_NUMBER_OF_LEDS_UUID
-    "f0e9cb41-1b2b-4799-ab36-0ddb25e7090c", // PARAM_NUMBER_OF_NL_LEDS_UUID
-    "f0e9cb41-1b2b-4799-ab36-0ddb25e7090d", // PARAM_MAX_BRIGHTNESS_UUID
-    "f0e9cb41-1b2b-4799-ab36-0ddb25e7090e", // PARAM_CAPTOUCH_THLD_BOOT_UUID
 
-    "21ec2541-a87d-45f6-a5d8-27aa9f742501", // SET_TIME_UUID
-    "21ec2541-a87d-45f6-a5d8-27aa9f742502", // SET_ALARM_TIME_UUID
-    "21ec2541-a87d-45f6-a5d8-27aa9f742503", // SET_ALARM_STATE_UUID
+// Charactersitics array
+const Characteristic[] =
+{
+  { "99704284-4d6b-4812-a599-cfd570230c47", DEVICE_INFO_SERVICE_UUID, BLECharacteristic::PROPERTY_READ}, // FW Version 
+  { "4b88d539-a706-426e-885c-69bb0c04fa84", DEVICE_INFO_SERVICE_UUID, BLECharacteristic::PROPERTY_READ}, // HW Version
 
-    "99704284-4d6b-4812-a599-cfd570230c47", // FW_VERSION_UUID
-    "4b88d539-a706-426e-885c-69bb0c04fa84"  // HW_VERSION_UUID
+  { "14cdad1f-1b15-41ee-9f51-d5caaf940d01", CONTROL_SERVICE_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE}, // Swtich Center    "14cdad1f-1b15-41ee-9f51-d5caaf940d02", // BRIGHTNESS_UUID
+  { "14cdad1f-1b15-41ee-9f51-d5caaf940d02", CONTROL_SERVICE_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE}, // Brightness Center
+  { "14cdad1f-1b15-41ee-9f51-d5caaf940d03", CONTROL_SERVICE_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE}, // Color Center
+  { "14cdad1f-1b15-41ee-9f51-d5caaf940d04", CONTROL_SERVICE_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE}, // Switch Left
+  { "14cdad1f-1b15-41ee-9f51-d5caaf940d05", CONTROL_SERVICE_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE}, // Brightness Left
+  { "14cdad1f-1b15-41ee-9f51-d5caaf940d06", CONTROL_SERVICE_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE}, // Color Left
+  { "14cdad1f-1b15-41ee-9f51-d5caaf940d07", CONTROL_SERVICE_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE}, // Switch Right
+  { "14cdad1f-1b15-41ee-9f51-d5caaf940d08", CONTROL_SERVICE_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE}, // Brightness Right
+  { "14cdad1f-1b15-41ee-9f51-d5caaf940d09", CONTROL_SERVICE_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE}, // Color Right
+  { "14cdad1f-1b15-41ee-9f51-d5caaf940d0a", CONTROL_SERVICE_UUID, BLECharacteristic::PROPERTY_WRITE }, // Reset Device
+
+  { "21ec2541-a87d-45f6-a5d8-27aa9f742501", ALARM_SERVICE_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE}, // Current Time
+  { "21ec2541-a87d-45f6-a5d8-27aa9f742502", ALARM_SERVICE_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE}, // Alarm 1 On Time
+  { "21ec2541-a87d-45f6-a5d8-27aa9f742503", ALARM_SERVICE_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE}, // Alarm 1 Off Time
+  { "21ec2541-a87d-45f6-a5d8-27aa9f742504", ALARM_SERVICE_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE}, // Alarm 1 Brightness
+  { "21ec2541-a87d-45f6-a5d8-27aa9f742503", ALARM_SERVICE_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE}, // Alarm 1 Color
+  { "21ec2541-a87d-45f6-a5d8-27aa9f742504", ALARM_SERVICE_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE}, // Alarm 1 Brightness Delay
+  { "21ec2541-a87d-45f6-a5d8-27aa9f742502", ALARM_SERVICE_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE}, // Alarm 2 On Time
+  { "21ec2541-a87d-45f6-a5d8-27aa9f742503", ALARM_SERVICE_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE}, // Alarm 2 Off Time
+  { "21ec2541-a87d-45f6-a5d8-27aa9f742504", ALARM_SERVICE_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE}, // Alarm 2 Brightness
+  { "21ec2541-a87d-45f6-a5d8-27aa9f742503", ALARM_SERVICE_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE}, // Alarm 2 Color
+  { "21ec2541-a87d-45f6-a5d8-27aa9f742504", ALARM_SERVICE_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE}, // Alarm 2 Brightness Delay
+  { "21ec2541-a87d-45f6-a5d8-27aa9f742502", ALARM_SERVICE_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE}, // Alarm 3 On Time
+  { "21ec2541-a87d-45f6-a5d8-27aa9f742503", ALARM_SERVICE_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE}, // Alarm 3 Off Time
+  { "21ec2541-a87d-45f6-a5d8-27aa9f742504", ALARM_SERVICE_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE}, // Alarm 3 Brightness
+  { "21ec2541-a87d-45f6-a5d8-27aa9f742503", ALARM_SERVICE_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE}, // Alarm 3 Color
+  { "21ec2541-a87d-45f6-a5d8-27aa9f742504", ALARM_SERVICE_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE}, // Alarm 3 Brightness Delay
+  { "21ec2541-a87d-45f6-a5d8-27aa9f742502", ALARM_SERVICE_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE}, // Alarm 4 On Time
+  { "21ec2541-a87d-45f6-a5d8-27aa9f742503", ALARM_SERVICE_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE}, // Alarm 4 Off Time
+  { "21ec2541-a87d-45f6-a5d8-27aa9f742504", ALARM_SERVICE_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE}, // Alarm 4 Brightness
+  { "21ec2541-a87d-45f6-a5d8-27aa9f742503", ALARM_SERVICE_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE}, // Alarm 4 Color
+  { "21ec2541-a87d-45f6-a5d8-27aa9f742504", ALARM_SERVICE_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE}, // Alarm 4 Brightness Delay
+  { "21ec2541-a87d-45f6-a5d8-27aa9f742502", ALARM_SERVICE_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE}, // Alarm 5 On Time
+  { "21ec2541-a87d-45f6-a5d8-27aa9f742503", ALARM_SERVICE_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE}, // Alarm 5 Off Time
+  { "21ec2541-a87d-45f6-a5d8-27aa9f742504", ALARM_SERVICE_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE}, // Alarm 5 Brightness
+  { "21ec2541-a87d-45f6-a5d8-27aa9f742503", ALARM_SERVICE_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE}, // Alarm 5 Color
+  { "21ec2541-a87d-45f6-a5d8-27aa9f742504", ALARM_SERVICE_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE}, // Alarm 5 Brightness Delay
+
+   
+  { "f0e9cb41-1b2b-4799-ab36-0ddb25e70900", PARAMETERS_SERVICE_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE}, // Number of LEDs Night Light Left
+  { "f0e9cb41-1b2b-4799-ab36-0ddb25e70901", PARAMETERS_SERVICE_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE}, // Number of LEDs Night Light Right
+  { "f0e9cb41-1b2b-4799-ab36-0ddb25e70900", PARAMETERS_SERVICE_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE}, // Hue value for Rotary Encoder
+
+  {"2f7980c8-28d0-4c1c-ad2c-78036e8faf00", SPECIAL_COMMANDS_SERVICE_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE}, // Go to Bootloader
+  {"2f7980c8-28d0-4c1c-ad2c-78036e8faf01", SPECIAL_COMMANDS_SERVICE_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE}, // Number of LEDs in Strip
+  {"2f7980c8-28d0-4c1c-ad2c-78036e8faf02", SPECIAL_COMMANDS_SERVICE_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE}, // Captouch Threshold
+  {"2f7980c8-28d0-4c1c-ad2c-78036e8faf03", SPECIAL_COMMANDS_SERVICE_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE}, // Current value of touch center
+  {"2f7980c8-28d0-4c1c-ad2c-78036e8faf04", SPECIAL_COMMANDS_SERVICE_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE}, // Current value of touch left 
+  {"2f7980c8-28d0-4c1c-ad2c-78036e8faf05", SPECIAL_COMMANDS_SERVICE_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE}, // Current value of touch right 
+  {"2f7980c8-28d0-4c1c-ad2c-78036e8faf06", SPECIAL_COMMANDS_SERVICE_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE}, // Encoder
+  
 };
+
 
 ConfigManager configManager = ConfigManager::getInstance();
 AlarmsManager alarmsManager;
