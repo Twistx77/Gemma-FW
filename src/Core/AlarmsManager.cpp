@@ -113,10 +113,6 @@ AlarmParameters AlarmsManager::getAlarm(Alarm alarm)
     if (alarm < 0 || alarm > ALARMS_MAX)
     {
         AlarmParameters parameters;
-        parameters.enabled = 0xFF;
-        parameters.hours = 0xFF;
-        parameters.minutes = 0xFF;
-        parameters.weekdays = 0xFF;
         return parameters;
     }
 
@@ -149,6 +145,5 @@ bool AlarmsManager::checkAlarms()
             return true; // Alarm triggered
         }
     }
-
     return false; // Alarm not triggered
 }
