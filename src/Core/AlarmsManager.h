@@ -21,7 +21,7 @@ typedef struct AlarmTimeAndDate
     uint8_t minutes;
     uint8_t weekday;
 
-}AlarmTimeAndDate; 
+} AlarmTimeAndDate;
 
 typedef struct AlarmParameters
 {
@@ -51,7 +51,12 @@ enum Alarm
     ALARM_3 = 3,
     ALARM_4 = 4,
     ALARM_5 = 5,
-    ALARMS_MAX = 6
+    ALARM_6 = 6,
+    ALARM_7 = 7,
+    ALARM_8 = 8,
+    ALARM_9 = 9,
+    ALARM_10 = 10,
+    ALARMS_MAX = 11
 };
 
 class AlarmsManager

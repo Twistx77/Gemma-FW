@@ -19,32 +19,19 @@ typedef struct ConfigParameter
 // Enum to specify the parameter IDs
 enum ParameterID
 {
-    ID_FW_MAJOR,
-    ID_FW_MINOR,
-    ID_FW_PATCH,
-    ID_DEBUG_OUT,
-    ID_PIN_STRIP,
-    ID_PIN_CENTER_TS,
-    ID_PIN_LEFT_TS,
-    ID_PIN_RIGHT_TS,
-    ID_PIN_LED,
-    ID_ROT_A_PIN,
-    ID_ROT_B_PIN,
-    ID_ROT_BTN_PIN,
-    ID_ROT_STEPS,
-    ID_ROT_ACCEL,
-    ID_STRIP_LEDS,
-    ID_NL_LEDS,
-    ID_MAX_BRIGHT,
-    ID_TOUCH_THLD,
+    ID_FW_VERSION,
+    ID_FW_BUILD,Encoder Resolution
+    ID_LEDS_NL_LEFT,
+    ID_LEDS_NL_RIGHT,
+    ID_HUE_ENCODER,
+    ID_LEDS_STRIP,    
     MAX_CONFIG_PARAMETERS
 };
 
 // Array to store the parameters key, default value, min value and max value
 const ConfigParameter DefaultConfigParameters[] = {
-    {"FW_MAJ", 0, 0, 0xFF},
-    {"FW_MIN", 5, 0, 0xFF},
-    {"FW_PATCH", 9, 0, 0xFF},
+    {"FW_VER", 0, 0, 0x00000509},
+    {"FW_BUILD", 0, 0, 0x00000000},
     {"DBG_OUT", 0, 0, 1},
     {"P_STRIP", 0, 0, 40},
     {"P_CENT_TS", 0, 0, 40},

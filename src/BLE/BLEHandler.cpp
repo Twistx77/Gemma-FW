@@ -183,7 +183,7 @@ class CallbackAlarm : public BLECharacteristicCallbacks
     }
     else
     {
-      uint8_t alarmInstance = uUIDLastChar - '2';
+      uint8_t alarmInstance = uUIDLastChar - '1'; // Alarm 1 = 1 ->  '2' - '1' = 1
       // Get the alarm time from the AlarmsManager
       AlarmParameters alarmParameters = alarmsManager.getAlarm(alarmInstance);
 
@@ -191,7 +191,7 @@ class CallbackAlarm : public BLECharacteristicCallbacks
                          (alarmParameters.secondsToFullBrightness >> 8 & 0xFF), (alarmParameters.secondsToFullBrightness & 0xFF), alarmParameters.maxBrightness,
                          alarmParameters.timeAndDateOff.weekday, alarmParameters.timeAndDateOff.hours, alarmParameters.timeAndDateOff.minutes,
                          alarmParameters.timeAndDateOn.weekdays, alarmParameters.timeAndDateOn.hours, alarmParameters.timeAndDateOn.minutes, alarmParameters.enabled};
-      pCharacteristic->setValue(alarm, 4);
+      pCharacteristic->setValue(alarm, 14);
     }
   }
 
@@ -215,15 +215,20 @@ class CallbackAlarm : public BLECharacteristicCallbacks
     }
     else    
     {
-      uint8_t *currentAlarm = pCharacteristic->getData();
+      uint8_t *newAlarmParameters = pCharacteristic->getData();
       AlarmParameters alarmParameters;
-      alarmParameters.color = (currentAlarm[3] << 24) | (currentAlarm[2] << 16) | (currentAlarm[1] << 8) | currentAlarm[0];
-
-      alarmParameters.timeAndDateOn.weekdays = currentAlarm[3];
-      alarmParameters.timeAndDateOn.hours = currentAlarm[2];
-      alarmParameters.timeAndDateOn.minutes = currentAlarm[1];
-      alarmParameters.enabled = currentAlarm[0];
-      alarmsManager.setAlarm(Alarm(pCharacteristic->getUUID().toString()[35] - '2'), alarmParameters);
+      
+      alarmParameters.color = (newAlarmParameters[13] << 24) | (newAlarmParameters[12] << 16) | (newAlarmParameters[11] << 8) | newAlarmParameters[10];
+      alarmParameters.secondsToFullBrightness = (newAlarmParameters[9] << 8) | newAlarmParameters[8];
+      alarmParameters.maxBrightness = newAlarmParameters[7];
+      alarmParameters.timeAndDateOff.weekday = newAlarmParameters[6];
+      alarmParameters.timeAndDateOff.hours = newAlarmParameters[5];
+      alarmParameters.timeAndDateOff.minutes = newAlarmParameters[4];
+      alarmParameters.timeAndDateOn.weekdays = newAlarmParameters[3];
+      alarmParameters.timeAndDateOn.hours = newAlarmParameters[2];
+      alarmParameters.timeAndDateOn.minutes = newAlarmParameters[1];
+      alarmParameters.enabled = newAlarmParameters[0];
+      alarmsManager.setAlarm(Alarm(uUIDLastChar - '1'), alarmParameters);
     }
     break;
 
@@ -238,7 +243,9 @@ class CallbackParameters : public BLECharacteristicCallbacks
 
   void onWrite(BLECharacteristic *pCharacteristic)
   {
-    ParameterID parameter = (ParameterID)(pCharacteristic->getUUID().getNative()->uuid.uuid128[0] + ID_DEBUG_OUT);
+
+     uint8_t uUIDLastChar = pCharacteristic->getUUID().toString()[35];
+    ParameterID parameter = (ParameterID)(uUIDLastChar-'1' + );
     if (parameter < MAX_CONFIG_PARAMETERS && parameter >= ID_DEBUG_OUT)
     {
       configManager.setParameter(DefaultConfigParameters[parameter], pCharacteristic->getData()[0]);
