@@ -49,72 +49,71 @@ const Characteristic DeviceInfoCharacteristics[] =
 const Characteristic ControlCharacteristics[]
 {
       {"14cdad1f-1b15-41ee-9f51-d5caaf940d01", CONTROL_SERVICE_UUID, READ_WRITE},     // Swtich Center    "14cdad1f-1b15-41ee-9f51-d5caaf940d02", // BRIGHTNESS_UUID
-      {"14cdad1f-1b15-41ee-9f51-d5caaf940d02", CONTROL_SERVICE_UUID, READ_WRITE}, // Brightness Center
-      {"14cdad1f-1b15-41ee-9f51-d5caaf940d03", CONTROL_SERVICE_UUID, READ_WRITE}, // Color Center
-      {"14cdad1f-1b15-41ee-9f51-d5caaf940d04", CONTROL_SERVICE_UUID, READ_WRITE}, // Switch Left
-      {"14cdad1f-1b15-41ee-9f51-d5caaf940d05", CONTROL_SERVICE_UUID, READ_WRITE}, // Brightness Left
-      {"14cdad1f-1b15-41ee-9f51-d5caaf940d06", CONTROL_SERVICE_UUID, READ_WRITE}, // Color Left
-      {"14cdad1f-1b15-41ee-9f51-d5caaf940d07", CONTROL_SERVICE_UUID, READ_WRITE}, // Switch Right
-      {"14cdad1f-1b15-41ee-9f51-d5caaf940d08", CONTROL_SERVICE_UUID, READ_WRITE}, // Brightness Right
-      {"14cdad1f-1b15-41ee-9f51-d5caaf940d09", CONTROL_SERVICE_UUID, READ_WRITE}, // Color Right
-      {"14cdad1f-1b15-41ee-9f51-d5caaf940d0a", CONTROL_SERVICE_UUID, WRITE_ONLY}, // Reset Device
+      {"14cdad1f-1b15-41ee-9f51-d5caaf940d02", CONTROL_SERVICE_UUID, READ_WRITE}, // Switch Left
+      {"14cdad1f-1b15-41ee-9f51-d5caaf940d03", CONTROL_SERVICE_UUID, READ_WRITE}, // Switch Right
+      {"14cdad1f-1b15-41ee-9f51-d5caaf940d04", CONTROL_SERVICE_UUID, READ_WRITE}, // Color Center
+      {"14cdad1f-1b15-41ee-9f51-d5caaf940d05", CONTROL_SERVICE_UUID, READ_WRITE}, // Color Left
+      {"14cdad1f-1b15-41ee-9f51-d5caaf940d06", CONTROL_SERVICE_UUID, READ_WRITE}, // Color Right
+      {"14cdad1f-1b15-41ee-9f51-d5caaf940d07", CONTROL_SERVICE_UUID, READ_WRITE}, // Brightness Center
+      {"14cdad1f-1b15-41ee-9f51-d5caaf940d08", CONTROL_SERVICE_UUID, READ_WRITE}, // Brightness Left
+      {"14cdad1f-1b15-41ee-9f51-d5caaf940d09", CONTROL_SERVICE_UUID, READ_WRITE}, // Brightness Right
 }
 
+
+
+
+
 // Alarm Service Charactersitics array
+
+// Set Time Characteristic format
+// Seconds[0], Minutes[1], Hours[2], Day[3], Month[4], Year[5], Weekday[6]
+
+// Alarm Characteristic format
+// Enabled[0]
+// Time ON: Minutes[1], Hours[2], Weekdays[3]
+// Time OFF: Minutes[4], Hours[5], Weekdays[6]
+// Max Brightness: Brightness[7]
+// Delay Max Brightness: Seconds[9] Minutes[8] 
+// Color: Red[10], Green[11], Blue[12], White[13]
 const Characteristic AlarmCharacteristics[]
 {
-      {"21ec2541-a87d-45f6-a5d8-27aa9f742501", ALARM_SERVICE_UUID, READ_WRITE},     // Current Time
-      {"21ec2541-a87d-45f6-a5d8-27aa9f742502", ALARM_SERVICE_UUID, READ_WRITE}, // Alarm 1 On Time
-      {"21ec2541-a87d-45f6-a5d8-27aa9f742503", ALARM_SERVICE_UUID, READ_WRITE}, // Alarm 1 Off Time
-      {"21ec2541-a87d-45f6-a5d8-27aa9f742504", ALARM_SERVICE_UUID, READ_WRITE}, // Alarm 1 Brightness
-      {"21ec2541-a87d-45f6-a5d8-27aa9f742503", ALARM_SERVICE_UUID, READ_WRITE}, // Alarm 1 Color
-      {"21ec2541-a87d-45f6-a5d8-27aa9f742504", ALARM_SERVICE_UUID, READ_WRITE}, // Alarm 1 Brightness Delay
-      {"21ec2541-a87d-45f6-a5d8-27aa9f742502", ALARM_SERVICE_UUID, READ_WRITE}, // Alarm 2 On Time
-      {"21ec2541-a87d-45f6-a5d8-27aa9f742503", ALARM_SERVICE_UUID, READ_WRITE}, // Alarm 2 Off Time
-      {"21ec2541-a87d-45f6-a5d8-27aa9f742504", ALARM_SERVICE_UUID, READ_WRITE}, // Alarm 2 Brightness
-      {"21ec2541-a87d-45f6-a5d8-27aa9f742503", ALARM_SERVICE_UUID, READ_WRITE}, // Alarm 2 Color
-      {"21ec2541-a87d-45f6-a5d8-27aa9f742504", ALARM_SERVICE_UUID, READ_WRITE}, // Alarm 2 Brightness Delay
-      {"21ec2541-a87d-45f6-a5d8-27aa9f742502", ALARM_SERVICE_UUID, READ_WRITE}, // Alarm 3 On Time
-      {"21ec2541-a87d-45f6-a5d8-27aa9f742503", ALARM_SERVICE_UUID, READ_WRITE}, // Alarm 3 Off Time
-      {"21ec2541-a87d-45f6-a5d8-27aa9f742504", ALARM_SERVICE_UUID, READ_WRITE}, // Alarm 3 Brightness
-      {"21ec2541-a87d-45f6-a5d8-27aa9f742503", ALARM_SERVICE_UUID, READ_WRITE}, // Alarm 3 Color
-      {"21ec2541-a87d-45f6-a5d8-27aa9f742504", ALARM_SERVICE_UUID, READ_WRITE}, // Alarm 3 Brightness Delay
-      {"21ec2541-a87d-45f6-a5d8-27aa9f742502", ALARM_SERVICE_UUID, READ_WRITE}, // Alarm 4 On Time
-      {"21ec2541-a87d-45f6-a5d8-27aa9f742503", ALARM_SERVICE_UUID, READ_WRITE}, // Alarm 4 Off Time
-      {"21ec2541-a87d-45f6-a5d8-27aa9f742504", ALARM_SERVICE_UUID, READ_WRITE}, // Alarm 4 Brightness
-      {"21ec2541-a87d-45f6-a5d8-27aa9f742503", ALARM_SERVICE_UUID, READ_WRITE}, // Alarm 4 Color
-      {"21ec2541-a87d-45f6-a5d8-27aa9f742504", ALARM_SERVICE_UUID, READ_WRITE}, // Alarm 4 Brightness Delay
-      {"21ec2541-a87d-45f6-a5d8-27aa9f742502", ALARM_SERVICE_UUID, READ_WRITE}, // Alarm 5 On Time
-      {"21ec2541-a87d-45f6-a5d8-27aa9f742503", ALARM_SERVICE_UUID, READ_WRITE}, // Alarm 5 Off Time
-      {"21ec2541-a87d-45f6-a5d8-27aa9f742504", ALARM_SERVICE_UUID, READ_WRITE}, // Alarm 5 Brightness
-      {"21ec2541-a87d-45f6-a5d8-27aa9f742503", ALARM_SERVICE_UUID, READ_WRITE}, // Alarm 5 Color
-      {"21ec2541-a87d-45f6-a5d8-27aa9f742504", ALARM_SERVICE_UUID, READ_WRITE}, // Alarm 5 Brightness Delay
+      {"21ec2541-a87d-45f6-a5d8-27aa9f742501", ALARM_SERVICE_UUID, READ_WRITE},  // Current Time
+      {"21ec2541-a87d-45f6-a5d8-27aa9f742502", ALARM_SERVICE_UUID, READ_WRITE},  // Alarm 1 
+      {"21ec2541-a87d-45f6-a5d8-27aa9f742503", ALARM_SERVICE_UUID, READ_WRITE},  // Alarm 2
+      {"21ec2541-a87d-45f6-a5d8-27aa9f742504", ALARM_SERVICE_UUID, READ_WRITE},  // Alarm 3
+      {"21ec2541-a87d-45f6-a5d8-27aa9f742505", ALARM_SERVICE_UUID, READ_WRITE},  // Alarm 4
+      {"21ec2541-a87d-45f6-a5d8-27aa9f742506", ALARM_SERVICE_UUID, READ_WRITE},  // Alarm 5
+      {"21ec2541-a87d-45f6-a5d8-27aa9f742507", ALARM_SERVICE_UUID, READ_WRITE},  // Alarm 6
+      {"21ec2541-a87d-45f6-a5d8-27aa9f742508", ALARM_SERVICE_UUID, READ_WRITE},  // Alarm 7
+      {"21ec2541-a87d-45f6-a5d8-27aa9f742509", ALARM_SERVICE_UUID, READ_WRITE},  // Alarm 8
+      {"21ec2541-a87d-45f6-a5d8-27aa9f7425010", ALARM_SERVICE_UUID, READ_WRITE}, // Alarm 9
+      {"21ec2541-a87d-45f6-a5d8-27aa9f7425011", ALARM_SERVICE_UUID, READ_WRITE}, // Alarm 10
 }
 
 // Parameter Service Characteristics
 const Characteristic ConfigurationCharacteristics[]
 {
-      {"f0e9cb41-1b2b-4799-ab36-0ddb25e70901", CONFIGURATION_SERVICE_UUID, READ_WRITE},     // Number of LEDs Night Light Left
+      {"f0e9cb41-1b2b-4799-ab36-0ddb25e70901", CONFIGURATION_SERVICE_UUID, READ_WRITE}, // Number of LEDs Night Light Left
       {"f0e9cb41-1b2b-4799-ab36-0ddb25e70902", CONFIGURATION_SERVICE_UUID, READ_WRITE}, // Number of LEDs Night Light Right
       {"f0e9cb41-1b2b-4799-ab36-0ddb25e70903", CONFIGURATION_SERVICE_UUID, READ_WRITE}, // Hue value for Rotary Encoder
 }
 
 // Service Commands Characteristics
 const Characteristic ServiceCommandsCharacteristics[]{
-    {"2f7980c8-28d0-4c1c-ad2c-78036e8faf01", SPECIAL_COMMANDS_SERVICE_UUID, READ_WRITE}, // Go to Bootloader
-    {"2f7980c8-28d0-4c1c-ad2c-78036e8faf02", SPECIAL_COMMANDS_SERVICE_UUID, READ_WRITE}, // Number of LEDs in Strip
-    {"2f7980c8-28d0-4c1c-ad2c-78036e8faf03", SPECIAL_COMMANDS_SERVICE_UUID, READ_WRITE}, // Captouch Threshold
-    {"2f7980c8-28d0-4c1c-ad2c-78036e8faf04", SPECIAL_COMMANDS_SERVICE_UUID, READ_WRITE}, // Current value of touch center
-    {"2f7980c8-28d0-4c1c-ad2c-78036e8faf05", SPECIAL_COMMANDS_SERVICE_UUID, READ_WRITE}, // Current value of touch left
-    {"2f7980c8-28d0-4c1c-ad2c-78036e8faf06", SPECIAL_COMMANDS_SERVICE_UUID, READ_WRITE}, // Current value of touch right
-    {"2f7980c8-28d0-4c1c-ad2c-78036e8faf07", SPECIAL_COMMANDS_SERVICE_UUID, READ_WRITE}, // Encoder Resolution
+    {"2f7980c8-28d0-4c1c-ad2c-78036e8faf01", SPECIAL_COMMANDS_SERVICE_UUID, WRITE_ONLY}, // Reset Device
+    {"2f7980c8-28d0-4c1c-ad2c-78036e8faf02", SPECIAL_COMMANDS_SERVICE_UUID, READ_WRITE}, // Go to Bootloader
+    {"2f7980c8-28d0-4c1c-ad2c-78036e8faf03", SPECIAL_COMMANDS_SERVICE_UUID, READ_WRITE}, // Number of LEDs in Strip
+    {"2f7980c8-28d0-4c1c-ad2c-78036e8faf04", SPECIAL_COMMANDS_SERVICE_UUID, READ_WRITE}, // Captouch Threshold
+    {"2f7980c8-28d0-4c1c-ad2c-78036e8faf05", SPECIAL_COMMANDS_SERVICE_UUID, READ_WRITE}, // Current value of touch center
+    {"2f7980c8-28d0-4c1c-ad2c-78036e8faf06", SPECIAL_COMMANDS_SERVICE_UUID, READ_WRITE}, // Current value of touch left
+    {"2f7980c8-28d0-4c1c-ad2c-78036e8faf07", SPECIAL_COMMANDS_SERVICE_UUID, READ_WRITE}, // Current value of touch right
+    {"2f7980c8-28d0-4c1c-ad2c-78036e8faf08", SPECIAL_COMMANDS_SERVICE_UUID, READ_WRITE}, // Encoder Resolution
 }
 
 ConfigManager configManager = ConfigManager::getInstance();
 AlarmsManager alarmsManager;
 
 bool deviceConnected = false;
-float hue = 0;
 
 class CallbackDeviceInfo : public BLECharacteristicCallbacks
 {
@@ -142,195 +141,58 @@ class CallbackControl : public BLECharacteristicCallbacks
 {
   void onWrite(BLECharacteristic *pCharacteristic)
   {
-    uint8_t stripType;
-    switch (pCharacteristic->getUUID().toString()[35])
-    {
-    case '1':
-      stripType = STRIP_CENTER;
-      break;
-    case '4':
-      stripType = STRIP_LEFT;
-      break;
-    case '7':
-      stripType = STRIP_RIGHT;
-      break;
-    }
+    uint8_t stripType = pCharacteristic->getUUID().toString()[35] - '1'; // TRIP_CENTER = 0 ->  '1' - '1' = 0
+
+    // Color
+    if (stripType > 2 & stripType <= 5)
+      stripType -= 3;
+    // Brightness
+    else if (stripType > 5 & stripType <= 8)
+      stripType -= 6;
 
     uint8_t *state = pCharacteristic->getData();
-    if (state[0] == 1)
-    {
-      MWST_SetStripState(stripType, MWST_ENABLED, EFFECT_PROGRESSIVE);
-    }
-    else if (state[0] == 0)
-    {
-      MWST_SetStripState(stripType, MWST_DISABLED, EFFECT_PROGRESSIVE);
-    }
-  } // onWrite
 
-  void onRead(BLECharacteristic *pCharacteristic)
-  {
-    uint8_t stripType;
-    switch (pCharacteristic->getUUID().toString()[35])
-    {
-    case '1':
-      stripType = STRIP_CENTER;
-      break;
-    case '4':
-      stripType = STRIP_LEFT;
-      break;
-    case '7':
-      stripType = STRIP_RIGHT;
-      break;
-    }
-    uint32_t state = 0;
-    if (MWST_GetState(stripType))
-      state = 1;
-    pCharacteristic->setValue(state);
-
-  } // onRead
-};
-
-class CallbackBrightness : public BLECharacteristicCallbacks
-{
-
-  void onWrite(BLECharacteristic *pCharacteristic)
-  {
-    uint8_t stripType;
-    switch (pCharacteristic->getUUID().toString()[35])
-    {
-    case '2':
-      stripType = STRIP_CENTER;
-      break;
-    case '5':
-      stripType = STRIP_LEFT;
-      break;
-    case '8':
-      stripType = STRIP_RIGHT;
-      break;
-    }
-    uint8_t *brightness = pCharacteristic->getData();
-    MWST_SetBrightness(stripType, brightness[0]);
-  }
-
-  void onRead(BLECharacteristic *pCharacteristic)
-  {
-    uint8_t stripType;
-    switch (pCharacteristic->getUUID().toString()[35])
-    {
-    case '2':
-      stripType = STRIP_CENTER;
-      break;
-    case '5':
-      stripType = STRIP_LEFT;
-      break;
-    case '8':
-      stripType = STRIP_RIGHT;
-      break;
-    }
-    int brightness = MWST_GetCurrentBrightness(stripType);
-    pCharacteristic->setValue(brightness);
-  }
-};
-
-class CallbackColor : public BLECharacteristicCallbacks
-{
-  uint8_t stripType;
-  void onWrite(BLECharacteristic *pCharacteristic)
-  {
-    switch (pCharacteristic->getUUID().toString()[35])
-    {
-    case '3':
-      stripType = STRIP_CENTER;
-      break;
-    case '6':
-      stripType = STRIP_LEFT;
-      break;
-    case '9':
-      stripType = STRIP_RIGHT;
-      break;
-    }
-    uint8_t *rgbwValue = pCharacteristic->getData();
-
-    MWST_SetStripColor(stripType, RgbwColor(rgbwValue[1], rgbwValue[0], rgbwValue[2], rgbwValue[3]));
+    MWST_SetStripState(stripType, (state == 1) ? MWST_ENABLED : MWST_DISABLED, EFFECT_FADE);
 
   } // onWrite
 
   void onRead(BLECharacteristic *pCharacteristic)
   {
-    switch (pCharacteristic->getUUID().toString()[35])
-    {
-    case '3':
-      stripType = STRIP_CENTER;
-      break;
-    case '6':
-      stripType = STRIP_LEFT;
-      break;
-    case '9':
-      stripType = STRIP_RIGHT;
-      break;
-    }
-    RgbwColor color = MWST_GetColor(stripType);
-    uint8_t rgbwValue[] = {color.R, color.G, color.B, color.W};
-    pCharacteristic->setValue(rgbwValue, 4);
+    uint8_t stripType = pCharacteristic->getUUID().toString()[35] - '1'; // TRIP_CENTER = 0 ->  '1' - '1' = 0
+
+    // Color
+    if (stripType > 2 & stripType <= 5)
+      stripType -= 3;
+    // Brightness
+    else if (stripType > 5 & stripType <= 8)
+      stripType -= 6;
+
+    pCharacteristic->setValue((MWST_GetState(stripType) == MWST_ENABLED) ? 1 : 0);
+
   } // onRead
 };
 
-class CallbackParameters : public BLECharacteristicCallbacks
-{
-
-  void onWrite(BLECharacteristic *pCharacteristic)
-  {
-    ParameterID parameter = (ParameterID)(pCharacteristic->getUUID().getNative()->uuid.uuid128[0] + ID_DEBUG_OUT);
-    if (parameter < MAX_CONFIG_PARAMETERS && parameter >= ID_DEBUG_OUT)
-    {
-      configManager.setParameter(DefaultConfigParameters[parameter], pCharacteristic->getData()[0]);
-    }
-  }
-  void onRead(BLECharacteristic *pCharacteristic)
-  {
-    ParameterID parameter = (ParameterID)(pCharacteristic->getUUID().getNative()->uuid.uuid128[0] + ID_DEBUG_OUT);
-    if (parameter < MAX_CONFIG_PARAMETERS && parameter >= ID_DEBUG_OUT)
-    {
-      uint32_t value = configManager.getParameter(DefaultConfigParameters[parameter]);
-      pCharacteristic->setValue(value);
-    }
-  }
-};
-
-class CallbackTime : public BLECharacteristicCallbacks
+class CallbackAlarm : public BLECharacteristicCallbacks
 {
   void onRead(BLECharacteristic *pCharacteristic)
   {
 
-    switch (pCharacteristic->getUUID().toString()[35])
-    {
-    case '1':
-    {
+    uint8_t uUUIDLastChar = pCharacteristic->getUUID().toString()[35];
 
+    if (uUUIDLastChar == '1')
+    {
       // Get the curernt time from the AlarmsManager
       TimeAndDate timeAndDate = alarmsManager.getTimeAndDate();
       uint8_t timeAndDateArray[] = {timeAndDate.year, timeAndDate.month, timeAndDate.day, timeAndDate.hours, timeAndDate.minutes, timeAndDate.seconds};
       pCharacteristic->setValue(timeAndDateArray, 6);
     }
-    break;
+    else if (uUUIDLastChar >= '2' && uUUIDLastChar <= '5')
 
-    case '2':
-    case '3':
-    case '4':
-    case '5':
-    case '6':
-    {
       // Get the alarm time from the AlarmsManager
       AlarmParameters alarmParameters = alarmsManager.getAlarm(Alarm(pCharacteristic->getUUID().toString()[35] - '2'));
 
-      uint8_t alarm[] = {alarmParameters.weekdays, alarmParameters.hours, alarmParameters.minutes, alarmParameters.enabled};
-      pCharacteristic->setValue(alarm, 4);
-    }
-    break;
-
-    default:
-      break;
-    }
+    uint8_t alarm[] = {alarmParameters.weekdays, alarmParameters.hours, alarmParameters.minutes, alarmParameters.enabled};
+    pCharacteristic->setValue(alarm, 4);
   }
 
   void onWrite(BLECharacteristic *pCharacteristic)
@@ -375,8 +237,27 @@ class CallbackTime : public BLECharacteristicCallbacks
   }
 };
 
+class CallbackParameters : public BLECharacteristicCallbacks
+{
 
-
+  void onWrite(BLECharacteristic *pCharacteristic)
+  {
+    ParameterID parameter = (ParameterID)(pCharacteristic->getUUID().getNative()->uuid.uuid128[0] + ID_DEBUG_OUT);
+    if (parameter < MAX_CONFIG_PARAMETERS && parameter >= ID_DEBUG_OUT)
+    {
+      configManager.setParameter(DefaultConfigParameters[parameter], pCharacteristic->getData()[0]);
+    }
+  }
+  void onRead(BLECharacteristic *pCharacteristic)
+  {
+    ParameterID parameter = (ParameterID)(pCharacteristic->getUUID().getNative()->uuid.uuid128[0] + ID_DEBUG_OUT);
+    if (parameter < MAX_CONFIG_PARAMETERS && parameter >= ID_DEBUG_OUT)
+    {
+      uint32_t value = configManager.getParameter(DefaultConfigParameters[parameter]);
+      pCharacteristic->setValue(value);
+    }
+  }
+};
 
 class BLEConnectionsCallback : public BLEServerCallbacks
 {
