@@ -3,6 +3,9 @@
 #include "AlarmsManager.h"
 #include "../DefaultConfig.h"
 
+#define MAX_SECONDS_TO_FULL_BRIGHTNESS 3600
+
+
 volatile static bool minuteIntFlag;
 
 // RTC interrupt service routine. This is called every minute
@@ -82,12 +85,21 @@ void AlarmsManager::setAlarm(Alarm alarm, AlarmParameters parameters)
 
     // Check if parameters are valid:
     // - Enabled: 0 or 1
-    // - Time: 0 <= hour <= 23, 0 <= minutes <= 59
-    // - Weekdays: 0 <= weekdays <= 127
+    // - Alarm Time On : 0 <= hour <= 23, 0 <= minutes <= 59
+    // - Weekdays On : 0 <= weekdays <= 127
+    // - Alarm Time Off : 0 <= hour <= 23, 0 <= minutes <= 59
+    // - Weekdays Off : 0 <= weekdays <= 127
+    // - Max brightness : 0 <= max brightness <= 255
+    // - Seconds to Full Brightness : 0 <= seconds to full brightness <= 65535
     if (parameters.enabled < 0 || parameters.enabled > 1 ||
-        parameters.hours < 0 || parameters.hours > 23 ||
-        parameters.minutes < 0 || parameters.minutes > 59 ||
-        parameters.weekdays < 0 || parameters.weekdays > 127)
+        parameters.timeAndDateOn.hours < 0 || parameters.timeAndDateOn.hours > 23 ||
+        parameters.timeAndDateOn.minutes < 0 || parameters.timeAndDateOn.minutes > 59 ||
+        parameters.weekdaysOn < 0 || parameters.weekdaysOn > 127 ||
+        parameters.timeAndDateOff.hours < 0 || parameters.timeAndDateOff.hours > 23 ||
+        parameters.timeAndDateOff.minutes < 0 || parameters.timeAndDateOff.minutes > 59 ||
+        parameters.weekdaysOff < 0 || parameters.weekdaysOff > 127 ||
+        parameters.maxBrightness < 0 || parameters.maxBrightness > 255 ||
+        parameters.secondsToFullBrightness < 0 || parameters.secondsToFullBrightness > MAX_SECONDS_TO_FULL_BRIGHTNESS)
         return;
 
     // Add alarm to the list

@@ -15,12 +15,22 @@ enum Weekdays
     SUNDAY = 0x40
 };
 
+typedef struct AlarmTimeAndDate
+{
+    uint8_t hours;
+    uint8_t minutes;
+    uint8_t weekday;
+
+}AlarmTimeAndDate; 
+
 typedef struct AlarmParameters
 {
     uint8_t enabled;
-    uint8_t hours;
-    uint8_t minutes;
-    uint8_t weekdays;
+    AlarmTimeAndDate timeAndDateOn;
+    AlarmTimeAndDate timeAndDateOff;
+    uint8_t maxBrightness;
+    uint16_t secondsToFullBrightness;
+    uint32_t color;
 } AlarmParameters;
 
 typedef struct TimeAndDate

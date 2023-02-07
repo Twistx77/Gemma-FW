@@ -48,7 +48,7 @@ const Characteristic DeviceInfoCharacteristics[] =
 // Control Service Charactersitics array
 const Characteristic ControlCharacteristics[]
 {
-      {"14cdad1f-1b15-41ee-9f51-d5caaf940d01", CONTROL_SERVICE_UUID, READ_WRITE},     // Swtich Center    "14cdad1f-1b15-41ee-9f51-d5caaf940d02", // BRIGHTNESS_UUID
+  {"14cdad1f-1b15-41ee-9f51-d5caaf940d01", CONTROL_SERVICE_UUID, READ_WRITE},     // Swtich Center    "14cdad1f-1b15-41ee-9f51-d5caaf940d02", // BRIGHTNESS_UUID
       {"14cdad1f-1b15-41ee-9f51-d5caaf940d02", CONTROL_SERVICE_UUID, READ_WRITE}, // Switch Left
       {"14cdad1f-1b15-41ee-9f51-d5caaf940d03", CONTROL_SERVICE_UUID, READ_WRITE}, // Switch Right
       {"14cdad1f-1b15-41ee-9f51-d5caaf940d04", CONTROL_SERVICE_UUID, READ_WRITE}, // Color Center
@@ -58,10 +58,6 @@ const Characteristic ControlCharacteristics[]
       {"14cdad1f-1b15-41ee-9f51-d5caaf940d08", CONTROL_SERVICE_UUID, READ_WRITE}, // Brightness Left
       {"14cdad1f-1b15-41ee-9f51-d5caaf940d09", CONTROL_SERVICE_UUID, READ_WRITE}, // Brightness Right
 }
-
-
-
-
 
 // Alarm Service Charactersitics array
 
@@ -73,12 +69,12 @@ const Characteristic ControlCharacteristics[]
 // Time ON: Minutes[1], Hours[2], Weekdays[3]
 // Time OFF: Minutes[4], Hours[5], Weekdays[6]
 // Max Brightness: Brightness[7]
-// Delay Max Brightness: Seconds[9] Minutes[8] 
+// Delay Max Brightness: SecondsMSB[8] SecondsLSB[9]
 // Color: Red[10], Green[11], Blue[12], White[13]
 const Characteristic AlarmCharacteristics[]
 {
-      {"21ec2541-a87d-45f6-a5d8-27aa9f742501", ALARM_SERVICE_UUID, READ_WRITE},  // Current Time
-      {"21ec2541-a87d-45f6-a5d8-27aa9f742502", ALARM_SERVICE_UUID, READ_WRITE},  // Alarm 1 
+  {"21ec2541-a87d-45f6-a5d8-27aa9f742501", ALARM_SERVICE_UUID, READ_WRITE},      // Current Time
+      {"21ec2541-a87d-45f6-a5d8-27aa9f742502", ALARM_SERVICE_UUID, READ_WRITE},  // Alarm 1
       {"21ec2541-a87d-45f6-a5d8-27aa9f742503", ALARM_SERVICE_UUID, READ_WRITE},  // Alarm 2
       {"21ec2541-a87d-45f6-a5d8-27aa9f742504", ALARM_SERVICE_UUID, READ_WRITE},  // Alarm 3
       {"21ec2541-a87d-45f6-a5d8-27aa9f742505", ALARM_SERVICE_UUID, READ_WRITE},  // Alarm 4
@@ -93,7 +89,7 @@ const Characteristic AlarmCharacteristics[]
 // Parameter Service Characteristics
 const Characteristic ConfigurationCharacteristics[]
 {
-      {"f0e9cb41-1b2b-4799-ab36-0ddb25e70901", CONFIGURATION_SERVICE_UUID, READ_WRITE}, // Number of LEDs Night Light Left
+  {"f0e9cb41-1b2b-4799-ab36-0ddb25e70901", CONFIGURATION_SERVICE_UUID, READ_WRITE},     // Number of LEDs Night Light Left
       {"f0e9cb41-1b2b-4799-ab36-0ddb25e70902", CONFIGURATION_SERVICE_UUID, READ_WRITE}, // Number of LEDs Night Light Right
       {"f0e9cb41-1b2b-4799-ab36-0ddb25e70903", CONFIGURATION_SERVICE_UUID, READ_WRITE}, // Hue value for Rotary Encoder
 }
@@ -176,31 +172,35 @@ class CallbackAlarm : public BLECharacteristicCallbacks
 {
   void onRead(BLECharacteristic *pCharacteristic)
   {
+    uint8_t uUIDLastChar = pCharacteristic->getUUID().toString()[35];
 
-    uint8_t uUUIDLastChar = pCharacteristic->getUUID().toString()[35];
-
-    if (uUUIDLastChar == '1')
+    if (uUIDLastChar == '1')
     {
       // Get the curernt time from the AlarmsManager
       TimeAndDate timeAndDate = alarmsManager.getTimeAndDate();
       uint8_t timeAndDateArray[] = {timeAndDate.year, timeAndDate.month, timeAndDate.day, timeAndDate.hours, timeAndDate.minutes, timeAndDate.seconds};
       pCharacteristic->setValue(timeAndDateArray, 6);
     }
-    else if (uUUIDLastChar >= '2' && uUUIDLastChar <= '5')
-
+    else
+    {
+      uint8_t alarmInstance = uUIDLastChar - '2';
       // Get the alarm time from the AlarmsManager
-      AlarmParameters alarmParameters = alarmsManager.getAlarm(Alarm(pCharacteristic->getUUID().toString()[35] - '2'));
+      AlarmParameters alarmParameters = alarmsManager.getAlarm(alarmInstance);
 
-    uint8_t alarm[] = {alarmParameters.weekdays, alarmParameters.hours, alarmParameters.minutes, alarmParameters.enabled};
-    pCharacteristic->setValue(alarm, 4);
+      uint8_t alarm[] = {(alarmParameters.color >> 24 & 0xFF), (alarmParameters.color >> 16 & 0xFF), (alarmParameters.color >> 8 & 0xFF), (alarmParameters.color & 0xFF),
+                         (alarmParameters.secondsToFullBrightness >> 8 & 0xFF), (alarmParameters.secondsToFullBrightness & 0xFF), alarmParameters.maxBrightness,
+                         alarmParameters.timeAndDateOff.weekday, alarmParameters.timeAndDateOff.hours, alarmParameters.timeAndDateOff.minutes,
+                         alarmParameters.timeAndDateOn.weekdays, alarmParameters.timeAndDateOn.hours, alarmParameters.timeAndDateOn.minutes, alarmParameters.enabled};
+      pCharacteristic->setValue(alarm, 4);
+    }
   }
 
   void onWrite(BLECharacteristic *pCharacteristic)
   {
-    switch (pCharacteristic->getUUID().toString()[35])
-    {
-    case '1':
-    {
+    uint8_t uUIDLastChar = pCharacteristic->getUUID().toString()[35];
+
+    if (uUIDLastChar == '1')
+    {      
       uint8_t *currentTime = pCharacteristic->getData();
 
       TimeAndDate timeAndDate;
@@ -213,19 +213,15 @@ class CallbackAlarm : public BLECharacteristicCallbacks
       timeAndDate.weekday = currentTime[6];
       alarmsManager.setTimeAndDate(timeAndDate);
     }
-    break;
-
-    case '2':
-    case '3':
-    case '4':
-    case '5':
-    case '6':
+    else    
     {
       uint8_t *currentAlarm = pCharacteristic->getData();
       AlarmParameters alarmParameters;
-      alarmParameters.weekdays = currentAlarm[3];
-      alarmParameters.hours = currentAlarm[2];
-      alarmParameters.minutes = currentAlarm[1];
+      alarmParameters.color = (currentAlarm[3] << 24) | (currentAlarm[2] << 16) | (currentAlarm[1] << 8) | currentAlarm[0];
+
+      alarmParameters.timeAndDateOn.weekdays = currentAlarm[3];
+      alarmParameters.timeAndDateOn.hours = currentAlarm[2];
+      alarmParameters.timeAndDateOn.minutes = currentAlarm[1];
       alarmParameters.enabled = currentAlarm[0];
       alarmsManager.setAlarm(Alarm(pCharacteristic->getUUID().toString()[35] - '2'), alarmParameters);
     }
