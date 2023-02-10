@@ -133,13 +133,12 @@ void MWST_Initialize()
 {
   ConfigManager configManager = ConfigManager::getInstance();
 
-  uint8_t ledsInStrip = (uint8_t)configManager.getParameter(DefaultConfigParameters[ID_STRIP_LEDS]);
-  uint8_t ledsNightLight = (uint8_t)configManager.getParameter(DefaultConfigParameters[ID_NL_LEDS]);
-  uint8_t pinStrip = (uint8_t)configManager.getParameter(DefaultConfigParameters[ID_PIN_STRIP]);
-  maxBrightness = (uint8_t)configManager.getParameter(DefaultConfigParameters[ID_MAX_BRIGHT]);
+  uint8_t ledsInStrip = (uint8_t)configManager.getParameter(DefaultParametersConfig[ID_LEDS_STRIP]);
+  uint8_t ledsNightLightLeft = (uint8_t)configManager.getParameter(DefaultParametersConfig[ID_LEDS_NL_LEFT]);
+  uint8_t ledsNightLightRight = (uint8_t)configManager.getParameter(DefaultParametersConfig[ID_LEDS_NL_RIGHT]);
+  
+  maxBrightness = MAX_BRIGTHNESS;
 
-  Serial.println("ledsInStrip: " + String(ledsInStrip));
-  Serial.println("ledsNightLight: " + String(ledsNightLight));
 
   strips[STRIP_CENTER].stripType = STRIP_CENTER;
   strips[STRIP_CENTER].currentState = MWST_DISABLED;
@@ -156,9 +155,9 @@ void MWST_Initialize()
   strips[STRIP_LEFT].currentColor = RgbwColor(0, 0, 0, 255);
   strips[STRIP_LEFT].setBrightness = maxBrightness;
   strips[STRIP_LEFT].currentBrightness = 0;
-  strips[STRIP_LEFT].numberOfLEDs = ledsNightLight;
+  strips[STRIP_LEFT].numberOfLEDs = ledsNightLightLeft;
   strips[STRIP_LEFT].numLEDsStart = 0;
-  strips[STRIP_LEFT].numLEDsStop = ledsNightLight - 1;
+  strips[STRIP_LEFT].numLEDsStop = ledsNightLightLeft - 1;
   strips[STRIP_LEFT].brightnessDir = INCREASE_BRIGHTNESS;
 
   strips[STRIP_RIGHT].stripType = STRIP_RIGHT;
@@ -166,8 +165,8 @@ void MWST_Initialize()
   strips[STRIP_RIGHT].currentColor = RgbwColor(0, 0, 0, 255);
   strips[STRIP_RIGHT].setBrightness = maxBrightness;
   strips[STRIP_RIGHT].currentBrightness = 0;
-  strips[STRIP_RIGHT].numberOfLEDs = ledsNightLight;
-  strips[STRIP_RIGHT].numLEDsStart = ledsInStrip - ledsNightLight;
+  strips[STRIP_RIGHT].numberOfLEDs = ledsNightLightRight;
+  strips[STRIP_RIGHT].numLEDsStart = ledsInStrip - ledsNightLightRight;
   strips[STRIP_RIGHT].numLEDsStop = ledsInStrip - 1;
   strips[STRIP_RIGHT].brightnessDir = INCREASE_BRIGHTNESS;
 

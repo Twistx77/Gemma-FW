@@ -25,10 +25,7 @@ void AlarmsManager::initialize()
     // Intitialize alarms to 0
     for (int i = 0; i < ALARMS_MAX; i++)
     {
-        this->alarms[i].enabled = 0;
-        this->alarms[i].hours = 0;
-        this->alarms[i].minutes = 0;
-        this->alarms[i].weekdays = 0;
+        this->alarms[i].enabled = 0;        
     }
     // Initialize the RTC
     rtc.initialize();
@@ -86,18 +83,18 @@ void AlarmsManager::setAlarm(Alarm alarm, AlarmParameters parameters)
     // Check if parameters are valid:
     // - Enabled: 0 or 1
     // - Alarm Time On : 0 <= hour <= 23, 0 <= minutes <= 59
-    // - Weekdays On : 0 <= weekdays <= 127
+    // - Weekday : 0 <= weekday <= 127
     // - Alarm Time Off : 0 <= hour <= 23, 0 <= minutes <= 59
-    // - Weekdays Off : 0 <= weekdays <= 127
+    // - Weekday Off : 0 <= weekday <= 127
     // - Max brightness : 0 <= max brightness <= 255
     // - Seconds to Full Brightness : 0 <= seconds to full brightness <= 65535
     if (parameters.enabled < 0 || parameters.enabled > 1 ||
         parameters.timeAndDateOn.hours < 0 || parameters.timeAndDateOn.hours > 23 ||
         parameters.timeAndDateOn.minutes < 0 || parameters.timeAndDateOn.minutes > 59 ||
-        parameters.weekdaysOn < 0 || parameters.weekdaysOn > 127 ||
+        parameters.timeAndDateOn.weekday < 0 || parameters.timeAndDateOn.weekday > 127 ||
         parameters.timeAndDateOff.hours < 0 || parameters.timeAndDateOff.hours > 23 ||
         parameters.timeAndDateOff.minutes < 0 || parameters.timeAndDateOff.minutes > 59 ||
-        parameters.weekdaysOff < 0 || parameters.weekdaysOff > 127 ||
+        parameters.timeAndDateOff.weekday < 0 || parameters.timeAndDateOff.weekday > 127 ||
         parameters.maxBrightness < 0 || parameters.maxBrightness > 255 ||
         parameters.secondsToFullBrightness < 0 || parameters.secondsToFullBrightness > MAX_SECONDS_TO_FULL_BRIGHTNESS)
         return;
@@ -137,11 +134,13 @@ bool AlarmsManager::checkAlarms()
     for (int i = 0; i < ALARMS_MAX; i++)
     {
         if (this->alarms[i].enabled == 1 &&
-            alarms[i].hours == hours &&
-            alarms[i].minutes == minutes &&
-            alarms[i].weekdays & (1 << (weekday - 1)))
+            this->alarms[i].timeAndDateOn.hours == hours &&
+            this->alarms[i].timeAndDateOn.minutes == minutes &&
+            (this->alarms[i].timeAndDateOn.weekday & (1 << (weekday - 1))) != 0)
         {
-            Serial.println("Alarm " + String(i) + " triggered");
+            Serial.println("Alarm " + String(i) + " triggered");  // TODO: IMPLEMENT ALARM TRIGGERED and OFF
+
+
             return true; // Alarm triggered
         }
     }

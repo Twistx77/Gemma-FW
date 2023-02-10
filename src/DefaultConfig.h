@@ -14,6 +14,8 @@ static BluetoothSerial SerialBT;
 
 #define DEFAULT_SATURATION 0.6f
 
+#define MAX_BRIGTHNESS 255
+
 #define ROTARY_ENCODER_MAX_VALUE_COLOR 512.0      // TODO: REPLACE CONFIG MANAGER
 
 #define NL_BRIGHTNESS_CHANGE_DELAY_MS 15 // Delay it takes between steps of brigthness for the night light

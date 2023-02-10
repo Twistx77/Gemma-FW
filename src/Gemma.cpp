@@ -57,7 +57,6 @@ void setup()
   {
     MWST_ToggleStripState(STRIP_CENTER);
     MWST_SetBrightness(STRIP_CENTER, 100);
-    MWST_SetStripColor(STRIP_CENTER, RgbwColor(0, 0x30, 0x10, 0));
 
     MWST_SetStripColor(STRIP_CENTER, RgbwColor(0x30, 0, 0x30));
     MWUP_EnterBootloaderMode();

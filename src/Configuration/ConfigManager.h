@@ -26,6 +26,10 @@ public:
 
   // Initialize the configuration manager
   bool initialize();
+  // Deinitialize the configuration manager
+  void deinitialize();
+  // Reset the configuration to default
+  void resetToDefault();
   // Get a specific parameter value
   uint32_t getParameter(ConfigParameter parameter);
   // Set a specific parameter value

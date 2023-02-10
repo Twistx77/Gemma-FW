@@ -25,14 +25,14 @@ bool ConfigManager::initialize()
   }
 
   // Check if all config parameters are present in the NVS if not, add them with the default value
-  for (int i = 0; i < sizeof(DefaultConfigParameters) / sizeof(ConfigParameter); i++)
+  for (int i = 0; i < sizeof(DefaultParametersConfig) / sizeof(ConfigParameter); i++)
   {
     uint32_t value;
-    esp_err_t err = nvs_get_u32(ConfigManager::nvsHandle, DefaultConfigParameters[i].key, &value);
+    esp_err_t err = nvs_get_u32(ConfigManager::nvsHandle, DefaultParametersConfig[i].key, &value);
     if (err != ESP_OK)
     {
       // Set the default value
-      err = nvs_set_u32(ConfigManager::nvsHandle, DefaultConfigParameters[i].key, DefaultConfigParameters[i].defaultValue);
+      err = nvs_set_u32(ConfigManager::nvsHandle, DefaultParametersConfig[i].key, DefaultParametersConfig[i].defaultValue);
       if (err != ESP_OK)
       {
         // Handle the error
@@ -41,6 +41,20 @@ bool ConfigManager::initialize()
     }
   }
   return true;
+}
+
+void ConfigManager::deinitialize()
+{
+  // Close the NVS namespace
+  nvs_close(ConfigManager::nvsHandle);
+}
+
+void ConfigManager::resetToDefault()
+{
+  // Erase the NVS namespace
+  nvs_erase_all(ConfigManager::nvsHandle);
+  // Commit the changes to flash storage
+  nvs_commit(ConfigManager::nvsHandle);
 }
 
 uint32_t ConfigManager::getParameter(ConfigParameter parameter)
