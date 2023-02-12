@@ -40,8 +40,8 @@ typedef struct Characteristic
 // Info Service Charactersitics array
 const Characteristic DeviceInfoCharacteristics[] =
     {
-        {"99704284-4d6b-4812-a599-cfd570230c47", DEVICE_INFO_SERVICE_UUID, READ_ONLY}, // FW Version
-        {"4b88d539-a706-426e-885c-69bb0c04fa84", DEVICE_INFO_SERVICE_UUID, READ_ONLY}, // HW Version
+        {"99704284-4d6b-4812-a599-cfd570230c01", DEVICE_INFO_SERVICE_UUID, READ_ONLY}, // FW Version
+        {"99704284-4d6b-4812-a599-cfd570230c02", DEVICE_INFO_SERVICE_UUID, READ_ONLY}, // HW Version
 
 };
 
@@ -71,17 +71,17 @@ const Characteristic ControlCharacteristics[]{
 // Delay Max Brightness: SecondsMSB[8] SecondsLSB[9]
 // Color: Red[10], Green[11], Blue[12], White[13]
 const Characteristic AlarmCharacteristics[]{
-    {"21ec2541-a87d-45f6-a5d8-27aa9f742501", ALARM_SERVICE_UUID, READ_WRITE},  // Current Time
-    {"21ec2541-a87d-45f6-a5d8-27aa9f742502", ALARM_SERVICE_UUID, READ_WRITE},  // Alarm 1
-    {"21ec2541-a87d-45f6-a5d8-27aa9f742503", ALARM_SERVICE_UUID, READ_WRITE},  // Alarm 2
-    {"21ec2541-a87d-45f6-a5d8-27aa9f742504", ALARM_SERVICE_UUID, READ_WRITE},  // Alarm 3
-    {"21ec2541-a87d-45f6-a5d8-27aa9f742505", ALARM_SERVICE_UUID, READ_WRITE},  // Alarm 4
-    {"21ec2541-a87d-45f6-a5d8-27aa9f742506", ALARM_SERVICE_UUID, READ_WRITE},  // Alarm 5
-    {"21ec2541-a87d-45f6-a5d8-27aa9f742507", ALARM_SERVICE_UUID, READ_WRITE},  // Alarm 6
-    {"21ec2541-a87d-45f6-a5d8-27aa9f742508", ALARM_SERVICE_UUID, READ_WRITE},  // Alarm 7
-    {"21ec2541-a87d-45f6-a5d8-27aa9f742509", ALARM_SERVICE_UUID, READ_WRITE},  // Alarm 8
-    {"21ec2541-a87d-45f6-a5d8-27aa9f7425010", ALARM_SERVICE_UUID, READ_WRITE}, // Alarm 9
-    {"21ec2541-a87d-45f6-a5d8-27aa9f7425011", ALARM_SERVICE_UUID, READ_WRITE}, // Alarm 10
+    {"21ec2541-a87d-45f6-a5d8-27aa9f742501", ALARM_SERVICE_UUID, READ_WRITE}, // Current Time
+    {"21ec2541-a87d-45f6-a5d8-27aa9f742502", ALARM_SERVICE_UUID, READ_WRITE}, // Alarm 1
+    {"21ec2541-a87d-45f6-a5d8-27aa9f742503", ALARM_SERVICE_UUID, READ_WRITE}, // Alarm 2
+    {"21ec2541-a87d-45f6-a5d8-27aa9f742504", ALARM_SERVICE_UUID, READ_WRITE}, // Alarm 3
+    {"21ec2541-a87d-45f6-a5d8-27aa9f742505", ALARM_SERVICE_UUID, READ_WRITE}, // Alarm 4
+    {"21ec2541-a87d-45f6-a5d8-27aa9f742506", ALARM_SERVICE_UUID, READ_WRITE}, // Alarm 5
+    {"21ec2541-a87d-45f6-a5d8-27aa9f742507", ALARM_SERVICE_UUID, READ_WRITE}, // Alarm 6
+    {"21ec2541-a87d-45f6-a5d8-27aa9f742508", ALARM_SERVICE_UUID, READ_WRITE}, // Alarm 7
+    {"21ec2541-a87d-45f6-a5d8-27aa9f742509", ALARM_SERVICE_UUID, READ_WRITE}, // Alarm 8
+    {"21ec2541-a87d-45f6-a5d8-27aa9f742510", ALARM_SERVICE_UUID, READ_WRITE}, // Alarm 9
+    {"21ec2541-a87d-45f6-a5d8-27aa9f742511", ALARM_SERVICE_UUID, READ_WRITE}, // Alarm 10
 };
 
 // Parameter Service Characteristics
@@ -116,15 +116,12 @@ class CallbackDeviceInfo : public BLECharacteristicCallbacks
     {
     case '1':
     {
-      uint32_t fwVer = configManager.getParameter(DefaultParametersConfig[ID_FW_VERSION]);
-      uint8_t fwVersion[] = {(uint8_t)(fwVer >> 16 & 0xFF), (uint8_t) (fwVer >> 8 & 0xFF), (uint8_t) (fwVer & 0xFF)};
-      pCharacteristic->setValue(fwVersion, 3);
-      
+      pCharacteristic->setValue(FW_VERSION);
     }
-    break;     
+    break;
 
     case '2':
-      pCharacteristic->setValue("0.2");
+      pCharacteristic->setValue("1");
       break;
 
     default:
@@ -163,19 +160,19 @@ class CallbackControl : public BLECharacteristicCallbacks
     else if (stripType > 5 & stripType <= 8)
       stripType -= 6;
 
-      uint8_t value[1];
+    uint8_t value[1];
 
-      if (MWST_GetState(stripType) == MWST_ENABLED)
-      {
+    if (MWST_GetState(stripType) == MWST_ENABLED)
+    {
 
-        value[0] = {1};
-      }
-      else
-      {
-        value[0] = {0};        
-      }
+      value[0] = {1};
+    }
+    else
+    {
+      value[0] = {0};
+    }
 
-      pCharacteristic->setValue(value, 1);
+    pCharacteristic->setValue(value, 1);
 
   } // onRead
 };
@@ -199,10 +196,11 @@ class CallbackAlarm : public BLECharacteristicCallbacks
       // Get the alarm time from the AlarmsManager
       AlarmParameters alarmParameters = alarmsManager.getAlarm((Alarm)alarmInstance);
 
-      uint8_t alarm[] = {(alarmParameters.color >> 24 & 0xFF), (alarmParameters.color >> 16 & 0xFF), (alarmParameters.color >> 8 & 0xFF), (alarmParameters.color & 0xFF),
-                         (alarmParameters.secondsToFullBrightness >> 8 & 0xFF), (alarmParameters.secondsToFullBrightness & 0xFF), alarmParameters.maxBrightness,
+      uint8_t alarm[] = {(uint8_t)(alarmParameters.color >> 24 & 0xFF), (uint8_t)(alarmParameters.color >> 16 & 0xFF), (uint8_t)(alarmParameters.color >> 8 & 0xFF), (uint8_t)(alarmParameters.color & 0xFF),
+                         (uint8_t)(alarmParameters.secondsToFullBrightness >> 8 & 0xFF), (uint8_t)(alarmParameters.secondsToFullBrightness & 0xFF), alarmParameters.maxBrightness,
                          alarmParameters.timeAndDateOff.weekday, alarmParameters.timeAndDateOff.hours, alarmParameters.timeAndDateOff.minutes,
                          alarmParameters.timeAndDateOn.weekday, alarmParameters.timeAndDateOn.hours, alarmParameters.timeAndDateOn.minutes, alarmParameters.enabled};
+
       pCharacteristic->setValue(alarm, 14);
     }
   }
@@ -241,27 +239,26 @@ class CallbackAlarm : public BLECharacteristicCallbacks
       alarmParameters.timeAndDateOn.minutes = newAlarmParameters[1];
       alarmParameters.enabled = newAlarmParameters[0];
       alarmsManager.setAlarm(Alarm(uUIDLastChar - '1'), alarmParameters);
-    }   
+    }
   }
-}
-;
+};
 
 class CallbackConfiguration : public BLECharacteristicCallbacks
 {
 
   void onWrite(BLECharacteristic *pCharacteristic)
   {
-    ParameterID parameter = (ParameterID)(pCharacteristic->getUUID().toString()[35] - '0' + ID_FW_BUILD); // UUIDLastChar - 30 = 1
+    ParameterID parameter = (ParameterID)(pCharacteristic->getUUID().toString()[35] - '0' + ID_HW_VERSION); // UUIDLastChar - 30 = 1
 
-    if (parameter < ID_FW_BUILD && parameter >= MAX_CONFIG_PARAMETERS)
+    if (parameter < ID_HW_VERSION && parameter >= MAX_CONFIG_PARAMETERS)
     {
       configManager.setParameter(DefaultParametersConfig[parameter], pCharacteristic->getData()[0]);
     }
   }
   void onRead(BLECharacteristic *pCharacteristic)
   {
-    ParameterID parameter = (ParameterID)(pCharacteristic->getUUID().toString()[35] - '0' + ID_FW_BUILD); // UUIDLastChar - 30 = 1
-    if (parameter < ID_FW_BUILD && parameter >= MAX_CONFIG_PARAMETERS)
+    ParameterID parameter = (ParameterID)(pCharacteristic->getUUID().toString()[35] - '0' + ID_HW_VERSION); // UUIDLastChar - 30 = 1
+    if (parameter < ID_HW_VERSION && parameter >= MAX_CONFIG_PARAMETERS)
     {
       uint32_t value = configManager.getParameter(DefaultParametersConfig[parameter]);
       pCharacteristic->setValue(value);
@@ -274,7 +271,7 @@ class CallbackServiceCommands : public BLECharacteristicCallbacks
 
   void onWrite(BLECharacteristic *pCharacteristic)
   {
-    uint8_t uUIDLastChar = pCharacteristic->getUUID().toString()[35] - '0' + ID_FW_BUILD; // UUIDLastChar - 30
+    uint8_t uUIDLastChar = pCharacteristic->getUUID().toString()[35] - '0' + ID_HW_VERSION; // UUIDLastChar - 30
     switch (uUIDLastChar)
     {
     case 1: // '01' Reset device
@@ -309,18 +306,18 @@ class CallbackServiceCommands : public BLECharacteristicCallbacks
   }
   void onRead(BLECharacteristic *pCharacteristic)
   {
-    uint8_t uUIDLastChar = pCharacteristic->getUUID().toString()[35] - '0' + ID_FW_BUILD; // UUIDLastChar - 30
+    uint8_t uUIDLastChar = pCharacteristic->getUUID().toString()[35] - '0' + ID_HW_VERSION; // UUIDLastChar - 30
     switch (uUIDLastChar)
     {
-      case 16: // '10' Set number of LEDS in strip
-      case 17: // '11' Captouch threshold
-      case 18: // '12' Encoder Resolution
-      {
-        uint8_t parameterID = uUIDLastChar - 16 + ID_LEDS_STRIP;
-        uint32_t value = configManager.getParameter(DefaultParametersConfig[uUIDLastChar]);
-        pCharacteristic->setValue(value);
-      }
-      break;
+    case 16: // '10' Set number of LEDS in strip
+    case 17: // '11' Captouch threshold
+    case 18: // '12' Encoder Resolution
+    {
+      uint8_t parameterID = uUIDLastChar - 16 + ID_LEDS_STRIP;
+      uint32_t value = configManager.getParameter(DefaultParametersConfig[uUIDLastChar]);
+      pCharacteristic->setValue(value);
+    }
+    break;
     }
   }
 };
@@ -373,7 +370,7 @@ void BLEHandler_Initialize()
   pDeviceInfoService->start();
 
   BLEService *pControlService = pServer->createService(CONTROL_SERVICE_UUID);
-                                    pAdvertising->addServiceUUID(pControlService->getUUID());
+  pAdvertising->addServiceUUID(pControlService->getUUID());
   for (uint8_t i = 0; i < sizeof(ControlCharacteristics) / sizeof(Characteristic); i++)
   {
     BLECharacteristic *pCharacteristic = pControlService->createCharacteristic(
@@ -417,6 +414,7 @@ void BLEHandler_Initialize()
         ServiceCommandsCharacteristics[i].properties);
     pCharacteristic->setCallbacks(new CallbackServiceCommands());
   }
+
   pServiceCommandsService->start();
 
   pAdvertising->setScanResponse(true);

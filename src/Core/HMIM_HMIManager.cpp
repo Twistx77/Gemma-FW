@@ -1,7 +1,6 @@
 #include "MW_Strip.h"
 #include "HMIM_HMIManager.h"
 
-
 #include "driver/touch_pad.h"
 #include "soc/sens_periph.h"
 
@@ -88,13 +87,10 @@ TouchState_T readTouchSensorState(uint8_t sensor)
 
     if (touchValue < touchThresholds[sensor])
     {
-
-      /* if(sensor == 0)
-        {
-            digitalWrite(PIN_LED, HIGH);
-        }*/
-        
-
+        /* if(sensor == 0)
+          {
+              digitalWrite(PIN_LED, HIGH);
+          }*/
         return (TOUCHED);
     }
     else
@@ -124,18 +120,18 @@ void processTouchInputs()
         {
             if (lastState[sensor] == TOUCHED)
             {
-               // Serial.println("Touched and held ");
+                // Serial.println("Touched and held ");
                 if ((millis() - lastTimePressed[sensor]) > LONG_TOUCH_DURATION_MS)
                 {
                     if (touchSensorsEvents[sensor] == NO_EVENT)
                     {
                         touchSensorsEvents[sensor] = LONG_TOUCH_EVENT;
-                   //     Serial.println("Long " + String(sensor));
+                        //     Serial.println("Long " + String(sensor));
                     }
                     else if (touchSensorsEvents[sensor] == LONG_TOUCH_EVENT)
                     {
                         MWST_IncreaseStripIlumination(sensor, 1);
-                    //    Serial.println("Increasing Brightness " + String(sensor));
+                        //    Serial.println("Increasing Brightness " + String(sensor));
                     }
                 }
             }
@@ -144,14 +140,14 @@ void processTouchInputs()
 
                 lastState[sensor] = TOUCHED;
                 lastTimePressed[sensor] = millis();
-              //  Serial.println("Touched First Time " + String(sensor));
+                //  Serial.println("Touched First Time " + String(sensor));
             }
         }
         else
         {
             if (lastState[sensor] == TOUCHED)
             {
-                //Serial.println("Finish Touch " + String(sensor));
+                // Serial.println("Finish Touch " + String(sensor));
                 if (touchSensorsEvents[sensor] != LONG_TOUCH_EVENT)
                 {
                     clickHandler(touchSensorTypes[sensor]);
@@ -159,7 +155,7 @@ void processTouchInputs()
                 else
                 {
                     MWST_ToggleIncreaseBrightness(sensor);
-                   // Serial.println("Toggling Brightness " + String(sensor));
+                    // Serial.println("Toggling Brightness " + String(sensor));
                 }
                 lastState[sensor] = NOT_TOUCHED;
                 touchSensorsEvents[sensor] = NO_EVENT;
@@ -191,8 +187,6 @@ void HMIM_Initialize()
         delay(100); // Wait for configuration to settle
 
         touch_pad_read_filtered(sensorsInput[sensor], &touchValue);
-
-        Serial.println("Touch sensor " + String(sensor) + " value: " + String(touchValue));
 
         touchThresholds[sensor] = touchValue * TOUCH_THRESHOLD_PROPORTION;
     }

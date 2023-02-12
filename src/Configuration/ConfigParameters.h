@@ -19,8 +19,7 @@ typedef struct ConfigParameter
 // Enum to specify the device info parameter IDs
 enum ParameterID
 {
-    ID_FW_VERSION,
-    ID_FW_BUILD,
+    ID_HW_VERSION,
     ID_LEDS_NL_LEFT,
     ID_LEDS_NL_RIGHT,
     ID_HUE_ENCODER,
@@ -32,15 +31,14 @@ enum ParameterID
 
 // Array to store the parameters key, default value, min value and max value
 const ConfigParameter DefaultParametersConfig[] = {
-    {"FW_VER", 0, 0, 0xDEADBEEF},
-    {"FW_BUILD", 0, 0, 0x000000000},
 
-    {"NL_LEFT", 0, 0, 0xFFFFFFFF},
-    {"NL_RIGHT", 0, 0, 0xFFFFFFFF},
-    {"HUE_ENC", 0, 0, 0xFFFFFFFF},
-    {"LEDS_STRIP", 0, 0, 0xFFFFFFFF},
-    {"TOUCH_THD", 0, 0, 0xFFFFFFFF},
-    {"ENC_RES", 0, 0, 0xFFFFFFFF}
+    {"HW_VER", 0, 255, 3},
+    {"NL_LEFT", 4, 0, 60},
+    {"NL_RIGHT", 0, 0, 60},
+    {"HUE_ENC", 60, 1, 100},
+    {"LEDS_STRIP", 106, 0, 150},
+    {"TOUCH_THD", 20, 100, 90},
+    {"ENC_RES", 10, 65535, 255}
     };
 
 #endif // CONFIG_PARAMETERS_H_
