@@ -4,55 +4,6 @@ from bleak import BleakScanner
 import time
 import re
 
-'''
-    "667d724e-4540-4123-984f-9ad6082212ba", // SWITCH_SERVICE_UUID
-    "4b698caa-abfa-4f8b-b136-42590f64652e", // PARAMETERS_SERVICE_UUID
-    "052699e8-1a9b-40fb-a14b-00b0772187d9", // TIME_SERVICE_UUID
-    "21ec2541-a87d-45f6-a5d8-27aa9f742502", // DEVICE_INFO_SERVICE_UUID
-    '''
-# Dictionary with all services and their UUIDs
-
-
-''' {"14cdad1f-1b15-41ee-9f51-d5caaf940d01", CONTROL_SERVICE_UUID, READ_WRITE}, // Swtich Center
-    {"14cdad1f-1b15-41ee-9f51-d5caaf940d02", CONTROL_SERVICE_UUID, READ_WRITE}, // Switch Left
-    {"14cdad1f-1b15-41ee-9f51-d5caaf940d03", CONTROL_SERVICE_UUID, READ_WRITE}, // Switch Right
-    {"14cdad1f-1b15-41ee-9f51-d5caaf940d04", CONTROL_SERVICE_UUID, READ_WRITE}, // Color Center
-    {"14cdad1f-1b15-41ee-9f51-d5caaf940d05", CONTROL_SERVICE_UUID, READ_WRITE}, // Color Left
-    {"14cdad1f-1b15-41ee-9f51-d5caaf940d06", CONTROL_SERVICE_UUID, READ_WRITE}, // Color Right
-    {"14cdad1f-1b15-41ee-9f51-d5caaf940d07", CONTROL_SERVICE_UUID, READ_WRITE}, // Brightness Center
-    {"14cdad1f-1b15-41ee-9f51-d5caaf940d08", CONTROL_SERVICE_UUID, READ_WRITE}, // Brightness Left
-    {"14cdad1f-1b15-41ee-9f51-d5caaf940d09", CONTROL_SERVICE_UUID, READ_WRITE}, // Brightness Right
-};'''
-
-'''    {"21ec2541-a87d-45f6-a5d8-27aa9f742501", ALARM_SERVICE_UUID, READ_WRITE}, // Current Time
-    {"21ec2541-a87d-45f6-a5d8-27aa9f742502", ALARM_SERVICE_UUID, READ_WRITE}, // Alarm 1
-    {"21ec2541-a87d-45f6-a5d8-27aa9f742503", ALARM_SERVICE_UUID, READ_WRITE}, // Alarm 2
-    {"21ec2541-a87d-45f6-a5d8-27aa9f742504", ALARM_SERVICE_UUID, READ_WRITE}, // Alarm 3
-    {"21ec2541-a87d-45f6-a5d8-27aa9f742505", ALARM_SERVICE_UUID, READ_WRITE}, // Alarm 4
-    {"21ec2541-a87d-45f6-a5d8-27aa9f742506", ALARM_SERVICE_UUID, READ_WRITE}, // Alarm 5
-    {"21ec2541-a87d-45f6-a5d8-27aa9f742507", ALARM_SERVICE_UUID, READ_WRITE}, // Alarm 6
-    {"21ec2541-a87d-45f6-a5d8-27aa9f742508", ALARM_SERVICE_UUID, READ_WRITE}, // Alarm 7
-    {"21ec2541-a87d-45f6-a5d8-27aa9f742509", ALARM_SERVICE_UUID, READ_WRITE}, // Alarm 8
-    {"21ec2541-a87d-45f6-a5d8-27aa9f742510", ALARM_SERVICE_UUID, READ_WRITE}, // Alarm 9
-    {"21ec2541-a87d-45f6-a5d8-27aa9f742511", ALARM_SERVICE_UUID, READ_WRITE}, // Alarm 10
-'''
-'''
-// Parameter Service Characteristics
-const Characteristic ConfigurationCharacteristics[]{
-    {"f0e9cb41-1b2b-4799-ab36-0ddb25e70901", CONFIGURATION_SERVICE_UUID, READ_WRITE}, // Number of LEDs Night Light Left
-    {"f0e9cb41-1b2b-4799-ab36-0ddb25e70902", CONFIGURATION_SERVICE_UUID, READ_WRITE}, // Number of LEDs Night Light Right
-    {"f0e9cb41-1b2b-4799-ab36-0ddb25e70903", CONFIGURATION_SERVICE_UUID, READ_WRITE}, // Hue value for Rotary Encoder
-};'''
-
-'''
-    {"2f7980c8-28d0-4c1c-ad2c-78036e8faf01", SERVICE_COMMANDS_UUID, WRITE_ONLY}, // Reset Device
-    {"2f7980c8-28d0-4c1c-ad2c-78036e8faf02", SERVICE_COMMANDS_UUID, WRITE_ONLY}, // Go to Bootloader
-    {"2f7980c8-28d0-4c1c-ad2c-78036e8faf03", SERVICE_COMMANDS_UUID, WRITE_ONLY}, // Reset to Factory Defaults
-
-    {"2f7980c8-28d0-4c1c-ad2c-78036e8faf10", SERVICE_COMMANDS_UUID, READ_WRITE}, // Number of LEDs in Strip
-    {"2f7980c8-28d0-4c1c-ad2c-78036e8faf11", SERVICE_COMMANDS_UUID, READ_WRITE}, // Captouch Threshold
-    {"2f7980c8-28d0-4c1c-ad2c-78036e8faf12", SERVICE_COMMANDS_UUID, READ_WRITE}, // Encoder Resolution
-};'''
 # dictionary with all characteristics their UUIDs and default vaules
 gemma_characteristics = {
     "FW_VERSION": {"uuid": "99704284-4d6b-4812-a599-cfd570230c01", "default_value": 0},
@@ -85,7 +36,9 @@ gemma_characteristics = {
     "START_BOOTLOADER": {"uuid": "2f7980c8-28d0-4c1c-ad2c-78036e8faf02", "default_value": 0},
     "RESET_FACTORY_SETTINGS": {"uuid": "2f7980c8-28d0-4c1c-ad2c-78036e8faf03", "default_value": 0},
     "LEDS_STRIP": {"uuid": "2f7980c8-28d0-4c1c-ad2c-78036e8faf10", "default_value": 0},
-    "ENCODER_RESOLUTION": {"uuid": "2f7980c8-28d0-4c1c-ad2c-78036e8faf11", "default_value": 0},  
+    "CAPTHOUCH_THRESHOLD": {"uuid": "2f7980c8-28d0-4c1c-ad2c-78036e8faf11", "default_value": 0},
+    "ENCODER_RESOLUTION": {"uuid": "2f7980c8-28d0-4c1c-ad2c-78036e8faf12", "default_value": 0},  
+    
 }
 
 
@@ -176,6 +129,81 @@ async def test_device_control(lamp, client):
         print("Color change failed")
         quit()
       
+    # Change the brightness of the light and read its value
+    for in in range(0,255, 50):
+        await client.write_gatt_char(gemma_characteristics[f"BRIGHTNESS_{lamp.upper()}"]["uuid"], bytearray([i]))
+        brihgtness = await client.read_gatt_char(gemma_characteristics[f"BRIGHTNESS_{lamp.upper()}"]["uuid"])
+        if brihgtness != bytearray([i]):
+            print("Brightness change failed")
+            quit()
+            
+            
+# test night lights leds and hue of encoder
+async def test_config_parameters(client):
+    # Change the number of leds in the left night light
+    await client.write_gatt_char(gemma_characteristics["LEDS_NL_LEFT"]["uuid"], bytearray([0x01]))
+    leds_nl = await client.read_gatt_char(gemma_characteristics["LEDS_NL_LEFT"]["uuid"])
+    if leds_nl != bytearray([0x01]):
+        print("Number of leds change failed")
+        quit()
+        
+    # Change the number of leds in the right night light
+    await client.write_gatt_char(gemma_characteristics["LEDS_NL_RIGHT"]["uuid"], bytearray([0x01]))
+    leds_nl = await client.read_gatt_char(gemma_characteristics["LEDS_NL_RIGHT"]["uuid"])
+    if leds_nl != bytearray([0x01]):
+        print("Number of leds change failed")
+        quit()
+
+        
+    # Change the hue of the encoder
+    await client.write_gatt_char(gemma_characteristics["HUE_ROTARY_ENCODER"]["uuid"], bytearray([0x20]))
+    hue = await client.read_gatt_char(gemma_characteristics["ENCODER_HUE"]["uuid"])
+    if hue != bytearray([0x20]):
+        print("Hue change failed")
+        quit()
+
+        
+# Test service commands
+async def test_service_commands(client):
+    
+    # Change the number of LEDs in the strip
+    await client.write_gatt_char(gemma_characteristics["LEDS_STRIP"] ["uuid"], bytearray([0x30]))
+    leds_strip = await client.read_gatt_char(gemma_characteristics["LEDS_STRIP"]["uuid"])
+    if leds_strip != bytearray([0x30]):
+        print("Number of leds change failed")
+        quit()
+    
+    # Change the captouch threshold
+    await client.write_gatt_char(gemma_characteristics["CAPTOUCH_THRESHOLD"]["uuid"], bytearray([0x20]))
+    captouch_thld = await client.read_gatt_char(gemma_characteristics["CAPTOUCH_THRESHOLD"]["uuid"])
+    if captouch_thld != bytearray([0x20]):
+        print("Cap Threshold change failed")
+        quit()
+        
+    # Change encoder resolution
+    await client.write_gatt_char(gemma_characteristics["ENCODER_RESOLUTION"]["uuid"], bytearray([0x21]))
+    encoder_res = await client.read_gatt_char(gemma_characteristics["ENCODER_RESOLUTION"]["uuid"])
+    if encoder_res != bytearray([0x21]):
+        print("Encoder resolution change failed")
+        quit()
+        
+    # Read number of LEDs in strip
+    await client.write_gatt_char(gemma_characteristics["LEDS_STRIP"] ["uuid"], bytearray([0x30]))
+    leds_strip = await client.read_gatt_char(gemma_characteristics["LEDS_STRIP"]["uuid"])
+    
+    # Reset to default values    
+    await client.write_gatt_char(gemma_characteristics["RESET_FACTORY_SETTINGS"]["uuid"], bytearray([0x01]))
+    
+    # Read the default number of LEDs in strip
+    await client.write_gatt_char(gemma_characteristics["LEDS_STRIP"] ["uuid"], bytearray([0x30]))
+    leds_strip = await client.read_gatt_char(gemma_characteristics["LEDS_STRIP"]["uuid"])
+    
+    if leds_strip != bytearray([106]): # 106 is the default value
+        print("Reset to default values failed")
+        quit()    
+        
+    
+    
     
 
 async def main():
