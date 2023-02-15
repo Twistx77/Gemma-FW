@@ -31,7 +31,7 @@ gemma_characteristics = {
     "ALARM_10": {"uuid": "21ec2541-a87d-45f6-a5d8-27aa9f742511", "default_value": 0},
     "LEDS_NL_LEFT": {"uuid": "f0e9cb41-1b2b-4799-ab36-0ddb25e70901", "default_value": 0},
     "LEDS_NL_RIGHT": {"uuid": "f0e9cb41-1b2b-4799-ab36-0ddb25e70902", "default_value": 0},
-    "HUE_ROTARY_ENCODER": {"uuid": "f0e9cb41-1b2b-4799-ab36-0ddb25e70903", "default_value": 0},
+    "SATURATION_ROT_ENC": {"uuid": "f0e9cb41-1b2b-4799-ab36-0ddb25e70903", "default_value": 0},
     "RESET_DEVICE": {"uuid": "2f7980c8-28d0-4c1c-ad2c-78036e8faf01", "default_value": 0},
     "START_BOOTLOADER": {"uuid": "2f7980c8-28d0-4c1c-ad2c-78036e8faf02", "default_value": 0},
     "RESET_FACTORY_SETTINGS": {"uuid": "2f7980c8-28d0-4c1c-ad2c-78036e8faf03", "default_value": 0},
@@ -115,27 +115,38 @@ async def test_device_control(lamp, client):
     if state != bytearray([0x01]):
         print("Switch on failed")
         quit()
+    print(f"Switch on {lamp.upper()} OK")
         
     await client.write_gatt_char(lamp_switch_uuid, bytearray([0x00]))
     state = await client.read_gatt_char(lamp_switch_uuid)
     if state != bytearray([0x00]):
         print("Switch off failed")
         quit()
+    print(f"Switch off {lamp.upper()} OK")
+
+    # Switch light on 
+    await client.write_gatt_char(lamp_switch_uuid, bytearray([0x01]))
         
     # Change the color of the light and read its value
-    await client.write_gatt_char(gemma_characteristics[f"COLOR_{lamp.upper()}"]["uuid"], bytearray([0xFF, 0x00, 0x00,0xFF]))
+    await client.write_gatt_char(gemma_characteristics[f"COLOR_{lamp.upper()}"]["uuid"], bytearray([0x00, 0x00, 0x20,0x20]))
     color = await client.read_gatt_char(gemma_characteristics[f"COLOR_{lamp.upper()}"]["uuid"]) 
-    if color != bytearray([0xFF, 0x00, 0x00,0xFF]):
+    if color != bytearray([0x00, 0x00, 0x20,0x20]):
         print("Color change failed")
         quit()
+    print(f"Color change {lamp.upper()} OK")
       
     # Change the brightness of the light and read its value
-    for in in range(0,255, 50):
+    for i in range(0,255, 50):
         await client.write_gatt_char(gemma_characteristics[f"BRIGHTNESS_{lamp.upper()}"]["uuid"], bytearray([i]))
         brihgtness = await client.read_gatt_char(gemma_characteristics[f"BRIGHTNESS_{lamp.upper()}"]["uuid"])
         if brihgtness != bytearray([i]):
             print("Brightness change failed")
             quit()
+            
+    print(f"Brightness change {lamp.upper()} OK")
+    
+    # Switch light off
+    await client.write_gatt_char(lamp_switch_uuid, bytearray([0x00]))
             
             
 # test night lights leds and hue of encoder
@@ -146,6 +157,7 @@ async def test_config_parameters(client):
     if leds_nl != bytearray([0x01]):
         print("Number of leds change failed")
         quit()
+    print("Number NL Left leds change OK")
         
     # Change the number of leds in the right night light
     await client.write_gatt_char(gemma_characteristics["LEDS_NL_RIGHT"]["uuid"], bytearray([0x01]))
@@ -153,14 +165,17 @@ async def test_config_parameters(client):
     if leds_nl != bytearray([0x01]):
         print("Number of leds change failed")
         quit()
+    print("Number NL Right leds change OK")
 
         
-    # Change the hue of the encoder
-    await client.write_gatt_char(gemma_characteristics["HUE_ROTARY_ENCODER"]["uuid"], bytearray([0x20]))
-    hue = await client.read_gatt_char(gemma_characteristics["ENCODER_HUE"]["uuid"])
-    if hue != bytearray([0x20]):
-        print("Hue change failed")
+    # Change the saturation of the encoder
+    await client.write_gatt_char(gemma_characteristics["SATURATION_ROT_ENC"]["uuid"], bytearray([0x20]))
+    saturation = await client.read_gatt_char(gemma_characteristics["SATURATION_ROT_ENC"]["uuid"])
+    if saturation != bytearray([0x20]):
+        print("Saturation change failed")
         quit()
+        
+    print("Hue change OK")
 
         
 # Test service commands
@@ -218,6 +233,8 @@ async def main():
         await test_device_control("CENTER", client)
         await test_device_control("LEFT", client)
         await test_device_control("RIGHT", client)
+        await test_config_parameters(client)
+        
         # wait for 1 seconds
         await asyncio.sleep(1.0)
 

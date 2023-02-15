@@ -6,6 +6,7 @@
 
 #include "../DefaultConfig.h"
 #include "../Drivers/AiEsp32RotaryEncoder.h"
+#include "../Configuration/ConfigManager.h"
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -47,6 +48,8 @@ uint8_t rotaryMode = ROTARY_BRIGHTNESS_MODE;
 const char *SENSOR_NAMES[] = {"Center", "Left", "Right"};
 
 uint8_t lastSensorControlled = STRIP_CENTER;
+
+float colorSaturationEncoder;
 
 // TODO: Check if these handlers are still needed. Implement one liner if possible
 void clickHandler(TouchSensor_t &sensor)
@@ -171,6 +174,12 @@ void processTouchInputs()
 
 void HMIM_Initialize()
 {
+    // Read configuration
+    ConfigManager configManager = ConfigManager::getInstance();
+
+    colorSaturationEncoder = (uint8_t)configManager.getParameter(DefaultParametersConfig[ID_SATURATION_ENCODER]) / 100.0;
+
+    // Initialize Touch Sensors
     touch_pad_init();
     touch_pad_set_fsm_mode(TOUCH_FSM_MODE_SW); // TOUCH_FSM_MODE_TIMER);
     touch_pad_set_voltage(TOUCH_HVOLT_2V7, TOUCH_LVOLT_0V5, TOUCH_HVOLT_ATTEN_0V);
@@ -240,9 +249,9 @@ void MWIH_ReadRotaryEncoder()
             if (encoder_value < (ROTARY_ENCODER_MAX_VALUE_COLOR / 2))
             {
                 float hue = encoder_value / (ROTARY_ENCODER_MAX_VALUE_COLOR / 2.0);
-                MWST_SetStripColor(STRIP_CENTER, RgbwColor(HsbColor(hue, DEFAULT_SATURATION, 1.0f)));
-                MWST_SetStripColor(STRIP_LEFT, RgbwColor(HsbColor(hue, DEFAULT_SATURATION, 1.0f)));
-                MWST_SetStripColor(STRIP_RIGHT, RgbwColor(HsbColor(hue, DEFAULT_SATURATION, 1.0f)));
+                MWST_SetStripColor(STRIP_CENTER, RgbwColor(HsbColor(hue, colorSaturationEncoder, 1.0f)));
+                MWST_SetStripColor(STRIP_LEFT, RgbwColor(HsbColor(hue, colorSaturationEncoder, 1.0f)));
+                MWST_SetStripColor(STRIP_RIGHT, RgbwColor(HsbColor(hue, colorSaturationEncoder, 1.0f)));
             }
             else
             {

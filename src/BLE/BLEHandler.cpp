@@ -88,7 +88,7 @@ const Characteristic AlarmCharacteristics[]{
 const Characteristic ConfigurationCharacteristics[]{
     {"f0e9cb41-1b2b-4799-ab36-0ddb25e70901", CONFIGURATION_SERVICE_UUID, READ_WRITE}, // Number of LEDs Night Light Left
     {"f0e9cb41-1b2b-4799-ab36-0ddb25e70902", CONFIGURATION_SERVICE_UUID, READ_WRITE}, // Number of LEDs Night Light Right
-    {"f0e9cb41-1b2b-4799-ab36-0ddb25e70903", CONFIGURATION_SERVICE_UUID, READ_WRITE}, // Hue value for Rotary Encoder
+    {"f0e9cb41-1b2b-4799-ab36-0ddb25e70903", CONFIGURATION_SERVICE_UUID, READ_WRITE}, // Saturation value for Rotary Encoder
 };
 
 // Service Commands Characteristics
@@ -138,11 +138,22 @@ class CallbackControl : public BLECharacteristicCallbacks
 
     // Color
     if (stripType > 2 & stripType <= 5)
+    {
       stripType -= 3;
+      MWST_SetStripColor(stripType, RgbwColor(pCharacteristic->getData()[0], pCharacteristic->getData()[1], pCharacteristic->getData()[2], pCharacteristic->getData()[3]));
+      return;
+    }
     // Brightness
     else if (stripType > 5 & stripType <= 8)
+    {
+      
       stripType -= 6;
+      MWST_SetBrightness(stripType, pCharacteristic->getData()[0]);
+      return;
 
+    }
+
+    // State
     uint8_t *state = pCharacteristic->getData();
 
     MWST_SetStripState(stripType, (state[0] == 1) ? MWST_ENABLED : MWST_DISABLED, EFFECT_FADE);
@@ -155,11 +166,23 @@ class CallbackControl : public BLECharacteristicCallbacks
 
     // Color
     if (stripType > 2 & stripType <= 5)
+    {
       stripType -= 3;
+      RgbwColor color = MWST_GetColor(stripType);
+      uint8_t colorArray[] = {color.R, color.G, color.B, color.W};
+      pCharacteristic->setValue(colorArray, 4);
+      return;
+    }
     // Brightness
     else if (stripType > 5 & stripType <= 8)
+    {
       stripType -= 6;
+      uint8_t brightness = MWST_GetCurrentBrightness(stripType);
+      pCharacteristic->setValue(&brightness, 1);
+      return;
+    }
 
+    // State
     uint8_t value[1];
 
     if (MWST_GetState(stripType) == MWST_ENABLED)
@@ -245,12 +268,11 @@ class CallbackAlarm : public BLECharacteristicCallbacks
 
 class CallbackConfiguration : public BLECharacteristicCallbacks
 {
-
   void onWrite(BLECharacteristic *pCharacteristic)
   {
     ParameterID parameter = (ParameterID)(pCharacteristic->getUUID().toString()[35] - '0' + ID_HW_VERSION); // UUIDLastChar - 30 = 1
 
-    if (parameter < ID_HW_VERSION && parameter >= MAX_CONFIG_PARAMETERS)
+    if (parameter > ID_HW_VERSION || parameter < MAX_CONFIG_PARAMETERS)
     {
       configManager.setParameter(DefaultParametersConfig[parameter], pCharacteristic->getData()[0]);
     }
@@ -258,8 +280,8 @@ class CallbackConfiguration : public BLECharacteristicCallbacks
   void onRead(BLECharacteristic *pCharacteristic)
   {
     ParameterID parameter = (ParameterID)(pCharacteristic->getUUID().toString()[35] - '0' + ID_HW_VERSION); // UUIDLastChar - 30 = 1
-    if (parameter < ID_HW_VERSION && parameter >= MAX_CONFIG_PARAMETERS)
-    {
+    if (parameter > ID_HW_VERSION || parameter < MAX_CONFIG_PARAMETERS)
+    {      
       uint32_t value = configManager.getParameter(DefaultParametersConfig[parameter]);
       pCharacteristic->setValue(value);
     }
@@ -271,8 +293,8 @@ class CallbackServiceCommands : public BLECharacteristicCallbacks
 
   void onWrite(BLECharacteristic *pCharacteristic)
   {
-    uint8_t uUIDLastChar = pCharacteristic->getUUID().toString()[35] - '0' + ID_HW_VERSION; // UUIDLastChar - 30
-    switch (uUIDLastChar)
+    uint8_t uUIDLastChars = pCharacteristic->getUUID().toString()[35]+ pCharacteristic->getUUID().toString()[34] - '0' + ID_HW_VERSION; // UUIDLastChar 
+    switch (uUIDLastChars)
     {
     case 1: // '01' Reset device
       ESP.restart();
@@ -293,8 +315,10 @@ class CallbackServiceCommands : public BLECharacteristicCallbacks
     case 17: // '11' Captouch threshold
     case 18: // '12' Encoder Resolution
     {
-      uint8_t parameterID = uUIDLastChar - 16 + ID_LEDS_STRIP;
-      configManager.setParameter(DefaultParametersConfig[uUIDLastChar], pCharacteristic->getData()[0]);
+      uint8_t parameterID = uUIDLastChars - 16 + ID_LEDS_STRIP;
+      Serial.println("ParameterID: " + String(parameterID));
+      Serial.println("ID_LEDS_STRIP: " + String(ID_LEDS_STRIP));
+      configManager.setParameter(DefaultParametersConfig[parameterID], pCharacteristic->getData()[0]);
     }
     break;
 
@@ -306,15 +330,17 @@ class CallbackServiceCommands : public BLECharacteristicCallbacks
   }
   void onRead(BLECharacteristic *pCharacteristic)
   {
-    uint8_t uUIDLastChar = pCharacteristic->getUUID().toString()[35] - '0' + ID_HW_VERSION; // UUIDLastChar - 30
-    switch (uUIDLastChar)
+    uint8_t uUIDLastChars = pCharacteristic->getUUID().toString()[35]+ pCharacteristic->getUUID().toString()[34] - '0' + ID_HW_VERSION; // UUIDLastChar 
+    switch (uUIDLastChars)
     {
     case 16: // '10' Set number of LEDS in strip
     case 17: // '11' Captouch threshold
     case 18: // '12' Encoder Resolution
     {
-      uint8_t parameterID = uUIDLastChar - 16 + ID_LEDS_STRIP;
-      uint32_t value = configManager.getParameter(DefaultParametersConfig[uUIDLastChar]);
+      uint8_t parameterID = uUIDLastChars - 16 + ID_LEDS_STRIP;
+      Serial.println("ParameterID: " + String(parameterID));
+      Serial.println("ID_LEDS_STRIP: " + String(ID_LEDS_STRIP));
+      uint32_t value = configManager.getParameter(DefaultParametersConfig[parameterID]);
       pCharacteristic->setValue(value);
     }
     break;
@@ -368,8 +394,8 @@ void BLEHandler_Initialize()
     pCharacteristic->setCallbacks(new CallbackDeviceInfo());
   }
   pDeviceInfoService->start();
-
-  BLEService *pControlService = pServer->createService(CONTROL_SERVICE_UUID);
+   BLEUUID controlServiceUUID(CONTROL_SERVICE_UUID);
+  BLEService *pControlService = pServer->createService(controlServiceUUID, 40, 0);
   pAdvertising->addServiceUUID(pControlService->getUUID());
   for (uint8_t i = 0; i < sizeof(ControlCharacteristics) / sizeof(Characteristic); i++)
   {
@@ -381,7 +407,7 @@ void BLEHandler_Initialize()
   pControlService->start();
 
   BLEUUID alarmServiceUUID(ALARM_SERVICE_UUID);
-  BLEService *pAlarmService = pServer->createService(alarmServiceUUID, 40, 0); // 40 is the maximum number of handles  numHandles = (# of Characteristics)*2  +  (# of Services) + (# of Characteristics with BLE2902)
+  BLEService *pAlarmService = pServer->createService(alarmServiceUUID, 40, 1); // 40 is the maximum number of handles  numHandles = (# of Characteristics)*2  +  (# of Services) + (# of Characteristics with BLE2902)
   pAdvertising->addServiceUUID(pAlarmService->getUUID());
   for (uint8_t i = 0; i < sizeof(AlarmCharacteristics) / sizeof(Characteristic); i++)
   {
@@ -393,7 +419,7 @@ void BLEHandler_Initialize()
   pAlarmService->start();
 
   BLEUUID configurationServiceUUID(CONFIGURATION_SERVICE_UUID);
-  BLEService *pConfigurationService = pServer->createService(configurationServiceUUID, 40, 1);
+  BLEService *pConfigurationService = pServer->createService(configurationServiceUUID, 40, 2);
   pAdvertising->addServiceUUID(pConfigurationService->getUUID());
   for (uint8_t i = 0; i < sizeof(ConfigurationCharacteristics) / sizeof(Characteristic); i++)
   {
@@ -405,7 +431,7 @@ void BLEHandler_Initialize()
   pConfigurationService->start();
 
   BLEUUID serviceCommandsUUID(SERVICE_COMMANDS_UUID);
-  BLEService *pServiceCommandsService = pServer->createService(serviceCommandsUUID, 40, 2);
+  BLEService *pServiceCommandsService = pServer->createService(serviceCommandsUUID, 40, 3);
   pAdvertising->addServiceUUID(pServiceCommandsService->getUUID());
   for (uint8_t i = 0; i < sizeof(ServiceCommandsCharacteristics) / sizeof(Characteristic); i++)
   {

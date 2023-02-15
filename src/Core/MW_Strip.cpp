@@ -139,7 +139,6 @@ void MWST_Initialize()
   
   maxBrightness = MAX_BRIGTHNESS;
 
-
   strips[STRIP_CENTER].stripType = STRIP_CENTER;
   strips[STRIP_CENTER].currentState = MWST_DISABLED;
   strips[STRIP_CENTER].currentColor = RgbwColor(0, 0, 0, 255);

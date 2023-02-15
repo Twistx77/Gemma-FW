@@ -22,7 +22,7 @@ enum ParameterID
     ID_HW_VERSION,
     ID_LEDS_NL_LEFT,
     ID_LEDS_NL_RIGHT,
-    ID_HUE_ENCODER,
+    ID_SATURATION_ENCODER,
     ID_LEDS_STRIP,
     ID_TOUCH_THRESHOLD,
     ID_ENCODER_RESOLUTION,    
@@ -34,9 +34,9 @@ const ConfigParameter DefaultParametersConfig[] = {
 
     {"HW_VER", 0, 255, 3},
     {"NL_LEFT", 4, 0, 60},
-    {"NL_RIGHT", 0, 0, 60},
-    {"HUE_ENC", 60, 1, 100},
-    {"LEDS_STRIP", 106, 0, 150},
+    {"NL_RIGHT", 4, 0, 60},
+    {"SAT_ENC", 60, 1, 100},
+    {"LEDS_STRIP", 20, 0, 150},
     {"TOUCH_THD", 20, 100, 90},
     {"ENC_RES", 10, 65535, 255}
     };
