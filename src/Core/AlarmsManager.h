@@ -68,10 +68,14 @@ public:
     void setAlarm(Alarm alarm, AlarmParameters parameters);
     AlarmParameters getAlarm(Alarm alarm);
     bool checkAlarms();
+    void checkBrightnessIncrease();
 
 private:
     PCF85063A rtc;
     AlarmParameters alarms[ALARMS_MAX - 1];
+    uint16_t secondsToFullBrightness = 0;
+    uint8_t brightnessIncrement = 0;
+    uint8_t alarmBrightness  = 0;
 };
 
 #endif // ALARMS_MANAGER_H

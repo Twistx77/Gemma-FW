@@ -11,11 +11,10 @@ static BluetoothSerial SerialBT;
 #define FW_VERSION "0.5.9.2302121242"
 #define HW_VERSION "0.3.0"
 
-#define MAX_NUMBER_OF_LEDS 105
 
 #define CAPTOUCH_THLD_BOOT 6
 
-#define MAX_BRIGTHNESS 255
+#define MAX_BRIGHTNESS 255
 
 #define ROTARY_ENCODER_MAX_VALUE_COLOR 512.0      // TODO: REPLACE CONFIG MANAGER
 
@@ -27,7 +26,7 @@ static BluetoothSerial SerialBT;
 #define ROTARY_ENCODER_B_PIN 23      // TODO: REPLACE CONFIG MANAGER
 #define ROTARY_ENCODER_BUTTON_PIN 26 // TODO: REPLACE CONFIG MANAGER
 
-#define ROTARY_ENCODER_STEPS 4 // TODO: REPLACE CONFIG MANAGER
+#define ROTARY_ENCODER_STEPS 1 
 
 #define ROTARY_BRIGHTNESS_MODE 0                  
 #define ROTARY_COLOR_MODE 1                       
@@ -74,6 +73,10 @@ static BluetoothSerial SerialBT;
 #endif
 
 #define ACTIVE_LOW CAPACITIVE_INPUT
+
+// Tasks delays in milliseconds
+#define TASK_DELAY_HMI_MS 10
+#define TASK_DELAY_ALARMS_MS 1000 
 
 
 

@@ -9,7 +9,6 @@
 #include "../DefaultConfig.h"
 #include "../Core/MW_Strip.h"
 #include "../Core/MW_Uploader.h"
-#include "../Core/AlarmsManager.h"
 #include "../Configuration/ConfigManager.h"
 #include "../Configuration/ConfigParameters.h"
 
@@ -42,7 +41,6 @@ const Characteristic DeviceInfoCharacteristics[] =
     {
         {"99704284-4d6b-4812-a599-cfd570230c01", DEVICE_INFO_SERVICE_UUID, READ_ONLY}, // FW Version
         {"99704284-4d6b-4812-a599-cfd570230c02", DEVICE_INFO_SERVICE_UUID, READ_ONLY}, // HW Version
-
 };
 
 // Control Service Charactersitics array
@@ -62,13 +60,14 @@ const Characteristic ControlCharacteristics[]{
 
 // Set Time Characteristic format
 // Seconds[0], Minutes[1], Hours[2], Day[3], Month[4], Year[5], Weekday[6]
+// Weekday = Monday = 0x01, Tuesday = 0x02, Wednesday = 0x04, Thursday = 0x08, Friday = 0x10, Saturday = 0x20, Sunday = 0x40
 
 // Alarm Characteristic format
 // Enabled[0]
 // Time ON: Minutes[1], Hours[2], Weekdays[3]
 // Time OFF: Minutes[4], Hours[5], Weekdays[6]
 // Max Brightness: Brightness[7]
-// Delay Max Brightness: SecondsMSB[8] SecondsLSB[9]
+// Delay Max Brightness: SecondsLSB[8] SecondsMSB[9]
 // Color: Red[10], Green[11], Blue[12], White[13]
 const Characteristic AlarmCharacteristics[]{
     {"21ec2541-a87d-45f6-a5d8-27aa9f742501", ALARM_SERVICE_UUID, READ_WRITE}, // Current Time
@@ -103,7 +102,7 @@ const Characteristic ServiceCommandsCharacteristics[]{
 };
 
 ConfigManager configManager = ConfigManager::getInstance();
-AlarmsManager alarmsManager;
+AlarmsManager *alarmsManagerBLE;
 
 bool deviceConnected = false;
 
@@ -208,21 +207,20 @@ class CallbackAlarm : public BLECharacteristicCallbacks
 
     if (uUIDLastChar == '1')
     {
-      // Get the curernt time from the AlarmsManager
-      TimeAndDate timeAndDate = alarmsManager.getTimeAndDate();
-      uint8_t timeAndDateArray[] = {timeAndDate.year, timeAndDate.month, timeAndDate.day, timeAndDate.hours, timeAndDate.minutes, timeAndDate.seconds};
+      // Get the curernt time from the alarmsManager
+      TimeAndDate timeAndDate = alarmsManagerBLE->getTimeAndDate();
+      uint8_t timeAndDateArray[] ={timeAndDate.seconds, timeAndDate.minutes, timeAndDate.hours, timeAndDate.day, timeAndDate.month, timeAndDate.year};
       pCharacteristic->setValue(timeAndDateArray, 6);
     }
     else
     {
-      uint8_t alarmInstance = uUIDLastChar - '1'; // Alarm 1 = 1 ->  '2' - '1' = 1
-      // Get the alarm time from the AlarmsManager
-      AlarmParameters alarmParameters = alarmsManager.getAlarm((Alarm)alarmInstance);
-
-      uint8_t alarm[] = {(uint8_t)(alarmParameters.color >> 24 & 0xFF), (uint8_t)(alarmParameters.color >> 16 & 0xFF), (uint8_t)(alarmParameters.color >> 8 & 0xFF), (uint8_t)(alarmParameters.color & 0xFF),
-                         (uint8_t)(alarmParameters.secondsToFullBrightness >> 8 & 0xFF), (uint8_t)(alarmParameters.secondsToFullBrightness & 0xFF), alarmParameters.maxBrightness,
-                         alarmParameters.timeAndDateOff.weekday, alarmParameters.timeAndDateOff.hours, alarmParameters.timeAndDateOff.minutes,
-                         alarmParameters.timeAndDateOn.weekday, alarmParameters.timeAndDateOn.hours, alarmParameters.timeAndDateOn.minutes, alarmParameters.enabled};
+      uint8_t alarmInstance = uUIDLastChar - '2'; // Alarm 1 = 0 ->  '2' - '2' = 0
+      // Get the alarm time from the alarmsManager
+      AlarmParameters alarmParameters = alarmsManagerBLE->getAlarm((Alarm)alarmInstance);
+      uint8_t alarm[] = {alarmParameters.enabled, alarmParameters.timeAndDateOn.minutes, alarmParameters.timeAndDateOn.hours, alarmParameters.timeAndDateOn.weekday,
+                          alarmParameters.timeAndDateOff.minutes, alarmParameters.timeAndDateOff.hours, alarmParameters.timeAndDateOff.weekday, alarmParameters.maxBrightness,
+                          (uint8_t)(alarmParameters.secondsToFullBrightness & 0xFF), (uint8_t)(alarmParameters.secondsToFullBrightness >> 8 & 0xFF),
+                          (uint8_t)(alarmParameters.color & 0xFF), (uint8_t)(alarmParameters.color >> 8 & 0xFF), (uint8_t)(alarmParameters.color >> 16 & 0xFF), (uint8_t)(alarmParameters.color >> 24 & 0xFF)};      
 
       pCharacteristic->setValue(alarm, 14);
     }
@@ -244,7 +242,7 @@ class CallbackAlarm : public BLECharacteristicCallbacks
       timeAndDate.month = currentTime[4];
       timeAndDate.year = currentTime[5];
       timeAndDate.weekday = currentTime[6];
-      alarmsManager.setTimeAndDate(timeAndDate);
+      alarmsManagerBLE->setTimeAndDate(timeAndDate);
     }
     else
     {
@@ -261,7 +259,8 @@ class CallbackAlarm : public BLECharacteristicCallbacks
       alarmParameters.timeAndDateOn.hours = newAlarmParameters[2];
       alarmParameters.timeAndDateOn.minutes = newAlarmParameters[1];
       alarmParameters.enabled = newAlarmParameters[0];
-      alarmsManager.setAlarm(Alarm(uUIDLastChar - '1'), alarmParameters);
+
+      alarmsManagerBLE->setAlarm(Alarm(uUIDLastChar - '2'), alarmParameters);
     }
   }
 };
@@ -293,7 +292,9 @@ class CallbackServiceCommands : public BLECharacteristicCallbacks
 
   void onWrite(BLECharacteristic *pCharacteristic)
   {
-    uint8_t uUIDLastChars = pCharacteristic->getUUID().toString()[35]+ pCharacteristic->getUUID().toString()[34] - '0' + ID_HW_VERSION; // UUIDLastChar 
+    uint8_t uUIDLastChars = pCharacteristic->getUUID().toString()[35] - '0' + 16 + pCharacteristic->getUUID().toString()[34] - '0'; // UUIDLastChars 
+    
+
     switch (uUIDLastChars)
     {
     case 1: // '01' Reset device
@@ -315,9 +316,7 @@ class CallbackServiceCommands : public BLECharacteristicCallbacks
     case 17: // '11' Captouch threshold
     case 18: // '12' Encoder Resolution
     {
-      uint8_t parameterID = uUIDLastChars - 16 + ID_LEDS_STRIP;
-      Serial.println("ParameterID: " + String(parameterID));
-      Serial.println("ID_LEDS_STRIP: " + String(ID_LEDS_STRIP));
+      uint8_t parameterID = uUIDLastChars - 16 + (ID_LEDS_STRIP-1);
       configManager.setParameter(DefaultParametersConfig[parameterID], pCharacteristic->getData()[0]);
     }
     break;
@@ -330,16 +329,15 @@ class CallbackServiceCommands : public BLECharacteristicCallbacks
   }
   void onRead(BLECharacteristic *pCharacteristic)
   {
-    uint8_t uUIDLastChars = pCharacteristic->getUUID().toString()[35]+ pCharacteristic->getUUID().toString()[34] - '0' + ID_HW_VERSION; // UUIDLastChar 
+    uint8_t uUIDLastChars = pCharacteristic->getUUID().toString()[35] - '0' + 16 + pCharacteristic->getUUID().toString()[34] - '0'; // UUIDLastChars 
+ 
     switch (uUIDLastChars)
     {
     case 16: // '10' Set number of LEDS in strip
     case 17: // '11' Captouch threshold
     case 18: // '12' Encoder Resolution
     {
-      uint8_t parameterID = uUIDLastChars - 16 + ID_LEDS_STRIP;
-      Serial.println("ParameterID: " + String(parameterID));
-      Serial.println("ID_LEDS_STRIP: " + String(ID_LEDS_STRIP));
+      uint8_t parameterID = uUIDLastChars - 16 + (ID_LEDS_STRIP-1);
       uint32_t value = configManager.getParameter(DefaultParametersConfig[parameterID]);
       pCharacteristic->setValue(value);
     }
@@ -363,7 +361,7 @@ class BLEConnectionsCallback : public BLEServerCallbacks
   }
 };
 
-void BLEHandler_Initialize()
+void BLEHandler_Initialize(AlarmsManager* alarmsManager)
 {
 
   // Get the uinoque chip ID to use as the name of the BLE device
@@ -374,6 +372,10 @@ void BLEHandler_Initialize()
   }
   String BLEName = "Gemma " + String(chipId, HEX);
 
+  // Initialize Alarm Manager
+  alarmsManagerBLE = alarmsManager;
+
+  // Initialize BLE
   BLEDevice::init(std::string(BLEName.c_str()));
 
   BLEServer *pServer = BLEDevice::createServer();
@@ -448,4 +450,5 @@ void BLEHandler_Initialize()
   pAdvertising->setMinPreferred(0x12);
 
   pAdvertising->start();
+  
 }

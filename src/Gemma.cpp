@@ -2,9 +2,10 @@
 
 #include "DefaultConfig.h"
 
-#include "./Core/HMIM_HMIManager.h"
-#include "./Core/MW_Uploader.h"
 #include "./Core/MW_Strip.h"
+#include "./Core/MW_Uploader.h"
+#include "./Core/AlarmsManager.h"
+#include "./Core/HMIM_HMIManager.h"
 
 #include "./Configuration/ConfigManager.h"
 
@@ -15,22 +16,30 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 
-bool previousState = false;
-// Initialize RTC
-PCF85063A rtc;
-void IRAM_ATTR rtc_int_isr() {
-  previousState = !previousState;
-}
+AlarmsManager alarmsManager;
 
+TaskHandle_t HMITaskHandle = NULL;
+TaskHandle_t AlarmsTaskHandle = NULL;
+
+// HMI Task
 void HMI_Task(void *arg)
 {
     while(1){
         HMIM_ProcessHMI();
-        vTaskDelay(10/ portTICK_RATE_MS);
+        vTaskDelay(TASK_DELAY_HMI_MS/ portTICK_RATE_MS);
     }
 }
 
-TaskHandle_t HMITaskHandle = NULL;
+// Alarms Task 
+void AlarmsTask(void *arg)
+{
+    while(1){
+        alarmsManager.checkAlarms();
+        vTaskDelay(TASK_DELAY_ALARMS_MS/ portTICK_RATE_MS);
+    }
+}
+
+
 void setup()
 {
     // Signage LED pin as output
@@ -42,11 +51,8 @@ void setup()
   // Initialize Configuration Manager
   ConfigManager configManager = ConfigManager::getInstance();
   configManager.initialize();
- 
 
-
-
-
+  
   pinMode(ROTARY_ENCODER_BUTTON_PIN, INPUT_PULLUP);
 
   // Strip initialization
@@ -61,10 +67,15 @@ void setup()
     MWST_SetStripColor(STRIP_CENTER, RgbwColor(0x30, 0, 0x30));
     MWUP_EnterBootloaderMode();
   }
+  
+  // Initialize Alarms Manager
+  alarmsManager.initialize();
+
+  
 
 #ifndef BT_DEBUG
   // Initialize BLE
-  BLEHandler_Initialize();
+  BLEHandler_Initialize(&alarmsManager);
 #else
   SerialBT.enableSSP();
   SerialBT.begin("GEMMA_DBG");
@@ -74,6 +85,7 @@ void setup()
   HMIM_Initialize();
 
   xTaskCreate(HMI_Task, "HMI_Task", 10000, NULL, 1, &HMITaskHandle);
+  xTaskCreate(AlarmsTask, "AlarmsTask", 10000, NULL, 1, &AlarmsTaskHandle);
   
   // Turn off Signage LED to indicate that the device is ready
   digitalWrite(PIN_LED_DEFAULT, LOW);
@@ -81,5 +93,5 @@ void setup()
 
 void loop()
 {
-  
+  // Idle
 }

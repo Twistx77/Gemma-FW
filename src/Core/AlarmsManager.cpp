@@ -2,6 +2,7 @@
 
 #include "AlarmsManager.h"
 #include "../DefaultConfig.h"
+#include "MW_Strip.h"
 
 #define MAX_SECONDS_TO_FULL_BRIGHTNESS 3600
 
@@ -18,15 +19,14 @@ static void IRAM_ATTR rtc_int_isr()
 // Initialize the AlarmsManager
 void AlarmsManager::initialize()
 {
-
     // Initialize the flag to false
     minuteIntFlag = false;
 
-    // Intitialize alarms to 0
+    /*// Intitialize alarms to 0
     for (int i = 0; i < ALARMS_MAX; i++)
     {
         this->alarms[i].enabled = 0;        
-    }
+    }*/
     // Initialize the RTC
     rtc.initialize();
 
@@ -51,7 +51,7 @@ void AlarmsManager::setTimeAndDate(TimeAndDate timeAndDate)
         timeAndDate.year < 0 || timeAndDate.year > 99 ||
         timeAndDate.month < 1 || timeAndDate.month > 12 ||
         timeAndDate.day < 1 || timeAndDate.day > 31 ||
-        timeAndDate.weekday < 1 || timeAndDate.weekday > 7)
+        timeAndDate.weekday < 1 || timeAndDate.weekday > 127)
         return;
 
     rtc.setTime(timeAndDate.hours, timeAndDate.minutes, timeAndDate.seconds);
@@ -119,6 +119,9 @@ AlarmParameters AlarmsManager::getAlarm(Alarm alarm)
 // Check if the alarm is triggered
 bool AlarmsManager::checkAlarms()
 {
+    // Check if brightness has to be increased for the alarm that is active
+    checkBrightnessIncrease();
+
     if (!minuteIntFlag)
         return false;
 
@@ -130,19 +133,62 @@ bool AlarmsManager::checkAlarms()
     uint8_t minutes = rtc.getMinute();
     uint8_t weekday = rtc.getWeekday();
 
+
     // Check if the alarm is triggered
     for (int i = 0; i < ALARMS_MAX; i++)
     {
-        if (this->alarms[i].enabled == 1 &&
-            this->alarms[i].timeAndDateOn.hours == hours &&
+        if (this->alarms[i].enabled == 1)
+        {
+            if (this->alarms[i].timeAndDateOn.hours == hours &&
             this->alarms[i].timeAndDateOn.minutes == minutes &&
             (this->alarms[i].timeAndDateOn.weekday & (1 << (weekday - 1))) != 0)
-        {
-            Serial.println("Alarm " + String(i) + " triggered");  // TODO: IMPLEMENT ALARM TRIGGERED and OFF
+            {
+                // Alarm ON triggered
+                RgbwColor color = RgbwColor(this->alarms[i].color & 0xFF, (this->alarms[i].color >> 8) & 0xFF, (this->alarms[i].color >> 16) & 0xFF, (this->alarms[i].color >> 24) & 0xFF);
+                
+                secondsToFullBrightness = this->alarms[i].secondsToFullBrightness;
 
+                brightnessIncrement = (float)this->alarms[i].maxBrightness / (float)secondsToFullBrightness;                
+                MWST_SetStripColor(STRIP_CENTER, color);                
+                MWST_SetBrightness(STRIP_CENTER, brightnessIncrement);                               
 
-            return true; // Alarm triggered
+                return true; // Alarm triggered
+            }
+            else
+            {
+                if (this->alarms[i].timeAndDateOff.hours == hours &&
+                    this->alarms[i].timeAndDateOff.minutes == minutes &&
+                    (this->alarms[i].timeAndDateOff.weekday & (1 << (weekday - 1))) != 0)
+                {
+                    // Alarm OFF triggered         
+                    MWST_SetStripState(STRIP_CENTER, MWST_DISABLED, EFFECT_FADE);
+                    return true; // Alarm triggered
+                }
+            }
         }
     }
     return false; // Alarm not triggered
 }
+
+// Check if brightness has to be increased
+void AlarmsManager::checkBrightnessIncrease()
+{
+
+    if  (secondsToFullBrightness == 0)
+        return;
+
+    secondsToFullBrightness--;
+
+    if (secondsToFullBrightness == 0)
+    {
+        // Set brightness to max alarm brightness
+        MWST_SetBrightness(STRIP_CENTER, alarmBrightness);
+        return;
+    }
+    else 
+    {
+    // Increase brightness by brightness increment 
+    MWST_SetBrightness(STRIP_CENTER, MWST_GetCurrentBrightness(STRIP_CENTER)+ brightnessIncrement);
+    } 
+}
+

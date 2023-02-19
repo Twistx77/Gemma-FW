@@ -16,9 +16,7 @@
 #define LONG_TOUCH_DURATION_MS 1200       // TODO: REPLACE CONFIG MANAGER
 #define TOUCHPAD_FILTER_TOUCH_PERIOD (10) // TODO: REPLACE CONFIG MANAGER
 #define TOUCH_THRESH_NO_USE (0)
-#define TOUCH_THRESHOLD_PROPORTION (0.85)
 #define NEW_THRESHOLD_PROPORTION (0.001)
-#define CURRENT_THRESHOLD_PROPORTION (1 - NEW_THRESHOLD_PROPORTION)
 
 // TODO: Check if this is actually needed
 typedef enum
@@ -86,23 +84,13 @@ TouchState_T readTouchSensorState(uint8_t sensor)
     uint16_t touchValue;
     touch_pad_read_raw_data(sensorsInput[sensor], &touchValue);
 
-    // touchThresholds[sensor] = touchThresholds[sensor]* CURRENT_THRESHOLD_PROPORTION + touchValue * TOUCH_THRESHOLD_PROPORTION*NEW_THRESHOLD_PROPORTION;
 
     if (touchValue < touchThresholds[sensor])
-    {
-        /* if(sensor == 0)
-          {
-              digitalWrite(PIN_LED, HIGH);
-          }*/
+    {      
         return (TOUCHED);
     }
     else
     {
-        /*
-        if(sensor == 0)
-        {
-            digitalWrite(PIN_LED, LOW);
-        }*/
         return (NOT_TOUCHED);
     }
 }
@@ -140,7 +128,6 @@ void processTouchInputs()
             }
             else
             {
-
                 lastState[sensor] = TOUCHED;
                 lastTimePressed[sensor] = millis();
                 //  Serial.println("Touched First Time " + String(sensor));
@@ -178,6 +165,7 @@ void HMIM_Initialize()
     ConfigManager configManager = ConfigManager::getInstance();
 
     colorSaturationEncoder = (uint8_t)configManager.getParameter(DefaultParametersConfig[ID_SATURATION_ENCODER]) / 100.0;
+    float capTouchThreshold = (uint8_t)configManager.getParameter(DefaultParametersConfig[ID_TOUCH_THRESHOLD])/100.0;
 
     // Initialize Touch Sensors
     touch_pad_init();
@@ -197,7 +185,7 @@ void HMIM_Initialize()
 
         touch_pad_read_filtered(sensorsInput[sensor], &touchValue);
 
-        touchThresholds[sensor] = touchValue * TOUCH_THRESHOLD_PROPORTION;
+        touchThresholds[sensor] = touchValue * capTouchThreshold;
     }
 
     rotaryEncoder.begin();

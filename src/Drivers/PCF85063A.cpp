@@ -16,9 +16,10 @@ void PCF85063A::setTime(uint8_t hour, uint8_t minute, uint8_t second)
 	Wire.endTransmission();
 }
 
-void PCF85063A::setDate(uint8_t weekday, uint8_t day, uint8_t month, uint8_t yr)
+void PCF85063A::setDate(uint8_t yr, uint8_t month, uint8_t day, uint8_t weekday)
 {
 	year = yr - 1970; 	// convert to RTC year format 0-99
+	weekday = weekday - 1; 	// convert to RTC weekday format 0-6
 
 	Wire.beginTransmission(I2C_ADDR);
 	Wire.write(RTC_DAY_ADDR);
