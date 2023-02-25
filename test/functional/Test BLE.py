@@ -196,27 +196,31 @@ async def test_alarm(client):
 
 # test night lights leds and hue of encoder
 async def test_config_parameters(client):
+    
     # Change the number of leds in the left night light
-    await client.write_gatt_char(gemma_characteristics["LEDS_NL_LEFT"]["uuid"], bytearray([0x01]))
+    set_value= bytearray([0x02, 0x00, 0x00, 0x00])
+    await client.write_gatt_char(gemma_characteristics["LEDS_NL_LEFT"]["uuid"], set_value)
     leds_nl = await client.read_gatt_char(gemma_characteristics["LEDS_NL_LEFT"]["uuid"])
-    if leds_nl != bytearray([0x01]):
-        print("Number of leds change failed")
+    if leds_nl != set_value:
+        print(f"Number of leds change failed.Expected NL Left {set_value}, read NL Left {leds_nl}")
         quit()
     print("Number NL Left leds change OK")
 
     # Change the number of leds in the right night light
-    await client.write_gatt_char(gemma_characteristics["LEDS_NL_RIGHT"]["uuid"], bytearray([0x01]))
+    set_value= bytearray([0x06, 0x00, 0x00, 0x00])
+    await client.write_gatt_char(gemma_characteristics["LEDS_NL_RIGHT"]["uuid"], set_value)
     leds_nl = await client.read_gatt_char(gemma_characteristics["LEDS_NL_RIGHT"]["uuid"])
-    if leds_nl != bytearray([0x01]):
-        print("Number of leds change failed")
+    if leds_nl != set_value:
+        print(f"Number of leds change failed. Expected NL Right {set_value}, read NL Right {leds_nl}")
         quit()
     print("Number NL Right leds change OK")
-
+    
     # Change the saturation of the encoder
-    await client.write_gatt_char(gemma_characteristics["SATURATION_ROT_ENC"]["uuid"], bytearray([0x20]))
+    set_value= bytearray([80, 0x00, 0x00, 0x00])
+    await client.write_gatt_char(gemma_characteristics["SATURATION_ROT_ENC"]["uuid"], set_value)
     saturation = await client.read_gatt_char(gemma_characteristics["SATURATION_ROT_ENC"]["uuid"])
-    if saturation != bytearray([0x20]):
-        print("Saturation change failed")
+    if saturation != set_value:
+        print(f"Saturation change failed. Expected saturation {set_value}, read saturation {saturation}")
         quit()
 
     print("Hue change OK")
@@ -235,7 +239,7 @@ async def test_service_commands(client):
         
     print("Number of leds change OK")
 
-    set_value= bytearray([0x10, 0x00, 0x00, 0x00])    
+    set_value= bytearray([0x20, 0x00, 0x00, 0x00])    
     # Change the captouch threshold
     await client.write_gatt_char(gemma_characteristics["CAPTOUCH_THRESHOLD"]["uuid"], set_value)
     captouch_thld = await client.read_gatt_char(gemma_characteristics["CAPTOUCH_THRESHOLD"]["uuid"])
@@ -281,17 +285,18 @@ async def main():
     async with bleak.BleakClient(device) as client:
 
 
-
         
-        '''await test_alarm(client)
+        
+        #await test_alarm(client)
         await test_fw_version(client)
         await test_hw_version(client)
         await test_device_control("CENTER", client)
         await test_device_control("LEFT", client)
         await test_device_control("RIGHT", client)
-        await test_config_parameters(client)'''
-        
+        await test_config_parameters(client)
         await test_service_commands(client)
+        
+        
 
         # wait for 1 seconds
         await asyncio.sleep(1.0)

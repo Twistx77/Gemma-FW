@@ -1,4 +1,5 @@
 #include "ConfigManager.h"
+#include <Arduino.h>
 
 nvs_handle_t ConfigManager::nvsHandle;
 
@@ -67,7 +68,7 @@ uint32_t ConfigManager::getParameter(ConfigParameter parameter)
     // Return the default value if the parameter is not found
     return parameter.defaultValue;
   }
-  return value;
+    return value;
 }
 
 bool ConfigManager::setParameter(ConfigParameter parameter, uint32_t value)
@@ -75,6 +76,7 @@ bool ConfigManager::setParameter(ConfigParameter parameter, uint32_t value)
   // Check if the value is within the limits
   if (value < parameter.minValue || value > parameter.maxValue)
   {
+    Serial.println("Value out of range. Value: " + String(value) + " Min: " + String(parameter.minValue) + " Max: " + String(parameter.maxValue));
     return false;
   }
   esp_err_t err = nvs_set_u32(ConfigManager::nvsHandle, parameter.key, value);
@@ -90,5 +92,6 @@ bool ConfigManager::setParameter(ConfigParameter parameter, uint32_t value)
     // Handle the error
     return false;
   }
-  return true;
+
+    return true;
 }

@@ -269,16 +269,19 @@ class CallbackConfiguration : public BLECharacteristicCallbacks
 {
   void onWrite(BLECharacteristic *pCharacteristic)
   {
-    ParameterID parameter = (ParameterID)(pCharacteristic->getUUID().toString()[35] - '0' + ID_HW_VERSION); // UUIDLastChar - 30 = 1
+    ParameterID parameter = (ParameterID)(pCharacteristic->getUUID().toString()[35] - '0'); // UUIDLastChar - 30 = 1
 
     if (parameter > ID_HW_VERSION || parameter < MAX_CONFIG_PARAMETERS)
     {
-      configManager.setParameter(DefaultParametersConfig[parameter], pCharacteristic->getData()[0]);
+
+      uint32_t new_value = pCharacteristic->getData()[0] | pCharacteristic->getData()[1] << 8 | pCharacteristic->getData()[2] << 16 | pCharacteristic->getData()[3] << 24;  
+      configManager.setParameter(DefaultParametersConfig[parameter], new_value);
     }
   }
   void onRead(BLECharacteristic *pCharacteristic)
   {
-    ParameterID parameter = (ParameterID)(pCharacteristic->getUUID().toString()[35] - '0' + ID_HW_VERSION); // UUIDLastChar - 30 = 1
+    ParameterID parameter = (ParameterID)(pCharacteristic->getUUID().toString()[35] - '0'); // UUIDLastChar - 30 = 1
+  
     if (parameter > ID_HW_VERSION || parameter < MAX_CONFIG_PARAMETERS)
     {      
       uint32_t value = configManager.getParameter(DefaultParametersConfig[parameter]);
@@ -292,9 +295,7 @@ class CallbackServiceCommands : public BLECharacteristicCallbacks
 
   void onWrite(BLECharacteristic *pCharacteristic)
   {
-    uint8_t uUIDLastChars = pCharacteristic->getUUID().toString()[35] - '0' + 16 + pCharacteristic->getUUID().toString()[34] - '0'; // UUIDLastChars 
-    
-
+    uint8_t uUIDLastChars = (pCharacteristic->getUUID().toString()[34] - '0') * 16  + pCharacteristic->getUUID().toString()[35] - '0'; // Last two chars of the UUIDLastChars 
     switch (uUIDLastChars)
     {
     case 1: // '01' Reset device
@@ -316,7 +317,7 @@ class CallbackServiceCommands : public BLECharacteristicCallbacks
     case 17: // '11' Captouch threshold
     case 18: // '12' Encoder Resolution
     {
-      uint8_t parameterID = uUIDLastChars - 16 + (ID_LEDS_STRIP-1);
+      uint8_t parameterID = uUIDLastChars - 16 + (ID_LEDS_STRIP);
       configManager.setParameter(DefaultParametersConfig[parameterID], pCharacteristic->getData()[0]);
     }
     break;
@@ -329,15 +330,14 @@ class CallbackServiceCommands : public BLECharacteristicCallbacks
   }
   void onRead(BLECharacteristic *pCharacteristic)
   {
-    uint8_t uUIDLastChars = pCharacteristic->getUUID().toString()[35] - '0' + 16 + pCharacteristic->getUUID().toString()[34] - '0'; // UUIDLastChars 
- 
+    uint8_t uUIDLastChars = (pCharacteristic->getUUID().toString()[34] - '0') * 16  + pCharacteristic->getUUID().toString()[35] - '0'; // Last two chars of the UUIDLastChars 
     switch (uUIDLastChars)
     {
     case 16: // '10' Set number of LEDS in strip
     case 17: // '11' Captouch threshold
     case 18: // '12' Encoder Resolution
     {
-      uint8_t parameterID = uUIDLastChars - 16 + (ID_LEDS_STRIP-1);
+      uint8_t parameterID = uUIDLastChars - 16 + (ID_LEDS_STRIP);
       uint32_t value = configManager.getParameter(DefaultParametersConfig[parameterID]);
       pCharacteristic->setValue(value);
     }

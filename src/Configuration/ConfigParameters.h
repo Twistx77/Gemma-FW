@@ -33,12 +33,12 @@ enum ParameterID
 const ConfigParameter DefaultParametersConfig[] = {
 
     {"HW_VER", 0, 255, 3},
-    {"NL_LEFT", 4, 0, 60},
-    {"NL_RIGHT", 4, 0, 60},
+    {"NL_LEFT", 4, 1, 60},
+    {"NL_RIGHT", 4, 1, 60},
     {"SAT_ENC", 60, 1, 100},
     {"LEDS_STRIP", 16, 0, 150},
-    {"TOUCH_THD", 20, 99, 90},
-    {"ENC_RES", 10, 65535, 255}
+    {"TOUCH_THD", 90, 20, 99},
+    {"ENC_RES", 4, 1, 255}
     };
 
 #endif // CONFIG_PARAMETERS_H_
