@@ -9,7 +9,7 @@ static BluetoothSerial SerialBT;
 #endif
 
 #define FW_VERSION "0.5.9.2302121242"
-#define HW_VERSION "0.3.0"
+#define HW_VERSION "3"
 
 
 #define CAPTOUCH_THLD_BOOT 6

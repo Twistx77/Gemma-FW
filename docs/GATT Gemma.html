@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <title>GATT Characteristics Summary</title>
+        <style>
+/* From extension vscode.github */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.vscode-dark img[src$=\#gh-light-mode-only],
+.vscode-light img[src$=\#gh-dark-mode-only] {
+	display: none;
+}
+
+</style>
+        
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+<style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', system-ui, 'Ubuntu', 'Droid Sans', sans-serif;
+                font-size: 10px;
+                line-height: 1.6;
+            }
+        </style>
+        <style>
+.task-list-item {
+    list-style-type: none;
+}
+
+.task-list-item-checkbox {
+    margin-left: -20px;
+    vertical-align: middle;
+    pointer-events: none;
+}
+</style>
+        
+    </head>
+    <body class="vscode-body vscode-light">
+        <h1 id="gatt-characteristics-summary">GATT Characteristics Summary</h1>
+<p>The following code defines several arrays of GATT characteristics for different services.
+<br />
+<br /></p>
+<h1 id="device-info-service-characteristics">Device Info Service Characteristics</h1>
+<hr>
+<h3 id="fw-version"><strong>FW Version:</strong></h3>
+<ul>
+<li><strong>UUID:</strong> <code>99704284-4d6b-4812-a599-cfd570230c01</code></li>
+<li><strong>Properties:</strong> Read Only</li>
+<li><strong>Description:</strong> Firmware version of the device</li>
+<li><strong>Format:</strong> String -&gt; &quot;MM.mm.pp.bbbbbbbbb&quot; (M = Major, m = minor, p = patch, b = build number based on date and time YYMMDDHHmm )</li>
+<li><strong>Range:</strong> 0-99 for each field and 0-999999999 for build number</li>
+</ul>
+<hr>
+<h3 id="hw-version"><strong>HW Version:</strong></h3>
+<ul>
+<li><strong>UUID:</strong> <code>99704284-4d6b-4812-a599-cfd570230c02</code></li>
+<li><strong>Properties:</strong> Read Only</li>
+<li><strong>Description:</strong> Hardware version of the device</li>
+<li><strong>Format:</strong> String -&gt; &quot;V&quot;</li>
+</ul>
+<hr>
+<br />
+<br />
+<h1 id="control-service-characteristics">Control Service Characteristics</h1>
+<hr>
+<ul>
+<li><strong>UUID:</strong> <code>14cdad1f-1b15-41ee-9f51-d5caaf940d01</code></li>
+<li><strong>Properties:</strong> Read/Write</li>
+<li><strong>Description:</strong> Switch center</li>
+</ul>
+<hr>
+<ul>
+<li><strong>UUID:</strong> <code>14cdad1f-1b15-41ee-9f51-d5caaf940d02</code>
+<ul>
+<li><strong>Properties:</strong> Read/Write</li>
+<li><strong>Description:</strong> Switch left</li>
+</ul>
+</li>
+</ul>
+<hr>
+<ul>
+<li><strong>UUID:</strong> <code>14cdad1f-1b15-41ee-9f51-d5caaf940d03</code>
+<ul>
+<li><strong>Properties:</strong> Read/Write</li>
+<li><strong>Description:</strong> Switch right</li>
+</ul>
+</li>
+</ul>
+<hr>
+<ul>
+<li><strong>UUID:</strong> <code>14cdad1f-1b15-41ee-9f51-d5caaf940d04</code>
+<ul>
+<li><strong>Properties:</strong> Read/Write</li>
+<li><strong>Description:</strong> Color center</li>
+</ul>
+</li>
+</ul>
+<hr>
+<ul>
+<li><strong>UUID:</strong> <code>14cdad1f-1b15-41ee-9f51-d5caaf940d05</code>
+<ul>
+<li><strong>Properties:</strong> Read/Write</li>
+<li><strong>Description:</strong> Color left</li>
+</ul>
+</li>
+</ul>
+<hr>
+<ul>
+<li><strong>UUID:</strong> <code>14cdad1f-1b15-41ee-9f51-d5caaf940d06</code>
+<ul>
+<li><strong>Properties:</strong> Read/Write</li>
+<li><strong>Description:</strong> Color right</li>
+</ul>
+</li>
+</ul>
+<hr>
+<ul>
+<li><strong>UUID:</strong> <code>14cdad1f-1b15-41ee-9f51-d5caaf940d07</code>
+<ul>
+<li><strong>Properties:</strong> Read/Write</li>
+<li><strong>Description:</strong> Brightness center</li>
+</ul>
+</li>
+</ul>
+<hr>
+<ul>
+<li><strong>UUID:</strong> <code>14cdad1f-1b15-41ee-9f51-d5caaf940d08</code>
+<ul>
+<li><strong>Properties:</strong> Read/Write</li>
+<li><strong>Description:</strong> Brightness left</li>
+</ul>
+</li>
+</ul>
+<hr>
+<ul>
+<li><strong>UUID:</strong> <code>14cdad1f-1b15-41ee-9f51-d5caaf940d09</code>
+<ul>
+<li><strong>Properties:</strong> Read/Write</li>
+<li><strong>Description:</strong> Brightness right</li>
+</ul>
+</li>
+</ul>
+<hr>
+<br />
+<br />
+<h1 id="alarm-service-characteristics">Alarm Service Characteristics</h1>
+<hr>
+<ul>
+<li><strong>UUID:</strong> <code>21ec2541-a87d-45f6-a5d8-27aa9f742501</code>
+<ul>
+<li><strong>Properties:</strong> Read/Write</li>
+<li><strong>Description:</strong> Current Time</li>
+</ul>
+</li>
+</ul>
+<hr>
+<ul>
+<li><strong>UUID:</strong> <code>21ec2541-a87d-45f6-a5d8-27aa9f742502</code> to <code>21ec2541-a87d-45f6-a5d8-27aa9f742511</code>
+<ul>
+<li><strong>Properties:</strong> Read/Write</li>
+<li><strong>Description:</strong> 10 alarms, each with the following format:
+<ul>
+<li>Enabled [0]</li>
+<li>Time ON: Minutes [1], Hours [2], Weekdays [3]</li>
+<li>Time OFF: Minutes [4], Hours [5], Weekdays [6]</li>
+<li>Max Brightness: Brightness [7]</li>
+<li>Delay Max Brightness: SecondsLSB [8] SecondsMSB [9]</li>
+<li>Color: Red [10], Green [11], Blue [12], White [13]</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<hr>
+<br />
+<br />
+<h1 id="parameter-service-characteristics">Parameter Service Characteristics</h1>
+<ul>
+<li><strong>UUID:</strong> <code>f0e9cb41-1b2b-4799-ab36-0ddb25e70901</code>
+<ul>
+<li><strong>Properties:</strong> Read/Write</li>
+<li><strong>Description:</strong> Number of LEDs Night Light Left</li>
+</ul>
+</li>
+</ul>
+<hr>
+<ul>
+<li><strong>UUID:</strong> <code>f0e9cb41-1b2b-4799-ab36-0ddb25e70902</code>
+<ul>
+<li><strong>Properties:</strong> Read/Write</li>
+<li><strong>Description:</strong> Number of LEDs Night Light Right</li>
+</ul>
+</li>
+</ul>
+<hr>
+<ul>
+<li><strong>UUID:</strong> <code>f0e9cb41-1b2b-4799-ab36-0ddb25e70903</code>
+<ul>
+<li><strong>Properties:</strong> Read/Write</li>
+<li><strong>Description:</strong> Saturation value for Rotary Encoder</li>
+</ul>
+</li>
+</ul>
+<hr>
+<br />
+<br />
+<h1 id="service-commands-characteristics">Service Commands Characteristics</h1>
+<hr>
+<ul>
+<li><strong>UUID:</strong> <code>2f7980c8-28d0-4c1c-ad2c-78036e8faf01</code>
+<ul>
+<li><strong>Properties:</strong> Write Only</li>
+<li><strong>Description:</strong> Reset Device</li>
+</ul>
+</li>
+</ul>
+<hr>
+<ul>
+<li><strong>UUID:</strong> <code>2f7980c8-28d0-4c1c-ad2c-78036e8faf02</code>
+<ul>
+<li><strong>Properties:</strong> Write Only</li>
+<li><strong>Description:</strong> Go to Bootloader</li>
+</ul>
+</li>
+</ul>
+<hr>
+<ul>
+<li><strong>UUID:</strong> <code>2f7980c8-28d0-4c1c-ad2c-78036e8faf03</code>
+<ul>
+<li><strong>Properties:</strong> Write Only</li>
+<li><strong>Description:</strong> Reset to Factory Defaults</li>
+</ul>
+</li>
+</ul>
+<hr>
+<ul>
+<li><strong>UUID:</strong> <code>2f7980c8-28d0-4c1c-ad2c-78036e8faf10</code>
+<ul>
+<li><strong>Properties:</strong> Read/Write</li>
+<li><strong>Description:</strong> Number of LEDs in Strip</li>
+</ul>
+</li>
+</ul>
+<hr>
+<ul>
+<li><strong>UUID:</strong> <code>2f7980c8-28d0-4c1c-ad2c-78036e8faf11</code>
+<ul>
+<li><strong>Properties:</strong> Read/Write</li>
+<li><strong>Description:</strong> Captouch Threshold</li>
+</ul>
+</li>
+</ul>
+<hr>
+<ul>
+<li><strong>UUID:</strong> <code>2f7980c8-28d0-4c1c-ad2c-78036e8faf12</code>
+<ul>
+<li><strong>Properties:</strong> Read/Write</li>
+<li><strong>Description:</strong> Encoder Resolution</li>
+</ul>
+</li>
+</ul>
+<hr>
+<br />
+<br />
+<h1 id="parameter-service-characteristics">Parameter Service Characteristics</h1>
+<ul>
+<li><strong>UUID:</strong> <code>f0e9cb41-1b2b-4799-ab36-0ddb25e70901</code>
+<ul>
+<li><strong>Properties:</strong> Read/Write</li>
+<li><strong>Description:</strong> Number of LEDs Night Light Left</li>
+</ul>
+</li>
+</ul>
+<hr>
+<ul>
+<li><strong>UUID:</strong> <code>f0e9cb41-1b2b-4799-ab36-0ddb25e70902</code>
+<ul>
+<li><strong>Properties:</strong> Read/Write</li>
+<li><strong>Description:</strong> Number of LEDs Night Light Right</li>
+</ul>
+</li>
+</ul>
+<hr>
+<ul>
+<li><strong>UUID:</strong> <code>f0e9cb41-1b2b-4799-ab36-0ddb25e70903</code>
+<ul>
+<li><strong>Properties:</strong> Read/Write</li>
+<li><strong>Description:</strong> Saturation value for Rotary Encoder</li>
+</ul>
+</li>
+</ul>
+<hr>
+<br />
+<br />
+<h1 id="service-commands-characteristics">Service Commands Characteristics</h1>
+<ul>
+<li>
+<p><strong>UUID:</strong> <code>2f7980c8-28d0-4c1c-ad2c-78036e8faf01</code></p>
+<ul>
+<li><strong>Properties:</strong> Write Only</li>
+<li><strong>Description:</strong> Reset Device</li>
+</ul>
+</li>
+<li>
+<p><strong>UUID:</strong> <code>2f7980c8-28d0-4c1c-ad2c-78036e8faf02</code></p>
+<ul>
+<li><strong>Properties:</strong> Write Only</li>
+<li><strong>Description:</strong> Go to Bootloader</li>
+</ul>
+</li>
+<li>
+<p><strong>UUID:</strong> <code>2f7980c8-28d0-4c1c-ad2c-78036e8faf03</code></p>
+<ul>
+<li><strong>Properties:</strong> Write Only</li>
+<li><strong>Description:</strong> Reset to Factory Defaults</li>
+</ul>
+</li>
+<li>
+<p><strong>UUID:</strong> <code>2f7980c8-28d0-4c1c-ad2c-78036e8faf10</code></p>
+<ul>
+<li><strong>Properties:</strong> Read/Write</li>
+<li><strong>Description:</strong> Number of LEDs in Strip</li>
+</ul>
+</li>
+<li>
+<p><strong>UUID:</strong> <code>2f7980c8-28d0-4c1c-ad2c-78036e8faf11</code></p>
+<ul>
+<li><strong>Properties:</strong> Read/Write</li>
+<li><strong>Description:</strong> Captouch Threshold</li>
+</ul>
+</li>
+<li>
+<p><strong>UUID:</strong> <code>2f7980c8-28d0-4c1c-ad2c-78036e8faf12</code></p>
+<ul>
+<li><strong>Properties:</strong> Read/Write</li>
+<li><strong>Description:</strong> Encoder Resolution</li>
+</ul>
+</li>
+</ul>
+
+        
+        
+    </body>
+    </html>

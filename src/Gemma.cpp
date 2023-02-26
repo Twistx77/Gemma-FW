@@ -58,8 +58,15 @@ void setup()
   // Strip initialization
   MWST_Initialize();
 
-  uint32_t bootloader_enable = configManager.getParameter(DefaultParametersConfig[ID_BOOTLOADER_ENABLED]);
 
+  // Check if the bootloader has to be enabled
+  uint32_t bootloader_enable = configManager.getParameter(DefaultParametersConfig[ID_BOOTLOADER_ENABLED]);
+  // If the bootloader is enabled, clear the flag
+  if (bootloader_enable == 1)
+  {
+    configManager.setParameter(DefaultParametersConfig[ID_BOOTLOADER_ENABLED], 0);
+  }
+  
   // Check if wifi update has to be started
   if (touchRead(PIN_CENTER_TS_DEFAULT) < CAPTOUCH_THLD_BOOT || (digitalRead(ROTARY_ENCODER_BUTTON_PIN) == LOW) || (bootloader_enable == 1))
   {

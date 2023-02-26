@@ -120,7 +120,7 @@ class CallbackDeviceInfo : public BLECharacteristicCallbacks
     break;
 
     case '2':
-      pCharacteristic->setValue("1");
+      pCharacteristic->setValue(HW_VERSION);
       break;
 
     default:
