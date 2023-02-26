@@ -59,8 +59,7 @@ const Characteristic ControlCharacteristics[]{
 // Alarm Service Charactersitics array
 
 // Set Time Characteristic format
-// Seconds[0], Minutes[1], Hours[2], Day[3], Month[4], Year[5], Weekday[6]
-// Weekday = Monday = 0x01, Tuesday = 0x02, Wednesday = 0x04, Thursday = 0x08, Friday = 0x10, Saturday = 0x20, Sunday = 0x40
+// Seconds[0], Minutes[1], Hours[2], Day[3], Month[4], Year[5]
 
 // Alarm Characteristic format
 // Enabled[0]
@@ -69,6 +68,9 @@ const Characteristic ControlCharacteristics[]{
 // Max Brightness: Brightness[7]
 // Delay Max Brightness: SecondsLSB[8] SecondsMSB[9]
 // Color: Red[10], Green[11], Blue[12], White[13]
+// Weekday = Monday = 0x01, Tuesday = 0x02, Wednesday = 0x04, Thursday = 0x08, Friday = 0x10, Saturday = 0x20, Sunday = 0x40
+
+
 const Characteristic AlarmCharacteristics[]{
     {"21ec2541-a87d-45f6-a5d8-27aa9f742501", ALARM_SERVICE_UUID, READ_WRITE}, // Current Time
     {"21ec2541-a87d-45f6-a5d8-27aa9f742502", ALARM_SERVICE_UUID, READ_WRITE}, // Alarm 1

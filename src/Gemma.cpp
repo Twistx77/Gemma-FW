@@ -66,7 +66,7 @@ void setup()
   {
     configManager.setParameter(DefaultParametersConfig[ID_BOOTLOADER_ENABLED], 0);
   }
-  
+
   // Check if wifi update has to be started
   if (touchRead(PIN_CENTER_TS_DEFAULT) < CAPTOUCH_THLD_BOOT || (digitalRead(ROTARY_ENCODER_BUTTON_PIN) == LOW) || (bootloader_enable == 1))
   {
@@ -92,7 +92,7 @@ void setup()
   HMIM_Initialize();
 
   xTaskCreate(HMI_Task, "HMI_Task", 10000, NULL, 1, &HMITaskHandle);
-  xTaskCreate(AlarmsTask, "AlarmsTask", 10000, NULL, 1, &AlarmsTaskHandle);
+  xTaskCreate(AlarmsTask, "AlarmsTask", 10000, NULL, 5, &AlarmsTaskHandle);
   
   // Turn off Signage LED to indicate that the device is ready
   digitalWrite(PIN_LED_DEFAULT, LOW);

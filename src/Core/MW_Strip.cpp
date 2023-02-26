@@ -136,7 +136,6 @@ void MWST_Initialize()
   uint8_t ledsNightLightLeft = (uint8_t)configManager.getParameter(DefaultParametersConfig[ID_LEDS_NL_LEFT]);
   uint8_t ledsNightLightRight = (uint8_t)configManager.getParameter(DefaultParametersConfig[ID_LEDS_NL_RIGHT]);
 
-  Serial.println ("LEDs in strip: " + String(ledsInStrip));
 
   strips[STRIP_CENTER].stripType = STRIP_CENTER;
   strips[STRIP_CENTER].currentState = MWST_DISABLED;
@@ -176,7 +175,6 @@ void MWST_Initialize()
   stripHW =  new NeoPixelBrightnessBus<NeoRgbwFeature, Neo800KbpsMethod> (ledsInStrip, PIN_STRIP_DEFAULT);
 
   if (stripHW == NULL) {
-        Serial.println("OUT OF MEMORY");
         return;
     }
     
@@ -318,7 +316,6 @@ void MWST_SetStripState(uint8_t stripType, bool state, uint8_t typeOfEffect)
     break;
 
   default:
-    Serial.println("Unknown Strip Type " + String(stripType));
     return;
     break;
   }
