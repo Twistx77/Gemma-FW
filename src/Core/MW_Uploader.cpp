@@ -155,6 +155,8 @@ void MWUP_EnterBootloaderMode()
   const char *ssid = "Gemma";
   const char *password = "123456789";
 
+
+  Serial.print("Starting Bootloader Mode ... ");
   // CCreate software Access Point
   WiFi.softAP(ssid, password);
   Serial.println();

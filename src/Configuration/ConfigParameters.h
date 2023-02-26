@@ -25,7 +25,8 @@ enum ParameterID
     ID_SATURATION_ENCODER,
     ID_LEDS_STRIP,
     ID_TOUCH_THRESHOLD,
-    ID_ENCODER_RESOLUTION,    
+    ID_ENCODER_RESOLUTION,
+    ID_BOOTLOADER_ENABLED,    
     MAX_CONFIG_PARAMETERS
 };
 
@@ -38,7 +39,8 @@ const ConfigParameter DefaultParametersConfig[] = {
     {"SAT_ENC", 60, 1, 100},
     {"LEDS_STRIP", 16, 0, 150},
     {"TOUCH_THD", 90, 20, 99},
-    {"ENC_RES", 4, 1, 255}
+    {"ENC_RES", 4, 1, 255},
+    {"BOOT_EN", 0, 0, 1}
     };
 
 #endif // CONFIG_PARAMETERS_H_

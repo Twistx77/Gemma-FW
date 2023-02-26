@@ -302,17 +302,15 @@ class CallbackServiceCommands : public BLECharacteristicCallbacks
       ESP.restart();
       break;
 
-    case 2: // '02' Go to Bootloader
-      MWST_ToggleStripState(STRIP_CENTER);
-      MWST_SetBrightness(STRIP_CENTER, 100);
-      MWST_SetStripColor(STRIP_CENTER, RgbwColor(0x30, 0, 0x30));
-      MWUP_EnterBootloaderMode();
+    case 2: // '02' Bootloader
+      configManager.setParameter(DefaultParametersConfig[ID_BOOTLOADER_ENABLED], pCharacteristic->getData()[0]); // Enable Bootloader on next reset
+      ESP.restart();
       break;
 
     case 3: // '03' Reset Parameters to default
       configManager.resetToDefault();
       break;
-
+    
     case 16: // '10' Set number of LEDS in strip
     case 17: // '11' Captouch threshold
     case 18: // '12' Encoder Resolution

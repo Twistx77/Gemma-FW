@@ -52,14 +52,16 @@ void setup()
   ConfigManager configManager = ConfigManager::getInstance();
   configManager.initialize();
 
-  
+  // Set encoder button as input pull up to detect bootloader mode activation if the button is pressed
   pinMode(ROTARY_ENCODER_BUTTON_PIN, INPUT_PULLUP);
 
   // Strip initialization
   MWST_Initialize();
 
+  uint32_t bootloader_enable = configManager.getParameter(DefaultParametersConfig[ID_BOOTLOADER_ENABLED]);
+
   // Check if wifi update has to be started
-  if (touchRead(PIN_CENTER_TS_DEFAULT) < CAPTOUCH_THLD_BOOT || (digitalRead(ROTARY_ENCODER_BUTTON_PIN) == LOW))
+  if (touchRead(PIN_CENTER_TS_DEFAULT) < CAPTOUCH_THLD_BOOT || (digitalRead(ROTARY_ENCODER_BUTTON_PIN) == LOW) || (bootloader_enable == 1))
   {
     MWST_ToggleStripState(STRIP_CENTER);
     MWST_SetBrightness(STRIP_CENTER, 100);
@@ -69,9 +71,7 @@ void setup()
   }
   
   // Initialize Alarms Manager
-  alarmsManager.initialize();
-
-  
+  alarmsManager.initialize();  
 
 #ifndef BT_DEBUG
   // Initialize BLE
