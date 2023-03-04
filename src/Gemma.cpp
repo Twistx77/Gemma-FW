@@ -91,8 +91,8 @@ void setup()
   // HMI Interface
   HMIM_Initialize();
 
-  xTaskCreate(HMI_Task, "HMI_Task", 10000, NULL, 1, &HMITaskHandle);
-  xTaskCreate(AlarmsTask, "AlarmsTask", 10000, NULL, 5, &AlarmsTaskHandle);
+  xTaskCreate(HMI_Task, "HMI_Task", 4096, NULL, 10, &HMITaskHandle);
+  xTaskCreate(AlarmsTask, "AlarmsTask", 2048, NULL, 2, &AlarmsTaskHandle);
   
   // Turn off Signage LED to indicate that the device is ready
   digitalWrite(PIN_LED_DEFAULT, LOW);

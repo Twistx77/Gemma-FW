@@ -52,7 +52,8 @@ gemma_services = {
 
 white_device_address = "E8:31:CD:6E:DC:6E"
 dev_board_address = "58:BF:25:38:EF:32"
-
+cyrils_bedroom_address = "E8:31:CD:6E:DB:DE"
+ 
 # Finds all devices with a string in the name and creates a dictionary with the name and address
 
 
@@ -183,8 +184,9 @@ async def test_alarm(client):
     # Color: Red[10], Green[11], Blue[12], White[13]
     
     current_time = datetime.datetime.now()
-    
-    set_alarm = bytearray([0x01, current_time.minute+1,  current_time.hour, 0x7F, current_time.minute+2, current_time.hour, 0x7F, 0xFF, 30, 0x00, 0x50, 0xF0, 0xFF, 0x00])
+        
+    #set_alarm = bytearray([0x01, current_time.minute,  current_time.hour, 0x7F, current_time.minute+5, current_time.hour, 0x7F, 0xFF, 255, 0x00, 0x00, 0xFF, 0x00, 0x00])
+    set_alarm = bytearray([0x01, 0,  8, 0x7F, 30, 8, 0x7F, 0xFF, 255, 0x00, 0x00, 0xFF, 0x00, 0x00])
     await client.write_gatt_char(gemma_characteristics["ALARM_1"]["uuid"], set_alarm)
     read_alarm = await client.read_gatt_char(gemma_characteristics["ALARM_1"]["uuid"])
     if read_alarm != set_alarm:
@@ -282,20 +284,25 @@ async def main():
     # connect to device
     device = dev_board_address
     device = white_device_address
+    device = cyrils_bedroom_address
     async with bleak.BleakClient(device) as client:
 
 
         
         
-        #await test_alarm(client)
-        await test_fw_version(client)
+        await test_alarm(client)
+        '''await test_fw_version(client)
         await test_hw_version(client)
         await test_device_control("CENTER", client)
         await test_device_control("LEFT", client)
         await test_device_control("RIGHT", client)
         await test_config_parameters(client)
-        await test_service_commands(client)
+        await test_service_commands(client)'''
         
+        
+        # Read number of LEDs in strip
+        #await client.write_gatt_char(gemma_characteristics["RESET_DEVICE"]["uuid"], bytearray([0x01, 0x00, 0x00, 0x00])) #0x10 is the default number of leds
+    
         
 
         # wait for 1 seconds

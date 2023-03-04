@@ -48,15 +48,15 @@ enum Alarm
 {
     ALARM_1 = 0,
     ALARM_2 = 1,
-    ALARM_3 = 3,
-    ALARM_4 = 4,
-    ALARM_5 = 5,
-    ALARM_6 = 6,
-    ALARM_7 = 7,
-    ALARM_8 = 8,
-    ALARM_9 = 9,
-    ALARM_10 = 10,
-    ALARMS_MAX = 11
+    ALARM_3 = 2,
+    ALARM_4 = 3,
+    ALARM_5 = 4,
+    ALARM_6 = 5,
+    ALARM_7 = 6,
+    ALARM_8 = 7,
+    ALARM_9 = 8,
+    ALARM_10 = 9,
+    ALARMS_MAX = 10
 };
 
 class AlarmsManager
@@ -72,7 +72,6 @@ public:
 
 private:
     PCF85063A rtc;
-    AlarmParameters alarms[ALARMS_MAX - 1];
     uint16_t secondsToFullBrightness = 0;
     uint8_t brightnessIncrement = 0;
     uint8_t alarmBrightness  = 0;

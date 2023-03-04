@@ -39,7 +39,7 @@ touch_pad_t sensorsInput[] = {TOUCH_PAD_NUM7, TOUCH_PAD_NUM2, TOUCH_PAD_NUM0}; /
 
 static float touchThresholds[MAX_TOUCH_SENSORS] = {0xFFFF, 0xFFFF, 0xFFFF}; // Started at Max to be adjusted after booting
 
-AiEsp32RotaryEncoder rotaryEncoder = AiEsp32RotaryEncoder(ROTARY_ENCODER_A_PIN, ROTARY_ENCODER_B_PIN, ROTARY_ENCODER_BUTTON_PIN, -1, ROTARY_ENCODER_STEPS);
+AiEsp32RotaryEncoder rotaryEncoder;
 
 uint8_t rotaryMode = ROTARY_BRIGHTNESS_MODE;
 
@@ -166,6 +166,8 @@ void HMIM_Initialize()
 
     colorSaturationEncoder = (uint8_t)configManager.getParameter(DefaultParametersConfig[ID_SATURATION_ENCODER]) / 100.0;
     float capTouchThreshold = (uint8_t)configManager.getParameter(DefaultParametersConfig[ID_TOUCH_THRESHOLD])/100.0;
+    uint8_t encoderSteps = (uint8_t)configManager.getParameter(DefaultParametersConfig[ID_ENCODER_RESOLUTION]);
+    
 
     // Initialize Touch Sensors
     touch_pad_init();
@@ -187,6 +189,8 @@ void HMIM_Initialize()
 
         touchThresholds[sensor] = touchValue * capTouchThreshold;
     }
+
+    rotaryEncoder = AiEsp32RotaryEncoder(ROTARY_ENCODER_A_PIN, ROTARY_ENCODER_B_PIN, ROTARY_ENCODER_BUTTON_PIN, -1, encoderSteps);
 
     rotaryEncoder.begin();
     rotaryEncoder.setup(readEncoderISR);
@@ -256,11 +260,12 @@ void HMIM_ProcessHMI()
 {
     for (uint8_t sensorType = 0; sensorType < (sizeof(touchSensorTypes) / sizeof(touchSensorTypes[0])); sensorType++)
     {
+        //Serial.print("L"+sensorType);
         processTouchInputs();
         /* if (touchSensorsEvents[sensorType] == LONG_TOUCH_EVENT)
           {
               MWST_IncreaseStripIlumination(sensorType, 1);
           }*/
-    }
+    }    
     MWIH_ReadRotaryEncoder();
 }
