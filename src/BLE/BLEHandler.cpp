@@ -146,19 +146,16 @@ class CallbackControl : public BLECharacteristicCallbacks
     }
     // Brightness
     else if (stripType > 5 & stripType <= 8)
-    {
-      
+    {      
       stripType -= 6;
       MWST_SetBrightness(stripType, pCharacteristic->getData()[0]);
       return;
-
     }
 
     // State
     uint8_t *state = pCharacteristic->getData();
 
     MWST_SetStripState(stripType, (state[0] == 1) ? MWST_ENABLED : MWST_DISABLED, EFFECT_FADE);
-
   } // onWrite
 
   void onRead(BLECharacteristic *pCharacteristic)
@@ -294,7 +291,6 @@ class CallbackConfiguration : public BLECharacteristicCallbacks
 
 class CallbackServiceCommands : public BLECharacteristicCallbacks
 {
-
   void onWrite(BLECharacteristic *pCharacteristic)
   {
     uint8_t uUIDLastChars = (pCharacteristic->getUUID().toString()[34] - '0') * 16  + pCharacteristic->getUUID().toString()[35] - '0'; // Last two chars of the UUIDLastChars 
@@ -318,7 +314,8 @@ class CallbackServiceCommands : public BLECharacteristicCallbacks
     case 18: // '12' Encoder Resolution
     {
       uint8_t parameterID = uUIDLastChars - 16 + (ID_LEDS_STRIP);
-      configManager.setParameter(DefaultParametersConfig[parameterID], pCharacteristic->getData()[0]);
+      uint32_t new_value = pCharacteristic->getData()[0] | pCharacteristic->getData()[1] << 8 | pCharacteristic->getData()[2] << 16 | pCharacteristic->getData()[3] << 24;  
+      configManager.setParameter(DefaultParametersConfig[parameterID], new_value);
     }
     break;
 

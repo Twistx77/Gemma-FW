@@ -72,6 +72,7 @@ public:
 
 private:
     PCF85063A rtc;
+    AlarmParameters alarms[ALARMS_MAX];
     uint16_t secondsToFullBrightness = 0;
     uint8_t brightnessIncrement = 0;
     uint8_t alarmBrightness  = 0;

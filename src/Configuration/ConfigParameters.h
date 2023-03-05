@@ -37,7 +37,7 @@ const ConfigParameter DefaultParametersConfig[] = {
     {"NL_LEFT", 4, 1, 60},
     {"NL_RIGHT", 4, 1, 60},
     {"SAT_ENC", 60, 1, 100},
-    {"LEDS_STRIP", 16, 0, 150},
+    {"LEDS_STRIP", 16, 0, 255},
     {"TOUCH_THD", 90, 20, 99},
     {"ENC_RES", 4, 1, 255},
     {"BOOT_EN", 0, 0, 1}

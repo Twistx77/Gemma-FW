@@ -132,7 +132,7 @@ void MWST_Initialize()
 {
   ConfigManager configManager = ConfigManager::getInstance();
 
-  uint8_t ledsInStrip = (uint8_t)configManager.getParameter(DefaultParametersConfig[ID_LEDS_STRIP]);
+  uint16_t ledsInStrip = (uint16_t)configManager.getParameter(DefaultParametersConfig[ID_LEDS_STRIP]);
   uint8_t ledsNightLightLeft = (uint8_t)configManager.getParameter(DefaultParametersConfig[ID_LEDS_NL_LEFT]);
   uint8_t ledsNightLightRight = (uint8_t)configManager.getParameter(DefaultParametersConfig[ID_LEDS_NL_RIGHT]);
 
@@ -373,8 +373,12 @@ void MWST_IncreaseStripIlumination(uint8_t stripType, uint8_t steps)
     ; // Wait until the step time delay has passed.
   lastStepTime = millis();
 
-  if ((strips[stripType].brightnessDir == INCREASE_BRIGHTNESS) && (strips[stripType].currentBrightness < (MAX_BRIGHTNESS - steps)))
+  //if ((strips[stripType].brightnessDir == INCREASE_BRIGHTNESS) && (strips[stripType].currentBrightness < (MAX_BRIGHTNESS - steps)))
+
+  Serial.print("Set Brightness" + String(strips[stripType].setBrightness));
+  if ((strips[stripType].setBrightness < (MAX_BRIGHTNESS / 2))  && (strips[stripType].currentBrightness < (MAX_BRIGHTNESS - steps)))
   {
+    Serial.println(" Increasing Brightness");
     strips[stripType].currentState = MWST_ENABLED;
     strips[stripType].currentBrightness += steps;
     strips[stripType].setBrightness = strips[stripType].currentBrightness;
@@ -383,8 +387,10 @@ void MWST_IncreaseStripIlumination(uint8_t stripType, uint8_t steps)
 
     stripHW->Show();
   }
-  else if ((strips[stripType].brightnessDir == DECREASE_BRIGHTNESS) && (strips[stripType].currentBrightness > 0))
+  //else if ((strips[stripType].brightnessDir == DECREASE_BRIGHTNESS) && (strips[stripType].currentBrightness > 0))
+  if ((strips[stripType].setBrightness > (MAX_BRIGHTNESS / 2))  && (strips[stripType].currentBrightness < (MAX_BRIGHTNESS - steps)))
   {
+    Serial.println(" Decreasing Brightness");
     if (strips[stripType].currentBrightness <= steps)
     {
       strips[stripType].setBrightness = 0;
