@@ -95,8 +95,8 @@ void updateStripBrightness(uint8_t strip)
     else // Decrease brightness
     {
         newBrightness = currentBrightness - TOUCH_BRIGHTNESS_STEP;
-        if (newBrightness < 0)
-            newBrightness = 0;
+        if (newBrightness < 1)
+            newBrightness = 1;
     }
 
     // Update the new brightness
@@ -201,7 +201,7 @@ void HMIM_Initialize()
     rotaryEncoder.setup(readEncoderISR);
 
     bool circleValues = false;
-    rotaryEncoder.setBoundaries(0, ROTARY_ENCODER_MAX_VALUE_BRIGHTNESS, circleValues);
+    rotaryEncoder.setBoundaries(1, ROTARY_ENCODER_MAX_VALUE_BRIGHTNESS, circleValues);
     rotaryEncoder.setEncoderValue(MWST_GetMaxBrightness());
     rotaryEncoder.encoderChanged();
     rotaryMode = ROTARY_BRIGHTNESS_MODE;
@@ -220,7 +220,7 @@ void MWIH_ReadRotaryEncoder()
             if (rotaryMode == ROTARY_BRIGHTNESS_MODE)
             {
                 rotaryMode = ROTARY_COLOR_MODE;
-                rotaryEncoder.setBoundaries(0, ROTARY_ENCODER_MAX_VALUE_COLOR, false);
+                rotaryEncoder.setBoundaries(1, ROTARY_ENCODER_MAX_VALUE_COLOR, false);
                 rotaryEncoder.setEncoderValue(MWST_GetColorIndex(STRIP_CENTER));
             }
             else
