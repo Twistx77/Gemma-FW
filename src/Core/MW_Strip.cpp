@@ -32,7 +32,7 @@ MWST_TypeStripConfig strips[] = {stripCenterCfg, stripLeftCfg, stripRightCfg};
 void effectFade(MWST_TypeStripConfig *strip, uint8_t firstLED, uint8_t lastLED)
 {
 
-  uint8_t step = 5;
+  uint8_t step = 3;
   if (strip->currentState == MWST_ENABLED)
   {
     uint16_t i = 0;
@@ -239,13 +239,13 @@ bool MWST_GetState(uint8_t stripType)
 
 void MWST_SetBrightness(uint8_t stripType, uint8_t new_brightness)
 {
-
   strips[stripType].setBrightness = new_brightness;
   strips[stripType].currentBrightness = new_brightness;
   stripHW->ClearTo(strips[stripType].currentColor, strips[stripType].numLEDsStart, strips[stripType].numLEDsStop);
   stripHW->SetBrightness(strips[stripType].currentBrightness, strips[stripType].numLEDsStart, strips[stripType].numLEDsStop);
 
   stripHW->Show();
+
   if (new_brightness > 0)
   {
     strips[stripType].currentState = MWST_ENABLED;

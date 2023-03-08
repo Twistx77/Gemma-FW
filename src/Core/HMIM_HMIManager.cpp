@@ -98,12 +98,14 @@ void updateStripBrightness(uint8_t strip)
         if (newBrightness < 1)
             newBrightness = 1;
     }
-
     // Update the new brightness
     MWST_SetBrightness(strip, newBrightness);
 
     // Update encoder with new brightness so there is no "jump" in brightness
     rotaryEncoder.setEncoderValue(MWST_GetCurrentBrightness(STRIP_CENTER));
+    // Read the encoder to ignore the change since it is not an update from the user.
+    // TODO: Find a better way 
+    rotaryEncoder.encoderChanged();
 }
 
 void processTouchInputs()
@@ -127,8 +129,8 @@ void processTouchInputs()
                     if (touchSensorsEvents[sensor] == NO_EVENT)
                     {
                         touchSensorsEvents[sensor] = LONG_TOUCH_EVENT;
-                        // If current brightness is lower than 50% the brightness, increase the brightness otherwise, decrease it
-                        if (MWST_GetCurrentBrightness(sensor) <= (MAX_BRIGHTNESS / 2))
+                        // If current brightness is lower than 25% the brightness, increase the brightness otherwise, decrease it
+                        if (MWST_GetCurrentBrightness(sensor) <= (MAX_BRIGHTNESS / 4))
                             changeStripBrightnessDirection[sensor] = INCREASE;
                         else
                             changeStripBrightnessDirection[sensor] = DECREASE;
@@ -237,18 +239,20 @@ void MWIH_ReadRotaryEncoder()
         if (rotaryMode == ROTARY_BRIGHTNESS_MODE)
         {
             uint8_t brightness = encoder_value;
-            MWST_SetBrightness(STRIP_CENTER, brightness);
+            
             MWST_SetBrightness(STRIP_LEFT, brightness);
             MWST_SetBrightness(STRIP_RIGHT, brightness);
+            MWST_SetBrightness(STRIP_CENTER, brightness);
         }
         else
         {
             if (encoder_value < (ROTARY_ENCODER_MAX_VALUE_COLOR / 2))
             {
                 float hue = encoder_value / (ROTARY_ENCODER_MAX_VALUE_COLOR / 2.0);
-                MWST_SetStripColor(STRIP_CENTER, RgbwColor(HsbColor(hue, colorSaturationEncoder, 1.0f)));
+                
                 MWST_SetStripColor(STRIP_LEFT, RgbwColor(HsbColor(hue, colorSaturationEncoder, 1.0f)));
                 MWST_SetStripColor(STRIP_RIGHT, RgbwColor(HsbColor(hue, colorSaturationEncoder, 1.0f)));
+                MWST_SetStripColor(STRIP_CENTER, RgbwColor(HsbColor(hue, colorSaturationEncoder, 1.0f)));
             }
             else
             {
